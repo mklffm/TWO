@@ -1,84 +1,74 @@
-# Mira Booking - Travel Agency Website
+# Mira Booking
 
-A modern booking website for Mira Booking travel agency built with Next.js and Tailwind CSS.
+A multilingual booking application for visa services with support for English, French, and Arabic.
 
 ## Features
 
-- Responsive design for all devices
-- Interactive search and booking functionality
-- Destination listings with filtering and sorting
-- Travel packages and deals showcase
-- Modern UI with smooth animations
+- Multilingual support (English, French, Arabic)
+- Fully responsive design
+- Visa application form with dynamic requirements
+- Email notification system
+- Mobile-friendly language selector
+- RTL support for Arabic language
 
-## Prerequisites
+## Technology Stack
 
-- Node.js 18.0 or later
-- npm or yarn package manager
+- Next.js 13+ (App Router)
+- TypeScript
+- Tailwind CSS
+- React Hooks
 
-## Getting Started
+## Setup Instructions
 
-1. Clone the repository
-
+1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd mira-booking
+git clone https://github.com/mklffm/Mira-Booking.git
+cd Mira-Booking
 ```
 
-2. Install dependencies
-
+2. Install dependencies:
 ```bash
 npm install
-# or
-yarn install
 ```
 
-3. Run the development server
-
+3. Run the development server:
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Project Structure
-
-- `src/app/` - Next.js app router pages
-- `src/components/` - Reusable UI components
-- `public/` - Static assets like images
-- `tailwind.config.js` - Tailwind CSS configuration
-
-## Key Pages
-
-- Home page (`/`) - Main landing page with search and featured destinations
-- Destinations (`/destinations`) - Browse all travel destinations
-- Packages (`/packages`) - View vacation packages and deals
-- Hotels (`/hotels`) - Search and book hotels
-- Flights (`/flights`) - Search and book flights
-
-## Customization
-
-- Edit `tailwind.config.js` to customize colors, fonts, and other theme settings
-- Modify components in `src/components/` to change UI elements
-- Update or add pages in `src/app/` to create new routes
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Deployment
 
-This Next.js application can be easily deployed on platforms like Vercel:
+This project can be deployed to any hosting platform that supports Next.js applications, such as Vercel, Netlify, or a custom server.
 
+## Pushing to GitHub
+
+To push this code to your GitHub repository, follow these steps:
+
+1. Create a Personal Access Token on GitHub:
+   - Go to GitHub Settings > Developer Settings > Personal Access Tokens
+   - Generate a new token with 'repo' scope
+   - Copy the token
+
+2. Set up your Git credentials:
 ```bash
-npm run build
-# or
-yarn build
+git config --global user.name "Your GitHub Username"
+git config --global user.email "your.email@example.com"
+```
+
+3. Push to GitHub using your token:
+```bash
+git push -u origin master
+```
+When prompted for a password, use your Personal Access Token instead.
+
+Alternatively, you can use the GitHub CLI:
+```bash
+gh auth login
+gh repo create mklffm/Mira-Booking --public --source=. --push
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Unsplash](https://unsplash.com/) - for demo images 
+This project is licensed under the MIT License. 
