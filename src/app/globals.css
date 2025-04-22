@@ -1,0 +1,454 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  
+  /* Primary colors - blue dominant */
+  --primary-50: #e6f3ff;
+  --primary-100: #cce7ff;
+  --primary-200: #99cfff;
+  --primary-300: #66b7ff;
+  --primary-400: #339fff;
+  --primary-500: #0087ff;
+  --primary-600: #006ccc;
+  --primary-700: #005199;
+  --primary-800: #003666;
+  --primary-900: #001b33;
+  
+  /* Secondary colors - green accents */
+  --secondary-50: #e6fff0;
+  --secondary-100: #ccffe0;
+  --secondary-200: #99ffc2;
+  --secondary-300: #66ffa3;
+  --secondary-400: #33ff85;
+  --secondary-500: #00ff66;
+  --secondary-600: #00cc52;
+  --secondary-700: #00993d;
+  --secondary-800: #006629;
+  --secondary-900: #003314;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  font-family: 'Inter', sans-serif;
+}
+
+@layer components {
+  .btn {
+    @apply px-6 py-2 rounded-lg font-medium transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:from-primary-700 hover:to-secondary-700;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400;
+  }
+  
+  .btn-outline {
+    @apply border border-primary-600 text-primary-600 hover:bg-primary-50 px-6 py-2 rounded-lg font-medium;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+  
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+  }
+  
+  .select {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-xl;
+  }
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+.slide-in-bottom {
+  animation: slideInBottom 0.8s ease-out forwards;
+}
+
+.scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.bounce-in {
+  animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, var(--primary-500), var(--secondary-500));
+}
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #818cf8;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInBottom {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Stagger animation delay utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Direction-aware hover effects */
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
+}
+
+/* Responsive font size adjustments */
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
+  }
+}
+
+/* RTL support for Arabic */
+[dir="rtl"] .slide-in-left {
+  animation-name: slideInRight;
+}
+
+[dir="rtl"] .slide-in-right {
+  animation-name: slideInLeft;
+}
+
+/* Arabic text styling and RTL adjustments */
+.rtl {
+  font-family: 'Tajawal', 'Inter', sans-serif;
+  direction: rtl;
+}
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .ml-1, 
+[dir="rtl"] .ml-2, 
+[dir="rtl"] .ml-3, 
+[dir="rtl"] .ml-4 {
+  margin-left: 0;
+}
+
+[dir="rtl"] .ml-1 {
+  margin-right: 0.25rem;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .ml-3 {
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .ml-4 {
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .mr-1, 
+[dir="rtl"] .mr-2, 
+[dir="rtl"] .mr-3, 
+[dir="rtl"] .mr-4 {
+  margin-right: 0;
+}
+
+[dir="rtl"] .mr-1 {
+  margin-left: 0.25rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .mr-3 {
+  margin-left: 0.75rem;
+}
+
+[dir="rtl"] .mr-4 {
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .account-toggle-btn svg {
+  transform: scaleX(-1);
+}
+
+/* Enhanced float animations for RTL */
+[dir="rtl"] .float {
+  animation-direction: alternate-reverse;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    @apply bg-gray-900/30 border-gray-800/30;
+  }
+}
+
+.account-toggle {
+  @apply flex rounded-lg bg-gray-100 p-1;
+}
+
+.account-toggle-btn {
+  @apply flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all duration-300;
+}
+
+.account-toggle-btn svg {
+  @apply w-5 h-5;
+}
+
+.account-toggle-btn.active {
+  @apply bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-md;
+}
+
+.account-toggle-btn:not(.active) {
+  @apply text-gray-600 hover:text-primary-600;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  font-family: 'Tajawal', sans-serif;
+  text-align: right;
+}
+
+[dir="rtl"] .hero-title,
+[dir="rtl"] .hero-subtitle,
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] p {
+  font-family: 'Tajawal', sans-serif;
+}
+
+/* Add rule to preserve Mira Booking logo direction */
+[dir="rtl"] .site-logo {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] .hero-section {
+  direction: rtl;
+}
+
+[dir="rtl"] .navbar-items {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .testimonial-card {
+  direction: rtl;
+}
+
+[dir="rtl"] .cta-section {
+  direction: rtl;
+}
+
+/* Arabic text specific adjustments */
+.arabic-text {
+  font-family: 'Tajawal', sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+/* RTL support for visa service cards */
+[dir="rtl"] .service-card {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .service-card .learn-more svg {
+  transform: rotate(180deg);
+  margin-right: 0.25rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .navbar-items {
+  flex-direction: row-reverse;
+}
+
+/* Add blue-green gradient effects */
+.bg-blue-green-gradient {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+}
+
+/* Service card hover effects */
+.service-card .learn-more {
+  @apply transition-all duration-300;
+}
+
+.service-card:hover .learn-more {
+  @apply text-secondary-600;
+}
+
+/* Services page tabs */
+.tabs-container button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tabs-container button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.25rem;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.tabs-container button:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* RTL support for tabs */
+.rtl .tabs-container button::after {
+  transform-origin: left;
+}
+
+.rtl .tabs-container button:hover::after {
+  transform-origin: right;
+}
+
+/* Service cards hover effect */
+.service-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* RTL support for service cards */
+.rtl .service-card .learn-more svg {
+  transform: rotate(180deg);
+  margin-right: 0.25rem;
+  margin-left: 0;
+} 
