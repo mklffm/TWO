@@ -1,10 +1,11 @@
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { Metadata } from 'next';
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Mira Booking',
   description: 'Visa processing service for global travelers',
 };
@@ -12,7 +13,7 @@ export const metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
@@ -60,6 +61,25 @@ export default function RootLayout({
             })();
           `}
         </Script>
+        <Script id="language-switcher" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: `
+          // Language switcher that will definitely work
+          window.switchLanguage = function(lang) {
+            console.log('Switching language to:', lang);
+            localStorage.setItem('language', lang);
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+          }
+
+          // Check for lang parameter on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            const url = new URL(window.location.href);
+            const langParam = url.searchParams.get('lang');
+            if (langParam && ['en', 'fr', 'ar'].includes(langParam)) {
+              localStorage.setItem('language', langParam);
+            }
+          });
+        `}} />
       </head>
       <body className={inter.className}>{children}</body>
     </html>

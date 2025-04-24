@@ -132,11 +132,20 @@ export const generateReceiptEmailTemplate = (data: any) => {
           Total: ${price} DZD
         </div>
         
-        <p>Please follow the instructions below to complete your application:</p>
+        <p><strong>Required Documents:</strong></p>
+        <p>Please send the following documents to complete your application:</p>
         <ol>
-          <li>Send all required documents to support@mira.dz</li>
-          <li>Include your receipt number ${receiptNumber} in the subject line</li>
-          <li>Our team will contact you within 24 hours</li>
+          <li>Passport scan (first page with photo)</li>
+          <li>ID photo with white background</li>
+          <li>Flight reservation (if available)</li>
+          <li>Hotel reservation (if available)</li>
+        </ol>
+        
+        <p><strong>How to Submit Documents:</strong></p>
+        <ol>
+          <li>Email all documents to <strong>support@mira.dz</strong></li>
+          <li>Include your receipt number <strong>${receiptNumber}</strong> in the subject line</li>
+          <li>Our team will process your application and contact you within 24 hours</li>
         </ol>
         
         <p>If you have any questions, please contact our support team at support@mira.dz or call +213 123 456 789.</p>

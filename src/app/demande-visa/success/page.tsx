@@ -1,61 +1,63 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-// Translation object
+// Define valid language types
+type LanguageKey = 'en' | 'fr' | 'ar';
+
+// Text translations
 const translations = {
   en: {
-    title: 'Visa Application Submitted',
-    subtitle: 'Thank you for your application!',
-    emailSent: 'We have sent a receipt to your email address.',
+    title: "Visa Application",
+    subtitle: "Fill out our form to apply for a visa",
+    description: "Start your visa process quickly and easily with our online application form. We'll guide you through each step of the process.",
     nextSteps: 'Next Steps',
     step1: 'Check your email for the receipt and confirmation details',
-    step2: 'Send the required documents to support@mira.dz',
+    step2: 'Send the following documents to support@mira.dz:',
+    documentList: 'Passport scan (first page), ID photo with white background, Flight and hotel reservations (if available)',
     step3: 'Include your receipt number in the email subject line',
     step4: 'Our team will process your application within the timeframe you selected',
     questions: 'If you have any questions, please contact us at:',
     backHome: 'Back to Home',
-    dashboard: 'Track Your Application'
+    dashboard: 'Track Your Application',
+    emailSent: 'Application received. Check your email for confirmation.'
   },
   fr: {
-    title: 'Demande de Visa Soumise',
-    subtitle: 'Merci pour votre demande !',
-    emailSent: 'Nous avons envoyé un reçu à votre adresse e-mail.',
+    title: "Demande de Visa",
+    subtitle: "Remplissez notre formulaire pour demander un visa",
+    description: "Commencez votre processus de visa rapidement et facilement avec notre formulaire de demande en ligne. Nous vous guiderons à chaque étape du processus.",
     nextSteps: 'Prochaines Étapes',
     step1: 'Vérifiez votre email pour le reçu et les détails de confirmation',
-    step2: 'Envoyez les documents requis à support@mira.dz',
+    step2: 'Envoyez les documents suivants à support@mira.dz:',
+    documentList: 'Scan du passeport (première page), photo d\'identité avec fond blanc, réservations de vol et d\'hôtel (si disponibles)',
     step3: 'Incluez votre numéro de reçu dans l\'objet de l\'email',
     step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné',
     questions: 'Si vous avez des questions, veuillez nous contacter à :',
     backHome: 'Retour à l\'Accueil',
-    dashboard: 'Suivre Votre Demande'
+    dashboard: 'Suivre Votre Demande',
+    emailSent: 'Demande reçue. Vérifiez votre email pour la confirmation.'
   },
   ar: {
-    title: 'تم تقديم طلب التأشيرة',
-    subtitle: 'شكرا لطلبك!',
-    emailSent: 'لقد أرسلنا إيصالًا إلى عنوان بريدك الإلكتروني.',
+    title: "طلب تأشيرة",
+    subtitle: "املأ نموذجنا للتقدم بطلب للحصول على تأشيرة",
+    description: "ابدأ عملية التأشيرة الخاصة بك بسرعة وسهولة باستخدام نموذج الطلب عبر الإنترنت. سنرشدك خلال كل خطوة من خطوات العملية.",
     nextSteps: 'الخطوات التالية',
     step1: 'تحقق من بريدك الإلكتروني للحصول على الإيصال وتفاصيل التأكيد',
-    step2: 'أرسل المستندات المطلوبة إلى support@mira.dz',
+    step2: 'أرسل المستندات التالية إلى support@mira.dz:',
+    documentList: 'مسح جواز السفر (الصفحة الأولى)، صورة شخصية بخلفية بيضاء، حجوزات الطيران والفندق (إن وجدت)',
     step3: 'قم بتضمين رقم الإيصال الخاص بك في سطر موضوع البريد الإلكتروني',
     step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته',
     questions: 'إذا كانت لديك أي أسئلة، يرجى الاتصال بنا على:',
     backHome: 'العودة إلى الصفحة الرئيسية',
-    dashboard: 'تتبع طلبك'
+    dashboard: 'تتبع طلبك',
+    emailSent: 'تم استلام الطلب. تحقق من بريدك الإلكتروني للتأكيد.'
   }
 };
 
-type TranslationLanguage = 'en' | 'fr' | 'ar';
-
 export default function ApplicationSuccessPage() {
-  const [language, setLanguage] = useState<TranslationLanguage>('en');
-  const [showDebug, setShowDebug] = useState(false);
-  const [emailInfo, setEmailInfo] = useState<any>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const t = translations[language];
+  const [language, setLanguage] = useState<LanguageKey | null>(null);
+  const t = language ? translations[language] : translations.fr;
   
   // Animation control
   const [showContent, setShowContent] = useState(false);
@@ -66,42 +68,18 @@ export default function ApplicationSuccessPage() {
     setShowContent(true);
     
     // Get language preference from localStorage if available
-    const savedLanguage = localStorage.getItem('language');
+    const savedLanguage = localStorage.getItem('language') as LanguageKey;
     if (savedLanguage && ['en', 'fr', 'ar'].includes(savedLanguage)) {
-      setLanguage(savedLanguage as TranslationLanguage);
-    }
-    
-    // Get email debugging info if available
-    const emailStatus = localStorage.getItem('emailSendStatus');
-    if (emailStatus) {
-      try {
-        setEmailInfo(JSON.parse(emailStatus));
-      } catch (e) {
-        console.error('Failed to parse email status:', e);
-      }
+      setLanguage(savedLanguage);
+    } else {
+      setLanguage('fr');
     }
   }, []);
-  
-  // Show debug panel on key sequence (press 'd' 5 times)
-  useEffect(() => {
-    let count = 0;
-    const keyHandler = (e: KeyboardEvent) => {
-      if (e.key === 'd') {
-        count++;
-        if (count >= 5) {
-          setShowDebug(true);
-          count = 0;
-        }
-        // Reset after 2 seconds
-        setTimeout(() => {
-          count = 0;
-        }, 2000);
-      }
-    };
-    
-    window.addEventListener('keydown', keyHandler);
-    return () => window.removeEventListener('keydown', keyHandler);
-  }, []);
+
+  // Don't render content until language is loaded from localStorage
+  if (language === null) {
+    return <div className="min-h-screen"></div>; // Empty container while loading
+  }
   
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -144,6 +122,7 @@ export default function ApplicationSuccessPage() {
                 </div>
                 <div className="ml-4">
                   <p className="text-base text-gray-700">{t.step2}</p>
+                  <p className="text-sm text-gray-600 mt-1">{t.documentList}</p>
                 </div>
               </div>
               
@@ -185,16 +164,6 @@ export default function ApplicationSuccessPage() {
               </Link>
             </div>
           </div>
-          
-          {/* Add the debug panel */}
-          {showDebug && emailInfo && (
-            <div className="px-8 py-6 bg-gray-100 border-t border-gray-200 text-xs font-mono">
-              <h3 className="text-sm font-bold mb-2">Email Debugging Information</h3>
-              <pre className="whitespace-pre-wrap overflow-auto max-h-40">
-                {JSON.stringify(emailInfo, null, 2)}
-              </pre>
-            </div>
-          )}
         </div>
       </div>
     </div>

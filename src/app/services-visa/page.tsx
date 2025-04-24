@@ -18,20 +18,32 @@ const visaServices = [
   {
     id: 'schengen',
     image: 'https://images.unsplash.com/photo-1519677100203-a0e668c92439?q=80&w=1000',
-    price: 25000,
     rating: 4.8,
   },
   {
     id: 'usa-canada',
     image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1000',
-    price: 45000,
     rating: 4.7,
   },
   {
     id: 'student',
     image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000',
-    price: 30000,
     rating: 4.9,
+  },
+  {
+    id: 'official-invitations',
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000',
+    rating: 4.8,
+  },
+  {
+    id: 'gulf-residence',
+    image: 'https://images.unsplash.com/photo-1519409161721-2586b83f8b3b?q=80&w=1000',
+    rating: 4.9,
+  },
+  {
+    id: 'travel-insurance',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1000',
+    rating: 4.7,
   },
 ];
 
@@ -86,7 +98,13 @@ const translations = {
     planMyTrip: "Plan My Trip",
     startVisaApplication: "Start Visa Application",
     currencyCode: "DZD",
-    currencyName: "Algerian Dinar"
+    currencyName: "Algerian Dinar",
+    officialInvitationsVisa: "Official Invitations",
+    officialInvitationsDesc: "Professional invitation letter service for business, family visits, and official purposes.",
+    gulfResidenceVisa: "Gulf Countries Residence",
+    gulfResidenceDesc: "Residence permits for Qatar, UAE, and Saudi Arabia with complete guidance and processing.",
+    travelInsurance: "Travel Insurance",
+    travelInsuranceDesc: "Comprehensive travel insurance coverage for your international trips with medical and travel protection.",
   },
   fr: {
     title: "Nos Services",
@@ -115,7 +133,13 @@ const translations = {
     planMyTrip: "Planifier Mon Voyage",
     startVisaApplication: "Commencer la Demande de Visa",
     currencyCode: "DA",
-    currencyName: "Dinar Algérien"
+    currencyName: "Dinar Algérien",
+    officialInvitationsVisa: "Invitations Officielles",
+    officialInvitationsDesc: "Service de lettre d'invitation professionnelle pour les affaires, les visites familiales et les fins officielles.",
+    gulfResidenceVisa: "Résidence dans les Pays du Golfe",
+    gulfResidenceDesc: "Permis de résidence pour le Qatar, les Émirats arabes unis et l'Arabie saoudite avec un accompagnement et un traitement complets.",
+    travelInsurance: "Assurance Voyage",
+    travelInsuranceDesc: "Couverture d'assurance voyage complète pour vos voyages internationaux avec protection médicale et de voyage.",
   },
   ar: {
     title: "خدماتنا",
@@ -144,7 +168,13 @@ const translations = {
     planMyTrip: "خطط لرحلتي",
     startVisaApplication: "بدء طلب التأشيرة",
     currencyCode: "د.ج",
-    currencyName: "دينار جزائري"
+    currencyName: "دينار جزائري",
+    officialInvitationsVisa: "الدعوات الرسمية",
+    officialInvitationsDesc: "خدمة رسائل الدعوة المهنية للأعمال والزيارات العائلية والأغراض الرسمية.",
+    gulfResidenceVisa: "الإقامة في دول الخليج",
+    gulfResidenceDesc: "تصاريح الإقامة في قطر والإمارات العربية المتحدة والمملكة العربية السعودية مع التوجيه والمعالجة الكاملة.",
+    travelInsurance: "التأمين على السفر",
+    travelInsuranceDesc: "تغطية تأمين سفر شاملة لرحلاتك الدولية مع حماية طبية وسفر.",
   }
 };
 
@@ -238,11 +268,6 @@ export default function ServicesPage() {
                       className="object-cover transition-transform duration-700 hover:scale-110" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <span className="inline-block px-3 py-1 bg-gradient-to-r from-primary-500 to-secondary-500 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                        {visaServices[0].price.toLocaleString()} {t.currencyCode}
-                      </span>
-                    </div>
                     <div className="absolute top-4 right-4">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
                         <span className="text-yellow-400 mr-1">★</span>
@@ -283,11 +308,6 @@ export default function ServicesPage() {
                       className="object-cover transition-transform duration-700 hover:scale-110" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <span className="inline-block px-3 py-1 bg-gradient-to-r from-primary-500 to-secondary-500 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                        {visaServices[1].price.toLocaleString()} {t.currencyCode}
-                      </span>
-                    </div>
                     <div className="absolute top-4 right-4">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
                         <span className="text-yellow-400 mr-1">★</span>
@@ -328,11 +348,6 @@ export default function ServicesPage() {
                       className="object-cover transition-transform duration-700 hover:scale-110" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
-                    <div className="absolute bottom-4 left-4">
-                      <span className="inline-block px-3 py-1 bg-gradient-to-r from-primary-500 to-secondary-500 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-                        {visaServices[2].price.toLocaleString()} {t.currencyCode}
-                      </span>
-                    </div>
                     <div className="absolute top-4 right-4">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
                         <span className="text-yellow-400 mr-1">★</span>
@@ -352,6 +367,126 @@ export default function ServicesPage() {
                       </Link>
                       <Link 
                         href="/services-visa/student" 
+                        className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
+                      >
+                        {t.learnMore}
+                        <svg className="w-4 h-4 ml-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Official Invitations Card */}
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image 
+                      src={visaServices[3].image} 
+                      alt={t.officialInvitationsVisa} 
+                      fill 
+                      className="object-cover transition-transform duration-700 hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                        <span className="text-yellow-400 mr-1">★</span>
+                        <span className="text-white text-sm">{visaServices[3].rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.officialInvitationsVisa}</h3>
+                    <p className="text-gray-600 mb-4">{t.officialInvitationsDesc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Link 
+                        href="/demande-visa?type=official-invitations" 
+                        className="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        {t.startVisaApplication}
+                      </Link>
+                      <Link 
+                        href="/services-visa/official-invitations" 
+                        className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
+                      >
+                        {t.learnMore}
+                        <svg className="w-4 h-4 ml-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Gulf Countries Residence Card */}
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image 
+                      src="https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=1000" 
+                      alt={t.gulfResidenceVisa} 
+                      fill 
+                      className="object-cover transition-transform duration-700 hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                        <span className="text-yellow-400 mr-1">★</span>
+                        <span className="text-white text-sm">{visaServices[4].rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.gulfResidenceVisa}</h3>
+                    <p className="text-gray-600 mb-4">{t.gulfResidenceDesc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Link 
+                        href="/demande-visa?type=gulf-residence" 
+                        className="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        {t.startVisaApplication}
+                      </Link>
+                      <Link 
+                        href="/services-visa/gulf-residence" 
+                        className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
+                      >
+                        {t.learnMore}
+                        <svg className="w-4 h-4 ml-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Travel Insurance Card */}
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image 
+                      src={visaServices[5].image} 
+                      alt={t.travelInsurance} 
+                      fill 
+                      className="object-cover transition-transform duration-700 hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                        <span className="text-yellow-400 mr-1">★</span>
+                        <span className="text-white text-sm">{visaServices[5].rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.travelInsurance}</h3>
+                    <p className="text-gray-600 mb-4">{t.travelInsuranceDesc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Link 
+                        href="/demande-visa?type=travel-insurance" 
+                        className="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        {t.startVisaApplication}
+                      </Link>
+                      <Link 
+                        href="/services-visa/travel-insurance" 
                         className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
                       >
                         {t.learnMore}

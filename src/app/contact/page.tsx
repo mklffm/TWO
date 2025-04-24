@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -37,6 +38,8 @@ const translations = {
     phonePlaceholder: "Enter your phone number",
     subjectPlaceholder: "What is your message about?",
     messagePlaceholder: "How can we help you?",
+    whatsappMessage: "Chat with us on WhatsApp",
+    whatsappButton: "WhatsApp Us"
   },
   fr: {
     pageTitle: "Contactez-Nous",
@@ -59,6 +62,8 @@ const translations = {
     phonePlaceholder: "Entrez votre numéro de téléphone",
     subjectPlaceholder: "Quel est le sujet de votre message?",
     messagePlaceholder: "Comment pouvons-nous vous aider?",
+    whatsappMessage: "Discutez avec nous sur WhatsApp",
+    whatsappButton: "WhatsApp"
   },
   ar: {
     pageTitle: "اتصل بنا",
@@ -81,6 +86,8 @@ const translations = {
     phonePlaceholder: "أدخل رقم هاتفك",
     subjectPlaceholder: "ما هو موضوع رسالتك؟",
     messagePlaceholder: "كيف يمكننا مساعدتك؟",
+    whatsappMessage: "تحدث معنا على واتساب",
+    whatsappButton: "تواصل عبر واتساب"
   }
 };
 
@@ -322,6 +329,20 @@ export default function ContactPage() {
                   <p>{t.phoneNumber}</p>
                   <p className="mt-1 text-sm opacity-80">{t.officeHours}</p>
                 </div>
+              </div>
+              
+              {/* WhatsApp Button */}
+              <div className="pt-4">
+                <p className="mb-3 text-sm opacity-90">{t.whatsappMessage}</p>
+                <a 
+                  href="https://wa.me/213660885339" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300"
+                >
+                  <FaWhatsapp className="text-xl" />
+                  <span>{t.whatsappButton}</span>
+                </a>
               </div>
             </div>
             

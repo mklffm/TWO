@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 // Define translation type
 type TranslationLanguage = 'en' | 'fr' | 'ar';
-type VisaType = 'tourist' | 'business' | 'student';
+type VisaType = 'tourist' | 'business' | 'student' | 'investor' | 'work';
 type ProcessingTime = 'standard' | 'expedited' | 'urgent';
 
 // Define types for form data
@@ -36,7 +36,7 @@ const translations = {
   en: {
     formTitle: 'Check Your Visa Requirements',
     b2c: 'Individual',
-    b2b: 'Travel Agency',
+    b2b: 'Company',
     b2cDescription: 'Apply for your visa directly with our easy-to-use form',
     b2bDescription: 'Get special rates for multiple visa applications',
     fullName: 'Full Name',
@@ -49,6 +49,8 @@ const translations = {
     tourist: 'Tourist Visa',
     business: 'Business Visa',
     student: 'Student Visa',
+    investor: 'Investor Residence',
+    work: 'Work Residence',
     processingTime: 'Processing Time',
     standard: 'Standard (7-10 days)',
     expedited: 'Expedited (3-5 days)',
@@ -57,8 +59,8 @@ const translations = {
     dragDrop: 'Drag and drop or click to upload',
     fileRequirements: 'PDF, JPG, JPEG, PNG (max. 5MB)',
     getQuote: 'Get Quote',
-    agencyName: 'Agency Name',
-    agencyId: 'Agency ID',
+    agencyName: 'Company Name',
+    agencyId: 'Company ID',
     bulkUpload: 'Bulk Client Upload',
     bulkUploadDescription: 'Upload multiple visa applications at once',
     clientNumber: 'Number of Clients',
@@ -82,11 +84,11 @@ const translations = {
     fullNamePlaceholder: 'John Doe',
     emailPlaceholder: 'example@email.com',
     phonePlaceholder: '+213 555 123 456',
-    agencyNamePlaceholder: 'Your Agency Name',
+    agencyNamePlaceholder: 'Your Company Name',
     agencyIdPlaceholder: 'If you have an existing ID',
-    agencyEmailPlaceholder: 'agency@email.com',
+    agencyEmailPlaceholder: 'company@email.com',
     agencyPhonePlaceholder: '+213 555 123 456',
-    optionalAgencyId: 'Optional if you\'re a new agency partner',
+    optionalAgencyId: 'Optional if you\'re a new company partner',
     sending: 'Sending...',
     clients: 'clients',
     available: 'Available',
@@ -96,7 +98,7 @@ const translations = {
   fr: {
     formTitle: 'Vérifiez vos conditions de visa',
     b2c: 'Individuel',
-    b2b: 'Agence de voyage',
+    b2b: 'Entreprise',
     b2cDescription: 'Demandez votre visa directement avec notre formulaire facile à utiliser',
     b2bDescription: 'Obtenez des tarifs spéciaux pour plusieurs demandes de visa',
     fullName: 'Nom complet',
@@ -109,6 +111,8 @@ const translations = {
     tourist: 'Visa touristique',
     business: 'Visa d\'affaires',
     student: 'Visa étudiant',
+    investor: 'Résidence Investisseur',
+    work: 'Résidence Travail',
     processingTime: 'Délai de traitement',
     standard: 'Standard (7-10 jours)',
     expedited: 'Accéléré (3-5 jours)',
@@ -117,8 +121,8 @@ const translations = {
     dragDrop: 'Glisser-déposer ou cliquer pour télécharger',
     fileRequirements: 'PDF, JPG, JPEG, PNG (max. 5Mo)',
     getQuote: 'Obtenir un devis',
-    agencyName: 'Nom de l\'agence',
-    agencyId: 'ID de l\'agence',
+    agencyName: 'Nom de l\'entreprise',
+    agencyId: 'ID de l\'entreprise',
     bulkUpload: 'Téléchargement groupé de clients',
     bulkUploadDescription: 'Téléchargez plusieurs demandes de visa à la fois',
     clientNumber: 'Nombre de clients',
@@ -142,11 +146,11 @@ const translations = {
     fullNamePlaceholder: 'Jean Dupont',
     emailPlaceholder: 'exemple@email.com',
     phonePlaceholder: '+213 555 123 456',
-    agencyNamePlaceholder: 'Nom de votre agence',
+    agencyNamePlaceholder: 'Nom de votre entreprise',
     agencyIdPlaceholder: 'Si vous avez un ID existant',
-    agencyEmailPlaceholder: 'agence@email.com',
+    agencyEmailPlaceholder: 'entreprise@email.com',
     agencyPhonePlaceholder: '+213 555 123 456',
-    optionalAgencyId: 'Optionnel si vous êtes une nouvelle agence partenaire',
+    optionalAgencyId: 'Optionnel si vous êtes une nouvelle entreprise partenaire',
     sending: 'Envoi en cours...',
     clients: 'clients',
     available: 'Disponible',
@@ -156,7 +160,7 @@ const translations = {
   ar: {
     formTitle: 'تحقق من متطلبات التأشيرة الخاصة بك',
     b2c: 'فردي',
-    b2b: 'وكالة سفر',
+    b2b: 'مؤسسة',
     b2cDescription: 'تقدم بطلب للحصول على تأشيرتك مباشرة باستخدام نموذجنا سهل الاستخدام',
     b2bDescription: 'احصل على أسعار خاصة لطلبات التأشيرات المتعددة',
     fullName: 'الاسم الكامل',
@@ -169,6 +173,8 @@ const translations = {
     tourist: 'تأشيرة سياحية',
     business: 'تأشيرة عمل',
     student: 'تأشيرة طالب',
+    investor: 'إقامة المستثمر',
+    work: 'إقامة العمل',
     processingTime: 'وقت المعالجة',
     standard: 'قياسي (7-10 أيام)',
     expedited: 'مستعجل (3-5 أيام)',
@@ -177,8 +183,8 @@ const translations = {
     dragDrop: 'اسحب وأفلت أو انقر للتحميل',
     fileRequirements: 'PDF، JPG، JPEG، PNG (بحد أقصى 5 ميجابايت)',
     getQuote: 'الحصول على عرض سعر',
-    agencyName: 'اسم الوكالة',
-    agencyId: 'معرف الوكالة',
+    agencyName: 'اسم المؤسسة',
+    agencyId: 'معرف المؤسسة',
     bulkUpload: 'تحميل العملاء بالجملة',
     bulkUploadDescription: 'قم بتحميل طلبات تأشيرة متعددة دفعة واحدة',
     clientNumber: 'عدد العملاء',
@@ -202,11 +208,11 @@ const translations = {
     fullNamePlaceholder: 'محمد أحمد',
     emailPlaceholder: 'مثال@email.com',
     phonePlaceholder: '+213 555 123 456',
-    agencyNamePlaceholder: 'اسم وكالتك',
+    agencyNamePlaceholder: 'اسم مؤسستك',
     agencyIdPlaceholder: 'إذا كان لديك معرف موجود',
-    agencyEmailPlaceholder: 'agency@email.com',
+    agencyEmailPlaceholder: 'company@email.com',
     agencyPhonePlaceholder: '+213 555 123 456',
-    optionalAgencyId: 'اختياري إذا كنت وكالة شريكة جديدة',
+    optionalAgencyId: 'اختياري إذا كنت مؤسسة شريكة جديدة',
     sending: 'جاري الإرسال...',
     clients: 'عميل',
     available: 'متاح',
@@ -243,6 +249,22 @@ const requiredDocumentsMap = {
     'Proof of financial means',
     'Accommodation details',
     'Return flight ticket'
+  ],
+  investor: [
+    'Valid passport (minimum 6 months validity)',
+    'Proof of investment funds',
+    'Business plan or investment proposal',
+    'Bank statements for the last 6 months',
+    'Property ownership documents (if applicable)',
+    'Medical insurance certificate'
+  ],
+  work: [
+    'Valid passport (minimum 6 months validity)',
+    'Employment contract',
+    'Educational certificates and qualifications',
+    'Professional licenses (if applicable)',
+    'Medical examination certificate',
+    'Police clearance certificate'
   ]
 };
 
@@ -329,8 +351,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     });
     
     // Update required documents when visa type changes
-    if (name === 'visaType' && (value === 'tourist' || value === 'business' || value === 'student')) {
-      setRequiredDocuments(requiredDocumentsMap[value]);
+    if (name === 'visaType' && (value === 'tourist' || value === 'business' || value === 'student' || value === 'investor' || value === 'work')) {
+      setRequiredDocuments(requiredDocumentsMap[value as VisaType]);
     }
     
     // Update price when processing time changes
@@ -341,6 +363,18 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     // Update price when client number changes for B2B
     if (name === 'clientNumber' && accountType === 'b2b') {
       calculatePrice();
+    }
+    
+    // Reset visa type if destination changes and current visa type is investor or work
+    // and the new destination is not Qatar or UAE
+    if (name === 'destination' && 
+        (formData.visaType === 'investor' || formData.visaType === 'work') && 
+        value !== 'Qatar' && value !== 'UAE') {
+      setFormData({
+        ...formData,
+        [name]: value,
+        visaType: 'tourist'
+      });
     }
   };
   
@@ -360,6 +394,15 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Calculate price based on selections
   const calculatePrice = () => {
     let basePrice = 7500; // Base price for standard processing
+    
+    // Adjust price based on visa type for Qatar and UAE destinations
+    if (formData.destination === 'Qatar' || formData.destination === 'UAE') {
+      if (formData.visaType === 'investor') {
+        basePrice = 15000; // Higher price for investor residence
+      } else if (formData.visaType === 'work') {
+        basePrice = 12000; // Higher price for work residence
+      }
+    }
     
     // Add processing fee if expedited or urgent
     if (accountType === 'b2c') {
@@ -501,8 +544,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
               </svg>
             </div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              {accountType === 'b2c' ? t.formTitle : 'Agency Client Import'}
-      </h2>
+              {accountType === 'b2c' ? t.formTitle : language === 'ar' ? 'استيراد عملاء المؤسسة' : language === 'fr' ? 'Importation Client Entreprise' : 'Company Client Import'}
+            </h2>
           </div>
           
       {accountType === 'b2b' && (
@@ -669,16 +712,16 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                           name="travelDate"
                           className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                           value={formData.travelDate}
-                          onChange={handleChange}
-                          required
-                        />
+                onChange={handleChange}
+                required
+              />
                       </div>
-                    </div>
-                    
+            </div>
+            
                     <div className="form-group">
                       <label htmlFor="visaType" className="block text-sm font-medium text-gray-700 mb-2">
                         {t.visaType} <span className="text-red-500">*</span>
-                      </label>
+              </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -696,6 +739,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                 <option value="tourist">{t.tourist}</option>
                 <option value="business">{t.business}</option>
                 <option value="student">{t.student}</option>
+                {(formData.destination === 'Qatar' || formData.destination === 'UAE') && (
+                  <>
+                    <option value="investor">{t.investor}</option>
+                    <option value="work">{t.work}</option>
+                  </>
+                )}
               </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -785,7 +834,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
             </div>
           </div>
         ) : (
-          /* B2B Form - Agency Form */
+          /* B2B Form - Company Form */
             <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div className="form-group">
@@ -1019,7 +1068,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                             <>
                               {formData.fullName} • {formData.nationality} • {
                                 formData.visaType === 'tourist' ? t.tourist :
-                                formData.visaType === 'business' ? t.business : t.student
+                                formData.visaType === 'business' ? t.business :
+                                formData.visaType === 'student' ? t.student :
+                                formData.visaType === 'investor' ? t.investor :
+                                formData.visaType === 'work' ? t.work : ''
                               }
                             </>
                           ) : (

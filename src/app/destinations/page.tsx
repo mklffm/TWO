@@ -1,8 +1,11 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DestinationCard from '@/components/DestinationCard';
+import { useState, useEffect } from 'react';
 
 // Sample destination data - in a real app, this would come from an API
 const allDestinations = [
@@ -81,11 +84,20 @@ const allDestinations = [
 ];
 
 export default function DestinationsPage() {
+  // Add state to manage language
+  const [language, setLanguage] = useState('en');
+  
+  // Load language preference when component mounts
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') as string;
+    if (savedLanguage && ['en', 'fr', 'ar'].includes(savedLanguage)) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+  
   return (
     <main>
-      <Header language={''} onLanguageChange={function (lang: string): void {
-        throw new Error('Function not implemented.');
-      } } />
+      <Header language={language} setLanguage={setLanguage} />
       
       {/* Hero Section */}
       <section className="relative h-[400px]">
@@ -164,7 +176,7 @@ export default function DestinationsPage() {
         </div>
       </section>
       
-      <Footer language={''} />
+      <Footer language={language} />
     </main>
   );
 } 

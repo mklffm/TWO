@@ -1,0 +1,6 @@
+# Configuration for Cloudflare Pages
+name = "mira-booking"
+compatibility_date = "2023-12-01"
+
+# Pages configuration
+pages_build_output_dir = "./out" 

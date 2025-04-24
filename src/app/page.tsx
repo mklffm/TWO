@@ -9,9 +9,9 @@ import DestinationCard from '@/components/DestinationCard';
 
 // Page title translations
 const pageTitles = {
-  en: "Mira Booking - Hassle-Free Visa Processing",
-  fr: "Mira Booking - Traitement de Visa Sans Tracas",
-  ar: "ميرا بوكينج - معالجة التأشيرة بدون متاعب"
+  en: "Mira Booking - Visa Processing EASY with Security",
+  fr: "Mira Booking - Traitement de Visa EASY en toute sécurité",
+  ar: "ميرا بوكينج - معالجة التأشيرة EASY بكل أمان"
 };
 
 // Sample visa service data
@@ -101,16 +101,16 @@ const testimonials = [
 // Text translations
 const translations = {
   en: {
-    heroTitle: "Hassle-Free Visa Processing",
+    heroTitle: "Visa Processing EASY with Security",
     heroSubtitle: "Get your visa processed quickly and efficiently with our expert application service",
     howItWorksTitle: "How Our Visa Processing Works",
-    howItWorksSubtitle: "A simple 4-step process to get your visa quickly and efficiently",
+    howItWorksSubtitle: "A simple 3-step process to get your visa quickly and efficiently",
     step1Title: "Submit Application",
     step1Text: "Fill out our form and upload your passport scan to get started",
     step2Title: "Document Review",
     step2Text: "Our experts review your documents and provide a customized checklist",
     step3Title: "Submit Application",
-    step3Text: "We prepare and submit your application to the embassy or consulate",
+    step3Text: "We prepare and process your application according to the visa type you have chosen",
     step4Title: "Visa Approval",
     step4Text: "Receive your visa and prepare for your trip with confidence",
     servicesTitle: "Popular Visa Services",
@@ -138,18 +138,18 @@ const translations = {
     currencyName: "Algerian Dinar",
   },
   fr: {
-    heroTitle: "Traitement de Visa Sans Tracas",
+    heroTitle: "Traitement de Visa EASY en toute sécurité",
     heroSubtitle: "Obtenez votre visa traité rapidement et efficacement grâce à notre service de demande expert",
     howItWorksTitle: "Comment Fonctionne Notre Traitement de Visa",
-    howItWorksSubtitle: "Un processus simple en 4 étapes pour obtenir votre visa rapidement et efficacement",
+    howItWorksSubtitle: "Un processus simple en 3 étapes pour obtenir votre visa rapidement et efficacement",
     step1Title: "Soumettre la Demande",
     step1Text: "Remplissez notre formulaire et téléchargez votre scan de passeport pour commencer",
     step2Title: "Examen des Documents",
     step2Text: "Nos experts examinent vos documents et fournissent une liste personnalisée",
-    step3Title: "Dépôt de la Demande",
-    step3Text: "Nous préparons et soumettons votre demande à l'ambassade ou au consulat",
-    step4Title: "Approbation du Visa",
-    step4Text: "Recevez votre visa et préparez votre voyage en toute confiance",
+    step3Title: "Traitement de Visa",
+    step3Text: "Nous préparons et traitons votre demande selon le type du Visa que vous avez choisi",
+    step4Title: "",
+    step4Text: "",
     servicesTitle: "Services de Visa Populaires",
     servicesSubtitle: "Nous traitons les demandes de visa pour des pays du monde entier",
     viewAllServices: "Voir Tous les Services de Visa",
@@ -175,16 +175,16 @@ const translations = {
     currencyName: "Dinar Algérien",
   },
   ar: {
-    heroTitle: "معالجة التأشيرة بدون متاعب",
+    heroTitle: "معالجة التأشيرة EASY بكل أمان",
     heroSubtitle: "احصل على تأشيرتك بسرعة وكفاءة مع خدمة التقديم المتخصصة لدينا",
     howItWorksTitle: "كيف تعمل خدمة معالجة التأشيرات لدينا",
-    howItWorksSubtitle: "عملية بسيطة من 4 خطوات للحصول على تأشيرتك بسرعة وكفاءة",
+    howItWorksSubtitle: "عملية بسيطة من 3 خطوات للحصول على تأشيرتك بسرعة وكفاءة",
     step1Title: "تقديم الطلب",
     step1Text: "املأ النموذج وقم بتحميل صورة جواز سفرك للبدء",
     step2Title: "مراجعة المستندات",
     step2Text: "يقوم خبراؤنا بمراجعة مستنداتك وتقديم قائمة مخصصة",
-    step3Title: "تقديم الطلب",
-    step3Text: "نقوم بإعداد وتقديم طلبك إلى السفارة أو القنصلية",
+    step3Title: "معالجة الطلب",
+    step3Text: "نقوم بإعداد ومعالجة طلبك وفقًا لنوع التأشيرة الذي اخترته",
     step4Title: "الموافقة على التأشيرة",
     step4Text: "استلم تأشيرتك واستعد لرحلتك بثقة",
     servicesTitle: "خدمات التأشيرات الشائعة",
@@ -323,35 +323,32 @@ export default function HomePage() {
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white z-10"></div>
           <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white z-20">
-            <div className="inline-block mb-6 rounded-full bg-primary-500/30 p-2 backdrop-blur-sm fade-in">
-              <div className="rounded-full bg-gradient-to-r from-primary-600 to-secondary-600 px-4 py-2 text-sm font-medium animate-pulse-slow">
-                {language === 'en' ? 'Trusted Visa Processing Agency' : 
-                 language === 'fr' ? 'Agence de Traitement de Visa de Confiance' : 
-                 'وكالة معالجة تأشيرات موثوقة'}
+            <div className="flex flex-wrap gap-4 justify-center mb-6">
+              <div className="rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white">
+                {language === 'en' ? 'Trusted Visa Processing Company' : 
+                 language === 'fr' ? 'Société de Traitement de Visa de Confiance' : 
+                 'مؤسسة معالجة تأشيرات موثوقة'}
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 leading-tight text-shadow-lg slide-in-left">
               {language === 'ar' ? (
-                <div className="inline-block">
-                  <span className="text-gradient bg-gradient-to-r from-primary-300 to-secondary-300">
-                    معالجة
-                  </span>{' '}
-                  <span>
-                    التأشيرة
-                  </span>{' '}
-                  <span className="text-gradient bg-gradient-to-r from-primary-300 to-secondary-300">
-                    بدون
-                  </span>{' '}
-                  <span>
-                    متاعب
-                  </span>
-                </div>
+                <>
+                  <span>معالجة التأشيرة </span>
+                  <span className="text-gradient bg-gradient-to-r from-primary-300 to-secondary-300">EASY</span>
+                  <span> بكل أمان</span>
+                </>
+              ) : language === 'fr' ? (
+                <>
+                  <span>Traitement de Visa </span>
+                  <span className="text-gradient bg-gradient-to-r from-primary-300 to-secondary-300">EASY</span>
+                  <span> en toute sécurité</span>
+                </>
               ) : (
-                t.heroTitle.split(' ').map((word, i) => (
-                  <span key={i} className={`inline-block ${i % 2 === 0 ? '' : 'text-gradient bg-gradient-to-r from-primary-300 to-secondary-300'}`}>
-                    {word}{' '}
-                  </span>
-                ))
+                <>
+                  <span>Visa Processing </span>
+                  <span className="text-gradient bg-gradient-to-r from-primary-300 to-secondary-300">EASY</span>
+                  <span> with Security</span>
+                </>
               )}
             </h1>
             <p className="text-xl md:text-2xl mb-10 max-w-3xl text-gray-100 text-shadow slide-in-right delay-200">
@@ -380,9 +377,9 @@ export default function HomePage() {
                  'ابدأ عملية التأشيرة الخاصة بك'}
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                {language === 'en' ? 'Choose individual application or bulk processing for travel agencies' : 
-                 language === 'fr' ? 'Choisissez une demande individuelle ou un traitement en masse pour les agences de voyage' : 
-                 'اختر التقديم الفردي أو المعالجة الجماعية لوكالات السفر'}
+                {language === 'en' ? 'Choose individual application or bulk processing for companies' : 
+                 language === 'fr' ? 'Choisissez une demande individuelle ou un traitement en masse pour les entreprises' : 
+                 'اختر التقديم الفردي أو المعالجة الجماعية للمؤسسات'}
               </p>
             </div>
             <div className="max-w-4xl mx-auto -mt-4 relative z-10 scale-in">
@@ -404,7 +401,7 @@ export default function HomePage() {
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t.howItWorksSubtitle}</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
               {/* Connecting line for desktop */}
               <div className="hidden md:block absolute top-[100px] left-[180px] right-[180px] h-0.5 bg-gradient-to-r from-primary-400 to-secondary-500 z-0"></div>
               
@@ -429,13 +426,6 @@ export default function HomePage() {
                 <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-secondary-500 to-secondary-600 text-white text-2xl font-bold mb-4 float">3</div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{t.step3Title}</h3>
                 <p className="text-gray-600">{t.step3Text}</p>
-              </div>
-              
-              {/* Step 4 */}
-              <div className="bg-white p-6 rounded-xl shadow-xl z-10 hover-lift">
-                <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-secondary-600 to-primary-500 text-white text-2xl font-bold mb-4 float">4</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{t.step4Title}</h3>
-                <p className="text-gray-600">{t.step4Text}</p>
               </div>
             </div>
           </div>

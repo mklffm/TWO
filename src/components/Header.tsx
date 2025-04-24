@@ -5,6 +5,13 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
+// Add type declaration for window.switchLanguage
+declare global {
+  interface Window {
+    switchLanguage: (lang: string) => void;
+  }
+}
+
 interface HeaderProps {
   language: string;
   setLanguage: (lang: string) => void;
@@ -88,13 +95,30 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
 
   // Ensure language is properly set on initial load
   useEffect(() => {
-    // Check localStorage for saved language preference
-    const savedLanguage = localStorage.getItem('language');
-    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'fr' || savedLanguage === 'ar')) {
-      // Only update if different from current to avoid unnecessary renders
-      if (savedLanguage !== language) {
-        setLanguage(savedLanguage);
+    try {
+      // First check URL parameters (highest priority)
+      const url = new URL(window.location.href);
+      const urlLang = url.searchParams.get('lang');
+      
+      if (urlLang && (urlLang === 'en' || urlLang === 'fr' || urlLang === 'ar')) {
+        console.log('Using language from URL parameter:', urlLang);
+        setLanguage(urlLang);
+        // Save to localStorage for future visits
+        localStorage.setItem('language', urlLang);
+        return;
       }
+      
+      // Then check localStorage for saved language preference
+      const savedLanguage = localStorage.getItem('language');
+      if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'fr' || savedLanguage === 'ar')) {
+        // Only update if different from current to avoid unnecessary renders
+        if (savedLanguage !== language) {
+          console.log('Using language from localStorage:', savedLanguage);
+          setLanguage(savedLanguage);
+        }
+      }
+    } catch (error) {
+      console.error('Error setting initial language:', error);
     }
   }, [language, setLanguage]);
   
@@ -115,8 +139,8 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
   };
 
   const changeLanguage = (lang: string) => {
-    // Ensure consistent behavior by forcing a specific implementation
-    console.log('Changing language to:', lang);
+    // Debug log
+    console.log('Changing language to:', lang, 'from:', language);
     
     // Save language preference to localStorage for persistence
     localStorage.setItem('language', lang);
@@ -128,8 +152,27 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
     setIsLanguageDropdownOpen(false);
     setIsMenuOpen(false);
     
-    // Force page rerender if needed
-    window.dispatchEvent(new Event('storage'));
+    // Force page rerender with a more reliable approach
+    // This helps ensure the change is applied in mobile views
+    try {
+      // Dispatch storage event for cross-component communication
+      window.dispatchEvent(new Event('storage'));
+      
+      // If we're on a production build (static export), sometimes a reload is needed
+      // to ensure all components pick up the language change
+      if (window.location.hostname !== 'localhost') {
+        // Add lang parameter to URL to ensure reload picks up new language
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        
+        // Short timeout to allow state updates to complete
+        setTimeout(() => {
+          window.location.href = url.toString();
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error applying language change:', error);
+    }
   };
 
   return (
@@ -183,19 +226,19 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
                   <div className={`absolute ${language === 'ar' ? 'right-0' : 'left-0'} mt-2 bg-white shadow-lg rounded-md overflow-hidden z-20 min-w-[150px]`}>
                     <div className="py-1">
                       <button 
-                        onClick={() => changeLanguage('en')}
+                        onClick={() => window.switchLanguage('en')}
                         className={`flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left ${language === 'en' ? 'font-bold' : ''}`}
                       >
                         <span className="mr-2">🇬🇧</span> English
                       </button>
                       <button 
-                        onClick={() => changeLanguage('fr')}
+                        onClick={() => window.switchLanguage('fr')}
                         className={`flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left ${language === 'fr' ? 'font-bold' : ''}`}
                       >
                         <span className="mr-2">🇫🇷</span> Français
                       </button>
                       <button 
-                        onClick={() => changeLanguage('ar')}
+                        onClick={() => window.switchLanguage('ar')}
                         className={`flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left ${language === 'ar' ? 'font-bold' : ''}`}
                       >
                         <span className="mr-2">🇩🇿</span> العربية
@@ -216,74 +259,42 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
           
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
-            <button 
-              onClick={toggleLanguageDropdown}
-              className={`${language === 'ar' ? 'ml-4' : 'mr-4'} ${isScrolled || !isHomePage ? 'text-gray-800' : 'text-white'} flex items-center`}
-              aria-label="Language Selector"
-            >
-              <span className="mr-1 text-sm font-bold">{language.toUpperCase()}</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"></path>
-              </svg>
-            </button>
-            
-            {/* Language Dropdown - Mobile - DIRECT LINKS */}
-            {isLanguageDropdownOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setIsLanguageDropdownOpen(false)}>
-                <div className="fixed inset-0 bg-black opacity-50"></div>
-                <div 
-                  className="bg-white rounded-lg w-64 max-w-full relative z-10"
-                  onClick={e => e.stopPropagation()}
-                >
-                  <div className="p-4 border-b">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-medium">{t.language}</h3>
-                      <button 
-                        onClick={() => setIsLanguageDropdownOpen(false)}
-                        className="p-1 rounded-full hover:bg-gray-100"
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="p-2">
-                    {/* Direct links with no JavaScript - guaranteed to work */}
-                    <a 
-                      href="?lang=en"
-                      className={`block w-full text-left px-4 py-3 rounded-lg ${language === 'en' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
-                    >
-                      <div className="flex items-center">
-                        <span className="text-xl mr-3">🇬🇧</span>
-                        <span>English</span>
-                      </div>
-                    </a>
-                    
-                    <a 
-                      href="?lang=fr"
-                      className={`block w-full text-left px-4 py-3 rounded-lg ${language === 'fr' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
-                    >
-                      <div className="flex items-center">
-                        <span className="text-xl mr-3">🇫🇷</span>
-                        <span>Français</span>
-                      </div>
-                    </a>
-                    
-                    <a 
-                      href="?lang=ar"
-                      className={`block w-full text-left px-4 py-3 rounded-lg ${language === 'ar' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-100'}`}
-                    >
-                      <div className="flex items-center">
-                        <span className="text-xl mr-3">🇩🇿</span>
-                        <span>العربية</span>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* GUARANTEED TO WORK language switcher */}
+            <div className="flex rounded overflow-hidden mr-4 border border-gray-200">
+              <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('language', 'en');
+                    window.location.href = window.location.pathname + '?lang=en';
+                  }
+                }}
+                className={`px-2 py-1 text-xs font-bold ${language === 'en' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('language', 'fr');
+                    window.location.href = window.location.pathname + '?lang=fr';
+                  }
+                }}
+                className={`px-2 py-1 text-xs font-bold ${language === 'fr' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+              >
+                FR
+              </button>
+              <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('language', 'ar');
+                    window.location.href = window.location.pathname + '?lang=ar';
+                  }
+                }}
+                className={`px-2 py-1 text-xs font-bold ${language === 'ar' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+              >
+                AR
+              </button>
+            </div>
             
             <button 
               onClick={toggleMenu}
@@ -325,13 +336,13 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
                 {t.contact}
               </Link>
               <div className="p-4">
-                <Link 
-                  href="/demande-visa" 
+              <Link 
+                href="/demande-visa" 
                   className="block w-full py-2 px-4 bg-gradient-to-r from-primary-600 to-secondary-500 text-white text-center rounded-full"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t.getStarted}
-                </Link>
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t.getStarted}
+              </Link>
               </div>
             </div>
           </div>
