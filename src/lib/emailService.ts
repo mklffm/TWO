@@ -15,36 +15,52 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
       timestamp: data.timestamp || new Date().toISOString(),
     };
     
-    // Call the email API
-    const response = await fetch('/api/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: data.email,
-        cc: 'sitekdigital@gmail.com', // Agency email
-        subject: `Visa Application Receipt for ${data.fullName}`,
-        data: emailData,
-      }),
-    });
-
-    // Parse the response
-    const result = await response.json();
+    // Call the email API with retry mechanism
+    let retries = 0;
+    const maxRetries = 2;
     
-    if (!response.ok) {
-      console.error('API Error:', result);
-      return {
-        success: false,
-        message: result.error || 'Failed to send email'
-      };
+    while (retries <= maxRetries) {
+      try {
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: data.email,
+            cc: 'khalfaouimanar28@gmail.com', // Agency email updated
+            subject: `Visa Application Receipt for ${data.fullName}`,
+            data: emailData,
+          }),
+        });
+  
+        // Parse the response
+        const result = await response.json();
+        
+        if (!response.ok) {
+          console.error('API Error:', result);
+          throw new Error(result.error || 'Failed to send email');
+        }
+  
+        console.log('Email sent successfully!');
+        return {
+          success: true,
+          message: 'Email sent successfully'
+        };
+      } catch (fetchError) {
+        retries++;
+        if (retries > maxRetries) {
+          throw fetchError;
+        }
+        console.warn(`Email sending attempt ${retries}/${maxRetries} failed. Retrying...`);
+        // Wait before retrying
+        await new Promise(r => setTimeout(r, 1000));
+      }
     }
-
-    console.log('Email sent successfully!');
-    return {
-      success: true,
-      message: 'Email sent successfully'
-    };
+    
+    // This should never be reached due to the throw in the catch block above
+    throw new Error('Failed to send email after retries');
+    
   } catch (error) {
     console.error('Error sending email:', error);
     return {

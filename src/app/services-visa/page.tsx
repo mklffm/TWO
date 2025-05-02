@@ -21,9 +21,14 @@ const visaServices = [
     rating: 4.8,
   },
   {
-    id: 'usa-canada',
+    id: 'usa',
     image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1000',
     rating: 4.7,
+  },
+  {
+    id: 'canada',
+    image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?q=80&w=1000',
+    rating: 4.9,
   },
   {
     id: 'student',
@@ -83,8 +88,10 @@ const translations = {
     description: "Our experts provide reliable and efficient services for all your travel needs.",
     schengenVisa: "Schengen Visa",
     schengenDesc: "Travel to 26 European countries with a single visa. Ideal for tourism, business, or family visits to Europe.",
-    usaCanadaVisa: "USA & Canada Visa",
-    usaCanadaDesc: "Visit the United States and Canada for tourism, business meetings, or to meet family and friends.",
+    usaVisa: "USA Visa",
+    usaDesc: "Visit the United States for tourism, business meetings, or to meet family and friends.",
+    canadaVisa: "Canada Visa",
+    canadaDesc: "Visit Canada for tourism, business meetings, or to meet family and friends.",
     studentVisa: "Student Visa",
     studentDesc: "Study abroad in Turkey or France with our specialized student visa processing service.",
     flightBooking: "Flight Booking",
@@ -118,8 +125,10 @@ const translations = {
     description: "Nos experts fournissent des services fiables et efficaces pour tous vos besoins de voyage.",
     schengenVisa: "Visa Schengen",
     schengenDesc: "Voyagez dans 26 pays européens avec un seul visa. Idéal pour le tourisme, les affaires ou les visites familiales en Europe.",
-    usaCanadaVisa: "Visa USA & Canada",
-    usaCanadaDesc: "Visitez les États-Unis et le Canada pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
+    usaVisa: "Visa USA",
+    usaDesc: "Visitez les États-Unis pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
+    canadaVisa: "Visa Canada",
+    canadaDesc: "Visitez le Canada pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
     studentVisa: "Visa Étudiant",
     studentDesc: "Étudiez à l'étranger en Turquie ou en France avec notre service spécialisé de traitement des visas étudiants.",
     flightBooking: "Réservation de Vols",
@@ -153,8 +162,10 @@ const translations = {
     description: "يقدم خبراؤنا خدمات موثوقة وفعالة لجميع احتياجات سفرك.",
     schengenVisa: "تأشيرة شنغن",
     schengenDesc: "سافر إلى 26 دولة أوروبية بتأشيرة واحدة. مثالية للسياحة والأعمال أو زيارات العائلة في أوروبا.",
-    usaCanadaVisa: "تأشيرة الولايات المتحدة وكندا",
-    usaCanadaDesc: "زيارة الولايات المتحدة وكندا للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
+    usaVisa: "تأشيرة الولايات المتحدة",
+    usaDesc: "زيارة الولايات المتحدة للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
+    canadaVisa: "تأشيرة كندا",
+    canadaDesc: "زيارة كندا للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
     studentVisa: "تأشيرة طالب",
     studentDesc: "ادرس في الخارج في تركيا أو فرنسا مع خدمة معالجة تأشيرات الطلاب المتخصصة لدينا.",
     flightBooking: "حجز الطيران",
@@ -286,7 +297,7 @@ export default function ServicesPage() {
                         {t.startVisaApplication}
                       </Link>
                       <Link 
-                        href="/services-visa/schengen" 
+                        href="/services-visa/schengen/learn-more" 
                         className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
                       >
                         {t.learnMore}
@@ -298,12 +309,12 @@ export default function ServicesPage() {
                   </div>
                 </div>
                 
-                {/* USA & Canada Visa Card */}
+                {/* USA Visa Card */}
                 <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
                   <div className="relative h-48 overflow-hidden">
                     <Image 
                       src={visaServices[1].image} 
-                      alt={t.usaCanadaVisa} 
+                      alt={t.usaVisa} 
                       fill 
                       className="object-cover transition-transform duration-700 hover:scale-110" 
                     />
@@ -316,17 +327,57 @@ export default function ServicesPage() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.usaCanadaVisa}</h3>
-                    <p className="text-gray-600 mb-4">{t.usaCanadaDesc}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.usaVisa}</h3>
+                    <p className="text-gray-600 mb-4">{t.usaDesc}</p>
                     <div className="flex flex-wrap gap-2">
                       <Link 
-                        href="/demande-visa?type=usa-canada" 
+                        href="/demande-visa?type=usa" 
                         className="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                       >
                         {t.startVisaApplication}
                       </Link>
                       <Link 
-                        href="/services-visa/usa-canada" 
+                        href="/services-visa/usa" 
+                        className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
+                      >
+                        {t.learnMore}
+                        <svg className="w-4 h-4 ml-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Canada Visa Card */}
+                <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image 
+                      src={visaServices[2].image} 
+                      alt={t.canadaVisa} 
+                      fill 
+                      className="object-cover transition-transform duration-700 hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-70"></div>
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                        <span className="text-yellow-400 mr-1">★</span>
+                        <span className="text-white text-sm">{visaServices[2].rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.canadaVisa}</h3>
+                    <p className="text-gray-600 mb-4">{t.canadaDesc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Link 
+                        href="/demande-visa?type=canada" 
+                        className="bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        {t.startVisaApplication}
+                      </Link>
+                      <Link 
+                        href="/services-visa/canada" 
                         className="border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md text-sm font-medium learn-more"
                       >
                         {t.learnMore}
@@ -462,7 +513,7 @@ export default function ServicesPage() {
                 <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group service-card">
                   <div className="relative h-48 overflow-hidden">
                     <Image 
-                      src={visaServices[5].image} 
+                      src={visaServices[6].image} 
                       alt={t.travelInsurance} 
                       fill 
                       className="object-cover transition-transform duration-700 hover:scale-110" 
@@ -471,7 +522,7 @@ export default function ServicesPage() {
                     <div className="absolute top-4 right-4">
                       <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
                         <span className="text-yellow-400 mr-1">★</span>
-                        <span className="text-white text-sm">{visaServices[5].rating}</span>
+                        <span className="text-white text-sm">{visaServices[6].rating}</span>
                       </div>
                     </div>
                   </div>

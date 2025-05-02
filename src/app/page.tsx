@@ -21,25 +21,33 @@ const visaServices = [
     name: 'Schengen Visa',
     image: 'https://images.unsplash.com/photo-1519677100203-a0e668c92439?q=80&w=1000',
     description: 'Travel to 26 European countries with a single visa. Ideal for tourism, business, or family visits to Europe.',
-    price: 25000,
+    price: 20000,
     rating: 4.8,
   },
   {
-    id: 'usa-canada',
-    name: 'USA & Canada Visa',
+    id: 'usa',
+    name: 'USA Visa',
     image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1000',
-    description: 'Visit the United States and Canada for tourism, business meetings, or to meet family and friends.',
-    price: 45000,
+    description: 'Visit the United States for tourism, business meetings, or to meet family and friends.',
+    price: 40000,
     rating: 4.7,
+  },
+  {
+    id: 'canada',
+    name: 'Canada Visa',
+    image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?q=80&w=1000',
+    description: 'Visit Canada for tourism, business meetings, or to meet family and friends.',
+    price: 45000,
+    rating: 4.9,
   },
   {
     id: 'student',
     name: 'Student Visa',
     image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000',
-    description: 'Study abroad in Turkey or France with our specialized student visa processing service.',
+    description: 'Study abroad with our specialized student visa processing service.',
     price: 30000,
-    rating: 4.9,
-  },
+    rating: 4.8,
+  }
 ];
 
 // Sample service benefits
@@ -130,10 +138,12 @@ const translations = {
     startApplication: "Start My Application",
     schengenVisa: "Schengen Visa",
     schengenDesc: "Travel to 26 European countries with a single visa. Ideal for tourism, business, or family visits to Europe.",
-    usaCanadaVisa: "USA & Canada Visa",
-    usaCanadaDesc: "Visit the United States and Canada for tourism, business meetings, or to meet family and friends.",
+    usaVisa: "USA Visa",
+    usaDesc: "Visit the United States for tourism, business meetings, or to meet family and friends.",
+    canadaVisa: "Canada Visa",
+    canadaDesc: "Visit Canada for tourism, business meetings, or to meet family and friends.",
     studentVisa: "Student Visa",
-    studentDesc: "Study abroad in Turkey or France with our specialized student visa processing service.",
+    studentDesc: "Study abroad with our specialized student visa processing service.",
     currencyCode: "DZD",
     currencyName: "Algerian Dinar",
   },
@@ -167,10 +177,12 @@ const translations = {
     startApplication: "Commencer Ma Demande",
     schengenVisa: "Visa Schengen",
     schengenDesc: "Voyagez dans 26 pays européens avec un seul visa. Idéal pour le tourisme, les affaires ou les visites familiales en Europe.",
-    usaCanadaVisa: "Visa USA & Canada",
-    usaCanadaDesc: "Visitez les États-Unis et le Canada pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
+    usaVisa: "Visa USA",
+    usaDesc: "Visitez les États-Unis pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
+    canadaVisa: "Visa Canada",
+    canadaDesc: "Visitez le Canada pour le tourisme, les réunions d'affaires ou pour rencontrer famille et amis.",
     studentVisa: "Visa Étudiant",
-    studentDesc: "Étudiez à l'étranger en Turquie ou en France avec notre service spécialisé de traitement des visas étudiants.",
+    studentDesc: "Étudiez à l'étranger avec notre service spécialisé de traitement des visas étudiants.",
     currencyCode: "DA",
     currencyName: "Dinar Algérien",
   },
@@ -203,11 +215,13 @@ const translations = {
     ctaSubtitle: "احصل على عرض سعر مخصص لطلب التأشيرة الخاص بك اليوم!",
     startApplication: "ابدأ طلبي",
     schengenVisa: "تأشيرة شنغن",
-    schengenDesc: "سافر إلى 26 دولة أوروبية بتأشيرة واحدة. مثالية للسياحة والأعمال أو زيارات العائلة في أوروبا.",
-    usaCanadaVisa: "تأشيرة الولايات المتحدة وكندا",
-    usaCanadaDesc: "زيارة الولايات المتحدة وكندا للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
+    schengenDesc: "سافر إلى 26 دولة أوروبية بتأشيرة واحدة. مثالية للسياحة والأعمال أو الزيارات العائلية في أوروبا.",
+    usaVisa: "تأشيرة الولايات المتحدة",
+    usaDesc: "زيارة الولايات المتحدة للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
+    canadaVisa: "تأشيرة كندا",
+    canadaDesc: "زيارة كندا للسياحة واجتماعات العمل أو لقاء العائلة والأصدقاء.",
     studentVisa: "تأشيرة طالب",
-    studentDesc: "ادرس في الخارج في تركيا أو فرنسا مع خدمة معالجة تأشيرات الطلاب المتخصصة لدينا.",
+    studentDesc: "الدراسة في الخارج مع خدمة معالجة تأشيرات الطلاب المتخصصة لدينا.",
     currencyCode: "د.ج",
     currencyName: "دينار جزائري",
   }
@@ -305,9 +319,10 @@ export default function HomePage() {
   }
   
   return (
-    <div className={language === 'ar' ? 'min-h-screen rtl' : 'min-h-screen ltr'}>
+    <div className="min-h-screen">
       <Header language={language} setLanguage={handleLanguageChange} />
       
+      <div className="pt-16">
       <main>
         {/* Hero Section */}
         <section className="relative h-[650px] overflow-hidden pt-24">
@@ -378,7 +393,7 @@ export default function HomePage() {
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                 {language === 'en' ? 'Choose individual application or bulk processing for companies' : 
-                 language === 'fr' ? 'Choisissez une demande individuelle ou un traitement en masse pour les entreprises' : 
+                   language === 'fr' ? 'Choisissez une demande individuelle ou un service B2B pour les entreprises' : 
                  'اختر التقديم الفردي أو المعالجة الجماعية للمؤسسات'}
               </p>
             </div>
@@ -454,7 +469,8 @@ export default function HomePage() {
                     <Image 
                       src={service.image} 
                       alt={service.id === 'schengen' ? t.schengenVisa : 
-                           service.id === 'usa-canada' ? t.usaCanadaVisa : t.studentVisa} 
+                             service.id === 'usa' ? t.usaVisa : 
+                             service.id === 'canada' ? t.canadaVisa : t.studentVisa} 
                       fill 
                       className="object-cover transition-transform duration-700 hover:scale-110" 
                     />
@@ -474,11 +490,13 @@ export default function HomePage() {
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                       {service.id === 'schengen' ? t.schengenVisa : 
-                       service.id === 'usa-canada' ? t.usaCanadaVisa : t.studentVisa}
+                         service.id === 'usa' ? t.usaVisa : 
+                         service.id === 'canada' ? t.canadaVisa : t.studentVisa}
                     </h3>
                     <p className="text-gray-600 mb-4">
                       {service.id === 'schengen' ? t.schengenDesc : 
-                       service.id === 'usa-canada' ? t.usaCanadaDesc : t.studentDesc}
+                         service.id === 'usa' ? t.usaDesc : 
+                         service.id === 'canada' ? t.canadaDesc : t.studentDesc}
                     </p>
                     <Link href={`/services/${service.id}`} className="text-primary-600 font-medium hover:text-secondary-600 inline-flex items-center learn-more">
                       {language === 'en' ? 'Learn More' : 
@@ -649,6 +667,7 @@ export default function HomePage() {
         
         <Footer language={language} />
       </main>
+      </div>
     </div>
   );
 } 

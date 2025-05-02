@@ -1,0 +1,12 @@
+{
+  "name": "mira-booking-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {
+    "hono": "^3.11.7",
+    "bcryptjs": "^2.4.3",
+    "uuid": "^9.0.0",
+    "@tsndr/cloudflare-worker-jwt": "^2.4.2"
+  }
+} 

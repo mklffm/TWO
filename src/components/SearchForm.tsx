@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
 import { sendReceiptEmail } from '@/lib/emailService';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+// Note: In a production app, we would use a server-side API for MRZ detection
+// This is just for demonstration purposes
+import * as mrz from 'mrz-detection';
+// Use the MRZResult interface from the module
+import { MRZResult } from 'mrz-detection';
 
 // Define translation type
 type TranslationLanguage = 'en' | 'fr' | 'ar';
@@ -16,6 +22,8 @@ interface FormData {
   phone: string;
   nationality: string;
   destination: string;
+  usaCity?: string;
+  canadaCity?: string;  // Add this line
   travelDate: string;
   visaType: VisaType;
   processingTime: ProcessingTime;
@@ -24,6 +32,10 @@ interface FormData {
   agencyId: string;
   clientNumber: string;
   bulkClientFile: File | null;
+  passportNumber?: string;
+  birthDate?: string;
+  expiryDate?: string;
+  mrzData?: MRZResult;
 }
 
 // Define props interface
@@ -93,14 +105,31 @@ const translations = {
     clients: 'clients',
     available: 'Available',
     volumeDiscount: 'Volume Discount',
-    currencyCode: 'DZD'
+    currencyCode: 'DZD',
+    scanPassport: "Scan Passport",
+    scanInstructions: "Position passport in frame",
+    scanFailed: "Scan failed. Try again or enter manually.",
+    scanSuccess: "Passport scanned successfully!",
+    scanButtonText: "Scan with Camera",
+    rescan: "Scan Again",
+    useScannedData: "Use Scanned Data",
+    passportNumber: "Passport Number",
+    birthDate: "Date of Birth",
+    expiryDate: "Passport Expiry Date",
+    scanningPassport: "Scanning passport...",
+    allowCamera: "Please allow camera access",
+    extractedInfo: "Extracted Information",
+    usaCity: "US City",
+    selectUsaCity: "Select US City",
+    canadaCity: "Canadian City",
+    selectCanadaCity: "Select Canadian City"
   },
   fr: {
     formTitle: 'Vérifiez vos conditions de visa',
     b2c: 'Individuel',
     b2b: 'Entreprise',
     b2cDescription: 'Demandez votre visa directement avec notre formulaire facile à utiliser',
-    b2bDescription: 'Obtenez des tarifs spéciaux pour plusieurs demandes de visa',
+    b2bDescription: 'Services B2B spécialisés pour les entreprises avec des tarifs préférentiels',
     fullName: 'Nom complet',
     email: 'Adresse e-mail',
     phone: 'Numéro de téléphone',
@@ -155,7 +184,24 @@ const translations = {
     clients: 'clients',
     available: 'Disponible',
     volumeDiscount: 'Remise sur Volume',
-    currencyCode: 'DZD'
+    currencyCode: 'DZD',
+    scanPassport: "Scanner le Passeport",
+    scanInstructions: "Positionnez le passeport dans le cadre",
+    scanFailed: "Échec du scan. Réessayez ou saisissez manuellement.",
+    scanSuccess: "Passeport scanné avec succès !",
+    scanButtonText: "Scanner avec la Caméra",
+    rescan: "Scanner à Nouveau",
+    useScannedData: "Utiliser les Données Scannées",
+    passportNumber: "Numéro de Passeport",
+    birthDate: "Date de Naissance",
+    expiryDate: "Date d'Expiration du Passeport",
+    scanningPassport: "Scan du passeport en cours...",
+    allowCamera: "Veuillez autoriser l'accès à la caméra",
+    extractedInfo: "Informations Extraites",
+    usaCity: "Ville aux États-Unis",
+    selectUsaCity: "Sélectionner une ville aux États-Unis",
+    canadaCity: "Ville Canadienne",
+    selectCanadaCity: "Sélectionner une ville canadienne"
   },
   ar: {
     formTitle: 'تحقق من متطلبات التأشيرة الخاصة بك',
@@ -217,7 +263,24 @@ const translations = {
     clients: 'عميل',
     available: 'متاح',
     volumeDiscount: 'خصم الحجم',
-    currencyCode: 'دج'
+    currencyCode: 'دج',
+    scanPassport: "مسح جواز السفر",
+    scanInstructions: "ضع جواز السفر في الإطار",
+    scanFailed: "فشل المسح. حاول مرة أخرى أو أدخل يدوياً.",
+    scanSuccess: "تم مسح جواز السفر بنجاح!",
+    scanButtonText: "المسح بالكاميرا",
+    rescan: "إعادة المسح",
+    useScannedData: "استخدام البيانات الممسوحة",
+    passportNumber: "رقم جواز السفر",
+    birthDate: "تاريخ الميلاد",
+    expiryDate: "تاريخ انتهاء صلاحية جواز السفر",
+    scanningPassport: "جارٍ مسح جواز السفر...",
+    allowCamera: "يرجى السماح بالوصول إلى الكاميرا",
+    extractedInfo: "المعلومات المستخرجة",
+    usaCity: "مدينة في الولايات المتحدة",
+    selectUsaCity: "اختر مدينة في الولايات المتحدة",
+    canadaCity: "مدينة كندية",
+    selectCanadaCity: "اختر مدينة كندية"
   }
 };
 
@@ -270,19 +333,27 @@ const requiredDocumentsMap = {
 
 // Add this array with the specified countries after the requiredDocumentsMap object
 const destinationCountries = [
-  'Canada',
+  'Schengen',
   'USA',
-  'France',
-  'Spain',
-  'Germany',
-  'Belgium',
-  'Austria',
+  'Canada',
   'UK',
   'Russia',
   'UAE',
   'Saudi Arabia',
   'Qatar',
-  'Tunisia'
+  'Kuwait',
+  'Bahrain',
+  'Oman',
+  'China'
+];
+
+// Schengen countries list
+const schengenCountries = [
+  "Allemagne", "Autriche", "Belgique", "Bulgarie", "Croatie", "Danemark", 
+  "Espagne", "Estonie", "Finlande", "France", "Grèce", "Hongrie", 
+  "Italie", "Lettonie", "Lituanie", "Luxembourg", "Malte", "Pays-Bas", 
+  "Pologne", "Portugal", "République tchèque", "Roumanie", "Slovaquie", 
+  "Slovénie", "Suède"
 ];
 
 // Add this array with all countries in the world
@@ -311,6 +382,64 @@ const countriesList = [
   "Zimbabwe"
 ];
 
+// Add this array with the major US cities after the destinationCountries array
+const usaCities = [
+  "New York",
+  "Los Angeles",
+  "Chicago",
+  "Houston",
+  "Phoenix",
+  "Philadelphia",
+  "San Antonio",
+  "San Diego",
+  "Dallas",
+  "San Jose",
+  "Austin",
+  "Jacksonville",
+  "Fort Worth",
+  "Columbus",
+  "San Francisco",
+  "Charlotte",
+  "Indianapolis",
+  "Seattle",
+  "Denver",
+  "Washington D.C.",
+  "Boston",
+  "Las Vegas",
+  "Portland",
+  "Detroit",
+  "Memphis",
+  "Miami"
+];
+
+// Add this array with the major Canadian cities after the usaCities array
+const canadaCities = [
+  "Toronto",
+  "Montreal",
+  "Vancouver",
+  "Calgary",
+  "Edmonton",
+  "Ottawa",
+  "Quebec City",
+  "Winnipeg",
+  "Hamilton",
+  "Kitchener",
+  "London",
+  "Victoria",
+  "Halifax",
+  "Oshawa",
+  "Windsor",
+  "Saskatoon",
+  "Regina",
+  "St. John's",
+  "Kelowna",
+  "Barrie",
+  "Sherbrooke",
+  "Guelph",
+  "Abbotsford",
+  "Kingston"
+];
+
 export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const router = useRouter();
   // Convert language prop to match TranslationLanguage type
@@ -331,6 +460,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     phone: '',
     nationality: '',
     destination: '',
+    usaCity: '',
+    canadaCity: '',  // Add this line
     travelDate: '',
     visaType: 'tourist',
     processingTime: 'standard',
@@ -341,14 +472,64 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     bulkClientFile: null
   });
 
+  // Add refs for camera elements
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Add state variables for passport scanning
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<MRZResult | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    // Special handling for destination changes
+    if (name === 'destination') {
+      // Check if this is a specific Schengen country selection
+      if (value.startsWith('Schengen-')) {
+        // It's a specific Schengen country
+        setFormData({
+          ...formData,
+          [name]: value, // Keep the full value including the country
+          usaCity: undefined,
+          canadaCity: undefined
+        });
+      } else if (value === 'USA') {
+        // Reset usaCity when USA is selected
+        setFormData({
+          ...formData,
+          [name]: value,
+          usaCity: '',
+          canadaCity: undefined
+        });
+      } else if (value === 'Canada') {
+        // Reset canadaCity when Canada is selected
+        setFormData({
+          ...formData,
+          [name]: value,
+          canadaCity: '',
+          usaCity: undefined
+        });
+      } else {
+        // Clear city fields when a different destination is selected
+        setFormData({
+          ...formData,
+          [name]: value,
+          usaCity: undefined,
+          canadaCity: undefined
+        });
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
     
     // Update required documents when visa type changes
     if (name === 'visaType' && (value === 'tourist' || value === 'business' || value === 'student' || value === 'investor' || value === 'work')) {
@@ -393,10 +574,18 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   
   // Calculate price based on selections
   const calculatePrice = () => {
-    let basePrice = 7500; // Base price for standard processing
+    let basePrice = 7500; // Default base price
     
-    // Adjust price based on visa type for Qatar and UAE destinations
-    if (formData.destination === 'Qatar' || formData.destination === 'UAE') {
+    // Set prices based on destination and visa type
+    if (formData.destination === 'Schengen' || formData.destination.startsWith('Schengen-')) {
+      basePrice = 20000; // Schengen visa: 20000 DA (any Schengen country)
+    } else if (formData.destination === 'USA') {
+      basePrice = 40000; // USA visa: 40000 DA
+    } else if (formData.destination === 'Canada') {
+      basePrice = 45000; // Canada visa: 45000 DA
+    } else if (formData.visaType === 'student') {
+      basePrice = 30000; // Study visa: 30000 DA
+    } else if (formData.destination === 'Qatar' || formData.destination === 'UAE') {
       if (formData.visaType === 'investor') {
         basePrice = 15000; // Higher price for investor residence
       } else if (formData.visaType === 'work') {
@@ -438,7 +627,33 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle apply now button click
   const handleApplyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.nationality ||
+        !formData.destination || !formData.travelDate || !formData.visaType || !formData.processingTime) {
+      alert(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 
+            language === 'fr' ? 'Veuillez remplir tous les champs obligatoires' : 
+            'Please fill all required fields');
+      return;
+    }
+    
+    // Special validation for Canada
+    if (formData.destination === 'Canada' && !formData.canadaCity) {
+      alert(language === 'ar' ? 'يرجى اختيار مدينة كندية' : 
+            language === 'fr' ? 'Veuillez sélectionner une ville canadienne' : 
+            'Please select a Canadian city');
+      return;
+    }
+    
     setEmailStatus('sending');
+    
+    // Get the clean destination name for the email (extract the country name for Schengen)
+    let destinationForEmail = formData.destination;
+    if (formData.destination.startsWith('Schengen-')) {
+      // Extract the specific Schengen country from the value (after "Schengen-")
+      const schengenCountry = formData.destination.substring(9);
+      destinationForEmail = `Schengen (${schengenCountry})`;
+    }
     
     // Clear previous email status
     localStorage.removeItem('emailSendStatus');
@@ -446,14 +661,36 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     // Create email data
     const emailData = {
       ...formData,
+      destination: destinationForEmail, // Use the clean destination name
       accountType,
       price: customPrice,
       formattedPrice: `${customPrice.toLocaleString()} ${getCurrencyCode()}`
     };
     
+    // Track max retries for email sending
+    let retries = 0;
+    const maxRetries = 2;
+    
+    const attemptSendEmail = async (): Promise<{success: boolean; message?: string}> => {
+      try {
+        // Send receipt email
+        return await sendReceiptEmail(emailData);
+      } catch (error) {
+        console.error(`Email attempt ${retries + 1} failed:`, error);
+        if (retries < maxRetries) {
+          retries++;
+          console.log(`Retrying email send (${retries}/${maxRetries})...`);
+          // Wait a bit before retrying
+          await new Promise(r => setTimeout(r, 1000));
+          return attemptSendEmail();
+        }
+        throw error;
+      }
+    };
+    
     try {
-      // Send receipt email
-      const result = await sendReceiptEmail(emailData);
+      // Send receipt email with retries
+      const result = await attemptSendEmail();
       
       // Store email status for debugging
       localStorage.setItem('emailSendStatus', JSON.stringify({
@@ -487,10 +724,212 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         error: error instanceof Error ? error.message : String(error)
       }));
       
-      console.error('Failed to send email:', error);
+      console.error('Failed to send email after all retries:', error);
       setEmailStatus('error');
     }
   };
+
+  // Add function to open camera
+  const openCamera = async () => {
+    setScanError(null);
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Your browser does not support camera access');
+      }
+      
+      const constraints = {
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: { ideal: 'environment' }
+        },
+        audio: false
+      };
+      
+      // Try to check permission if the API is available
+      let permissionDenied = false;
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          if (permission.state === 'denied') {
+            permissionDenied = true;
+            throw new Error('Camera access denied. Please enable camera access in your browser settings');
+          }
+        }
+      } catch (permErr) {
+        if (permissionDenied) {
+          throw permErr;
+        }
+        // If permissions API fails, continue anyway and try getUserMedia directly
+        console.warn('Permissions API not available, trying direct camera access');
+      }
+      
+      // Get media stream
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      setStream(mediaStream);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            videoRef.current.play().catch(err => {
+              console.error('Error playing video:', err);
+              setScanError('Failed to start camera stream');
+            });
+          }
+        };
+      }
+      
+      setIsCameraOpen(true);
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      
+      // Provide more helpful error messages
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          setScanError('Camera access denied. Please allow camera access and try again');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          setScanError('No camera found on your device');
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          setScanError('Camera is already in use by another application');
+        } else if (err.name === 'OverconstrainedError') {
+          setScanError('Camera constraints cannot be satisfied');
+        } else {
+          setScanError(t.allowCamera + ': ' + err.message);
+        }
+      } else {
+        setScanError(t.allowCamera);
+      }
+    }
+  };
+  
+  // Add function to close camera
+  const closeCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    setStream(null);
+    setIsCameraOpen(false);
+  };
+  
+  // Add function to capture image
+  const captureImage = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    setIsScanning(true);
+    
+    try {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      // Set dimensions
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw video frame to canvas
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, width, height);
+        const imageData = canvas.toDataURL('image/png');
+        setCapturedImage(imageData);
+        
+        // Process the image with MRZ detection
+        processMRZ(canvas);
+      } else {
+        throw new Error('Could not get canvas context');
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
+      setScanError('Failed to capture image. Please try again.');
+      setIsScanning(false);
+    }
+  };
+  
+  // Add function to process MRZ in the captured image
+  const processMRZ = async (canvas: HTMLCanvasElement) => {
+    try {
+      // In a real implementation, this would call a server endpoint or use a client-side library
+      // For demo purposes, we'll simulate MRZ detection with a timeout
+      setTimeout(() => {
+        try {
+          // Simulated MRZ detection result - generate a more realistic example
+          const mockResult: MRZResult = {
+            documentType: 'P',
+            documentNumber: formData.fullName ? `${formData.fullName.substring(0, 2).toUpperCase()}${Math.floor(Math.random() * 10000000)}` : 'AB1234567',
+            surname: formData.fullName ? formData.fullName.split(' ').slice(1).join(' ').toUpperCase() : 'SMITH',
+            givenNames: formData.fullName ? formData.fullName.split(' ')[0].toUpperCase() : 'JOHN',
+            nationality: formData.nationality || 'USA',
+            birthDate: '19900101',
+            expiryDate: '20300101',
+            gender: 'M',
+            personalNumber: '',
+            fullName: formData.fullName ? formData.fullName.toUpperCase() : 'JOHN SMITH'
+          };
+          
+          setScanResult(mockResult);
+          setIsScanning(false);
+          closeCamera();
+          
+          // Convert dates to readable format
+          const birthDate = formatMRZDate(mockResult.birthDate || '');
+          const expiryDate = formatMRZDate(mockResult.expiryDate || '');
+          
+          // Update form with extracted data
+          setFormData({
+            ...formData,
+            fullName: mockResult.fullName || formData.fullName,
+            nationality: mockResult.nationality || formData.nationality,
+            passportNumber: mockResult.documentNumber,
+            birthDate: birthDate,
+            expiryDate: expiryDate,
+            mrzData: mockResult
+          });
+        } catch (err) {
+          console.error('Error processing MRZ data:', err);
+          setScanError('Error processing passport data');
+          setIsScanning(false);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error('MRZ detection failed:', error);
+      setScanError(t.scanFailed);
+      setIsScanning(false);
+    }
+  };
+  
+  // Add function to format MRZ dates (YYMMDD to readable format)
+  const formatMRZDate = (mrzDate: string): string => {
+    if (!mrzDate || mrzDate.length < 6) return '';
+    
+    // MRZ date format is YYMMDD
+    const year = mrzDate.substring(0, 2);
+    const month = mrzDate.substring(2, 4);
+    const day = mrzDate.substring(4, 6);
+    
+    // Determine century (19xx or 20xx)
+    const fullYear = parseInt(year) > 50 ? `19${year}` : `20${year}`;
+    
+    return `${fullYear}-${month}-${day}`;
+  };
+  
+  // Add function to cancel scan and reset
+  const cancelScan = () => {
+    closeCamera();
+    setCapturedImage(null);
+    setScanResult(null);
+    setScanError(null);
+  };
+  
+  // Add useEffect to clean up camera on unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -684,7 +1123,19 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                 required
               >
                 <option value="" disabled>{t.selectDestination || 'Select Destination'}</option>
-                {destinationCountries.map((country) => (
+                
+                {/* Schengen as an optgroup with nested countries */}
+                <optgroup label={`Schengen (${schengenCountries.length} pays)`}>
+                  <option value="Schengen">Tous les pays Schengen</option>
+                  {schengenCountries.map(country => (
+                    <option key={`schengen-${country}`} value={`Schengen-${country}`}>
+                      {country}
+                    </option>
+                  ))}
+                </optgroup>
+                
+                {/* Other countries */}
+                {destinationCountries.filter(country => country !== 'Schengen').map((country) => (
                   <option key={country} value={country}>{country}</option>
                 ))}
               </select>
@@ -694,12 +1145,186 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                           </svg>
                         </div>
                       </div>
-            </div>
-            
+                    </div>
+                    
+                    {/* Add USA City selector when USA is selected */}
+                    {formData.destination === 'USA' ? (
+                      <>
+                        <div className="form-group">
+                          <label htmlFor="usaCity" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.usaCity} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              </svg>
+                            </div>
+                            <select
+                              id="usaCity"
+                              name="usaCity"
+                              className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 appearance-none"
+                              value={formData.usaCity || ''}
+                              onChange={handleChange}
+                              required
+                            >
+                              <option value="" disabled>{t.selectUsaCity}</option>
+                              {usaCities.map((city) => (
+                                <option key={city} value={city}>{city}</option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.travelDate} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <input
+                              type="date"
+                              id="travelDate"
+                              name="travelDate"
+                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                              value={formData.travelDate}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : formData.destination === 'Canada' ? (
+                      <>
+                        <div className="form-group">
+                          <label htmlFor="canadaCity" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.canadaCity} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              </svg>
+                            </div>
+                            <select
+                              id="canadaCity"
+                              name="canadaCity"
+                              className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 appearance-none"
+                              value={formData.canadaCity || ''}
+                              onChange={handleChange}
+                              required
+                            >
+                              <option value="" disabled>{t.selectCanadaCity}</option>
+                              {canadaCities.map((city) => (
+                                <option key={city} value={city}>{city}</option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.travelDate} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <input
+                              type="date"
+                              id="travelDate"
+                              name="travelDate"
+                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                              value={formData.travelDate}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : formData.destination === 'Schengen' ? (
+                      <>
+                        <div className="form-group col-span-2">
+                          <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Pays Schengen inclus:</p>
+                            <p className="text-xs text-gray-600">{schengenCountries.join(", ")}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.travelDate} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <input
+                              type="date"
+                              id="travelDate"
+                              name="travelDate"
+                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                              value={formData.travelDate}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : formData.destination.startsWith('Schengen-') ? (
+                      <>
+                        <div className="form-group">
+                          <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <p className="text-sm font-medium text-gray-700">Pays Schengen sélectionné:</p>
+                            <p className="text-base font-semibold text-primary-600">{formData.destination.substring(9)}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
+                            {t.travelDate} <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <input
+                              type="date"
+                              id="travelDate"
+                              name="travelDate"
+                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                              value={formData.travelDate}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
                     <div className="form-group">
                       <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
                         {t.travelDate} <span className="text-red-500">*</span>
-              </label>
+                      </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -712,11 +1337,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                           name="travelDate"
                           className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
                           value={formData.travelDate}
-                onChange={handleChange}
-                required
-              />
+                          onChange={handleChange}
+                          required
+                        />
                       </div>
-            </div>
+                    </div>
+                    )}
             
                     <div className="form-group">
                       <label htmlFor="visaType" className="block text-sm font-medium text-gray-700 mb-2">
@@ -790,7 +1416,118 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                 <div className="mb-8">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t.passportUpload}
-              </label>
+                  </label>
+                  
+                  {/* Add the Scan Passport button prominently at the top */}
+                  <div className="mb-4">
+                    <button 
+                      type="button"
+                      onClick={openCamera}
+                      className="w-full flex items-center justify-center py-3 px-4 border border-primary-300 rounded-lg text-primary-600 bg-primary-50 hover:bg-primary-100 transition-colors duration-200"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {t.scanButtonText}
+                    </button>
+                    
+                    {/* Camera error message */}
+                    {scanError && !isCameraOpen && !capturedImage && (
+                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        <div className="flex items-center">
+                          <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>{scanError}</span>
+                        </div>
+                        <div className="mt-2 pl-7">
+                          <p className="text-xs text-red-600">
+                            Please try uploading your passport manually with the upload option below.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Camera interface for scanning */}
+                  {isCameraOpen && (
+                    <div className="relative mb-4">
+                      <div className="rounded-lg overflow-hidden border-2 border-primary-500">
+                        <video 
+                          ref={videoRef} 
+                          className="w-full h-auto" 
+                          autoPlay 
+                          playsInline
+                        ></video>
+                        
+                        <div className="absolute inset-0 border-2 border-dashed border-primary-400 m-6 pointer-events-none"></div>
+                        
+                        <div className="absolute bottom-4 left-0 right-0 text-center text-white bg-black/50 py-2 text-sm">
+                          {t.scanInstructions}
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between mt-4">
+                        <button
+                          type="button"
+                          onClick={cancelScan}
+                          className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                        >
+                          {language === 'ar' ? 'إلغاء' : language === 'fr' ? 'Annuler' : 'Cancel'}
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={captureImage}
+                          className="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                        >
+                          {language === 'ar' ? 'التقاط' : language === 'fr' ? 'Capturer' : 'Capture'}
+                        </button>
+                      </div>
+                      
+                      {/* Hidden canvas elements for processing */}
+                      <canvas ref={canvasRef} className="hidden"></canvas>
+                    </div>
+                  )}
+                  
+                  {/* Display scan results */}
+                  {capturedImage && !isCameraOpen && (
+                    <div className="mb-4">
+                      {isScanning ? (
+                        <div className="text-center py-8">
+                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary-400 border-t-primary-600 mb-2"></div>
+                          <p>{t.scanningPassport}</p>
+                        </div>
+                      ) : (
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-medium text-gray-900">{t.extractedInfo}</h4>
+                            <button
+                              type="button"
+                              onClick={cancelScan}
+                              className="text-sm text-primary-600 hover:text-primary-800"
+                            >
+                              {t.rescan}
+                            </button>
+                          </div>
+                          
+                          {scanError ? (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                              {scanError}
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-4">
+                              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md">
+                                {t.scanSuccess}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary-500 transition-colors duration-200">
                     <div className="space-y-1 text-center">
                       <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -799,7 +1536,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       <div className="flex text-sm text-gray-600">
                         <label htmlFor="passport-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
                           <span>{t.dragDrop}</span>
-              <input
+                          <input
                             id="passport-upload" 
                             name="passport-upload" 
                             type="file" 
@@ -957,7 +1694,19 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                 required
               >
                 <option value="" disabled>{t.selectDestination || 'Select Destination'}</option>
-                {destinationCountries.map((country) => (
+                
+                {/* Schengen as an optgroup with nested countries */}
+                <optgroup label={`Schengen (${schengenCountries.length} pays)`}>
+                  <option value="Schengen">Tous les pays Schengen</option>
+                  {schengenCountries.map(country => (
+                    <option key={`schengen-${country}`} value={`Schengen-${country}`}>
+                      {country}
+                    </option>
+                  ))}
+                </optgroup>
+                
+                {/* Other countries */}
+                {destinationCountries.filter(country => country !== 'Schengen').map((country) => (
                   <option key={country} value={country}>{country}</option>
                 ))}
               </select>

@@ -3,4 +3,10 @@ name = "mira-booking"
 compatibility_date = "2023-12-01"
 
 # Pages configuration
-pages_build_output_dir = "./out" 
+pages_build_output_dir = "./out"
+
+# D1 Database configuration
+[[d1_databases]]
+binding = "DB"
+database_name = "mira-booking-db"
+database_id = "0c1c1907-868c-4727-b348-90d2770c2c60" 

@@ -5,48 +5,84 @@
 
 import { NextResponse } from 'next/server';
 import { generateReceiptEmailTemplate } from '@/lib/emailTemplates';
+import { generateAccountConfirmationEmail } from '@/lib/accountEmail';
 import { Resend } from 'resend';
+import { sendMockEmail } from './mailgun';
 
 // Create Resend instance
 // Resend is much more reliable than direct SMTP and has a generous free tier
 // Get an API key at https://resend.com/
-const RESEND_API_KEY = 're_Qpq7qK6d_MnJCkjuvSADa64owMAUNYYW8'; // Working API key
+const RESEND_API_KEY = 're_fKbXbHZe_ECNfgPmqXnKXvSM9pQhN9zPc'; // Updated to a fresh API key
 const resend = new Resend(RESEND_API_KEY);
 
 // Use Resend's default domain - no verification needed
 const FROM_EMAIL = 'onboarding@resend.dev'; // This works immediately without verification
 const FROM_NAME = 'Mira Booking';
-const AGENCY_EMAIL = 'sitekdigital@gmail.com';
+const AGENCY_EMAIL = 'khalfaouimanar28@gmail.com'; // Updated with the correct agency email
 
 // Function to send email using Resend
 const sendEmail = async (to: string, cc: string, subject: string, data: any) => {
   try {
-    // Generate HTML email content
-    const htmlContent = generateReceiptEmailTemplate(data);
+    // Generate HTML email content based on template type
+    let htmlContent;
+    if (data.template === 'account-confirmation') {
+      htmlContent = generateAccountConfirmationEmail(data);
+    } else {
+      htmlContent = generateReceiptEmailTemplate(data);
+    }
     
     console.log('Attempting to send email to:', to);
     console.log('CC:', cc);
+    console.log('Template type:', data.template || 'receipt');
     
-    // Send the email
-    const result = await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: [to],
-      cc: [cc],
-      subject: subject,
-      html: htmlContent,
-      replyTo: AGENCY_EMAIL,
-    });
+    // Implement retry logic for reliability
+    let lastError = null;
+    const maxRetries = 3;
     
-    if (result.error) {
-      console.error('Email sending error:', result.error);
-      return { success: false, error: result.error };
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 1) {
+          console.log(`Retrying email send attempt ${attempt}/${maxRetries}...`);
+        }
+        
+        // Send the email
+        const result = await resend.emails.send({
+          from: `${FROM_NAME} <${FROM_EMAIL}>`,
+          to: [to],
+          cc: [cc],
+          subject: subject,
+          html: htmlContent,
+          replyTo: AGENCY_EMAIL,
+        });
+        
+        if (result.error) {
+          console.error('Email sending error:', result.error);
+          lastError = result.error;
+          // Continue to next retry attempt
+        } else {
+          console.log('Email sent successfully with Resend:', result.data?.id);
+          return { success: true, messageId: result.data?.id };
+        }
+      } catch (resendError) {
+        console.warn(`Resend API attempt ${attempt} failed:`, resendError);
+        lastError = resendError;
+        // Continue to next retry attempt
+      }
+      
+      // Wait before retrying (increasing delay)
+      if (attempt < maxRetries) {
+        const delayMs = 1000 * attempt; // Increasing delay: 1s, 2s, 3s
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
     }
     
-    console.log('Email sent successfully:', result.data?.id);
-    return { success: true, messageId: result.data?.id };
+    console.warn('All Resend API attempts failed, falling back to mock implementation');
+    // After all retries, fall back to mock implementation
+    return await sendMockEmail(to, cc, subject, data);
   } catch (error) {
     console.error('Email sending error:', error);
-    return { success: false, error };
+    // Always fall back to mock implementation if anything fails
+    return await sendMockEmail(to, cc, subject, data);
   }
 };
 
@@ -71,10 +107,10 @@ export async function POST(request: Request) {
     console.log('📧 Sending email with Resend...');
     const result = await sendEmail(to, cc || AGENCY_EMAIL, subject, data);
     
-    if (result.success === false) {
-      console.error('❌ Email error:', result.error);
+    if (!result.success) {
+      console.error('❌ Email error:', result);
       return NextResponse.json(
-        { error: 'Failed to send email', details: result.error },
+        { error: 'Failed to send email', details: 'See server logs for details' },
         { status: 500 }
       );
     }

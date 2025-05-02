@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Mira Booking',
   description: 'Visa processing service for global travelers',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -81,7 +84,9 @@ export default function RootLayout({
           });
         `}} />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <main>{children}</main>
+      </body>
     </html>
   );
 } 

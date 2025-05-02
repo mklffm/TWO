@@ -1,0 +1,10 @@
+name = "mira-booking-backend"
+compatibility_date = "2024-04-26"
+main = "index.ts"
+[vars]
+JWT_SECRET = "your-secret-key"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mira-booking-db"
+database_id = "0c1c1907-868c-4727-b348-90d2770c2c60" 
