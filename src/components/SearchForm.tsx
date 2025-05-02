@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
-import { sendReceiptEmail } from '@/lib/emailService';
+import { sendReceiptEmail } from '@/lib/emailjsService';
+import { initEmailJS } from '@/lib/emailjsService';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 // Note: In a production app, we would use a server-side API for MRZ detection
@@ -122,7 +123,8 @@ const translations = {
     usaCity: "US City",
     selectUsaCity: "Select US City",
     canadaCity: "Canadian City",
-    selectCanadaCity: "Select Canadian City"
+    selectCanadaCity: "Select Canadian City",
+    priceFormatter: '{price} {currency}'
   },
   fr: {
     formTitle: 'Vérifiez vos conditions de visa',
@@ -201,7 +203,8 @@ const translations = {
     usaCity: "Ville aux États-Unis",
     selectUsaCity: "Sélectionner une ville aux États-Unis",
     canadaCity: "Ville Canadienne",
-    selectCanadaCity: "Sélectionner une ville canadienne"
+    selectCanadaCity: "Sélectionner une ville canadienne",
+    priceFormatter: '{price} {currency}'
   },
   ar: {
     formTitle: 'تحقق من متطلبات التأشيرة الخاصة بك',
@@ -280,7 +283,8 @@ const translations = {
     usaCity: "مدينة في الولايات المتحدة",
     selectUsaCity: "اختر مدينة في الولايات المتحدة",
     canadaCity: "مدينة كندية",
-    selectCanadaCity: "اختر مدينة كندية"
+    selectCanadaCity: "اختر مدينة كندية",
+    priceFormatter: '{price} {currency}'
   }
 };
 
@@ -484,6 +488,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    // Initialize EmailJS
+    initEmailJS();
+  }, []);
+  
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -645,52 +655,29 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    setEmailStatus('sending');
-    
-    // Get the clean destination name for the email (extract the country name for Schengen)
-    let destinationForEmail = formData.destination;
-    if (formData.destination.startsWith('Schengen-')) {
-      // Extract the specific Schengen country from the value (after "Schengen-")
-      const schengenCountry = formData.destination.substring(9);
-      destinationForEmail = `Schengen (${schengenCountry})`;
-    }
-    
-    // Clear previous email status
-    localStorage.removeItem('emailSendStatus');
-    
-    // Create email data
+    // Create email data object
     const emailData = {
-      ...formData,
-      destination: destinationForEmail, // Use the clean destination name
-      accountType,
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      nationality: formData.nationality,
+      destination: formData.destination,
+      travelDate: formData.travelDate,
+      visaType: formData.visaType,
+      processingTime: formData.processingTime,
       price: customPrice,
-      formattedPrice: `${customPrice.toLocaleString()} ${getCurrencyCode()}`
+      currency: getCurrencyCode(),
+      formattedPrice: t.priceFormatter.replace('{price}', customPrice.toString()).replace('{currency}', getCurrencyCode()),
+      timestamp: new Date().toISOString(),
+      language: language
     };
-    
-    // Track max retries for email sending
-    let retries = 0;
-    const maxRetries = 2;
-    
-    const attemptSendEmail = async (): Promise<{success: boolean; message?: string}> => {
-      try {
-        // Send receipt email
-        return await sendReceiptEmail(emailData);
-      } catch (error) {
-        console.error(`Email attempt ${retries + 1} failed:`, error);
-        if (retries < maxRetries) {
-          retries++;
-          console.log(`Retrying email send (${retries}/${maxRetries})...`);
-          // Wait a bit before retrying
-          await new Promise(r => setTimeout(r, 1000));
-          return attemptSendEmail();
-        }
-        throw error;
-      }
-    };
-    
+
+    // Reset the email status
+    setEmailStatus('sending');
+
     try {
-      // Send receipt email with retries
-      const result = await attemptSendEmail();
+      // Send receipt email using EmailJS
+      const result = await sendReceiptEmail(emailData);
       
       // Store email status for debugging
       localStorage.setItem('emailSendStatus', JSON.stringify({
@@ -702,11 +689,6 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       if (result.success) {
         console.log('Email success:', result.message);
         setEmailStatus('success');
-        
-        // Show guidance if in development mode
-        if (result.message && result.message.includes('development')) {
-          console.info('DEVELOPMENT MODE: Check /api/send-email in your browser to view the sent emails');
-        }
         
         // Redirect to application page after a short delay
         setTimeout(() => {
@@ -724,7 +706,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         error: error instanceof Error ? error.message : String(error)
       }));
       
-      console.error('Failed to send email after all retries:', error);
+      console.error('Failed to send email:', error);
       setEmailStatus('error');
     }
   };

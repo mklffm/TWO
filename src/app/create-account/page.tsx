@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import { sendAccountConfirmationEmail } from '@/lib/accountEmail';
+import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService';
 
 export default function CreateAccount() {
   const router = useRouter();
@@ -38,6 +38,11 @@ export default function CreateAccount() {
     }
   }, [router]);
 
+  // Initialize EmailJS when component mounts
+  useEffect(() => {
+    initEmailJS();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -59,14 +64,14 @@ export default function CreateAccount() {
       return;
     }
     
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('https://mira-booking-backend.khalfaouimanar28.workers.dev/api/auth/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,8 +82,8 @@ export default function CreateAccount() {
           email: formData.email,
           password: formData.password,
         }),
-        mode: 'cors',
         credentials: 'include',
+        mode: 'cors',
       });
 
       // Get the response text
@@ -104,19 +109,12 @@ export default function CreateAccount() {
         localStorage.setItem('token', (data as any).token);
         
         // Send confirmation email
-        try {
-          const emailResult = await sendAccountConfirmationEmail({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            timestamp: new Date().toISOString()
-          });
-          
-          console.log('Email sending result:', emailResult);
-        } catch (emailError) {
-          // Don't block registration if email fails
-          console.error('Failed to send confirmation email:', emailError);
-        }
+        await sendAccountConfirmationEmail({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          timestamp: new Date().toISOString()
+        });
         
         // Trigger a storage event for Header component to detect login
         window.dispatchEvent(new Event('storage'));
@@ -266,7 +264,7 @@ export default function CreateAccount() {
                   )}
                 </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">Password must be at least 8 characters long</p>
+              <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters long</p>
             </div>
 
             <div>

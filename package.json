@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@prisma/client": "^6.6.0",
     "@sendgrid/mail": "^8.1.5",
     "@types/bcrypt": "^5.0.2",

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { sendReceiptEmail } from '@/lib/emailService';
-import { sendAccountConfirmationEmail } from '@/lib/accountEmail';
+import { useState, useEffect } from 'react';
+import { sendTestEmail, initEmailJS } from '@/lib/emailjsService';
 import Link from 'next/link';
 
 export default function TestEmailPage() {
@@ -10,6 +9,12 @@ export default function TestEmailPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [response, setResponse] = useState<any>(null);
   const [emailType, setEmailType] = useState<'receipt' | 'account'>('receipt');
+  
+  // Initialize EmailJS when component mounts
+  useEffect(() => {
+    // Initialize EmailJS
+    initEmailJS();
+  }, []);
   
   const handleSendTest = async () => {
     if (!email) {
@@ -20,37 +25,33 @@ export default function TestEmailPage() {
     setStatus('loading');
     
     try {
-      let response;
+      let templateId = emailType === 'receipt' ? 'template_receipt' : 'template_account_confirmation';
       
-      if (emailType === 'receipt') {
-        // Test receipt email
-        const testData = {
-          fullName: 'Test User',
-          email: email,
-          phone: '+12345678901',
-          nationality: 'USA',
-          destination: 'Canada',
-          travelDate: '2023-12-25',
-          visaType: 'tourist',
-          processingTime: 'standard',
-          price: 249.99,
-          currency: 'USD',
-          agencyId: 'TEST001',
-          timestamp: new Date().toISOString()
-        };
-        
-        response = await sendReceiptEmail(testData);
-      } else {
-        // Test account confirmation email
-        const testData = {
-          firstName: 'Test',
-          lastName: 'User',
-          email: email,
-          timestamp: new Date().toISOString()
-        };
-        
-        response = await sendAccountConfirmationEmail(testData);
-      }
+      // Create test data based on the template type
+      const testData = emailType === 'receipt' 
+        ? {
+            fullName: 'Test User',
+            email: email,
+            phone: '+12345678901',
+            nationality: 'USA',
+            destination: 'Canada',
+            travelDate: '2023-12-25',
+            visaType: 'tourist',
+            processingTime: 'standard',
+            price: 249.99,
+            currency: 'USD',
+            agencyId: 'TEST001',
+            timestamp: new Date().toISOString()
+          }
+        : {
+            firstName: 'Test',
+            lastName: 'User',
+            email: email,
+            timestamp: new Date().toISOString()
+          };
+      
+      // Send test email with EmailJS
+      const response = await sendTestEmail(email, templateId, testData);
       
       setResponse(response);
       setStatus(response.success ? 'success' : 'error');
@@ -67,7 +68,7 @@ export default function TestEmailPage() {
   
   return (
     <div className="container mx-auto p-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-8 text-center">Email Test Page</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Email Test Page (EmailJS)</h1>
       
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6">
@@ -139,14 +140,21 @@ export default function TestEmailPage() {
       </div>
       
       <div className="mt-8 bg-blue-50 p-6 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Troubleshooting Guide</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li>Make sure you've entered a valid email address</li>
-          <li>Check your browser console for detailed error messages</li>
-          <li>If emails aren't arriving, check your spam/junk folder</li>
-          <li>Verify the Resend API key in the environment variables</li>
-          <li>Make sure the API implementation in <code className="bg-gray-200 px-1 rounded">src/app/api/send-email/route.ts</code> is correct</li>
-        </ul>
+        <h2 className="text-xl font-semibold mb-4">EmailJS Setup Guide</h2>
+        <ol className="list-decimal pl-6 space-y-2">
+          <li>Go to <a href="https://www.emailjs.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">EmailJS.com</a> and create an account</li>
+          <li>Create an Email Service (integration with Gmail, Outlook, etc.)</li>
+          <li>Create Email Templates with the following parameter names:
+            <ul className="list-disc pl-6 mt-2">
+              <li><code className="bg-gray-200 px-1 rounded">to_email</code> - Recipient email</li>
+              <li><code className="bg-gray-200 px-1 rounded">to_name</code> - Recipient name</li>
+              <li><code className="bg-gray-200 px-1 rounded">cc_email</code> - CC email (agency)</li>
+              <li>Plus other custom parameters as needed for your template</li>
+            </ul>
+          </li>
+          <li>Update the service IDs, template IDs and public key in <code className="bg-gray-200 px-1 rounded">src/lib/emailjsService.ts</code></li>
+        </ol>
+        <p className="mt-4 text-sm">EmailJS provides reliable email delivery without needing a server-side API!</p>
       </div>
       
       <div className="mt-6 text-center">
