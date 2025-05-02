@@ -1,13 +1,14 @@
 import emailjs from '@emailjs/browser';
 
-// EmailJS service IDs
-const SERVICE_ID = 'service_mira_booking';  // Replace with your actual EmailJS service ID
-const TEMPLATE_ID_RECEIPT = 'template_receipt';  // Replace with your actual template ID for receipts
-const TEMPLATE_ID_ACCOUNT = 'template_account_confirmation';  // Replace with your actual template ID for account confirmations
-const PUBLIC_KEY = 'rPcGG-LPTqO6DvaTg';  // Replace with your actual EmailJS public key
+// EmailJS service IDs - using exact ID from dashboard
+const SERVICE_ID = 'service_iiuxghk';  // Correct service ID with two i's as specified by user
+const TEMPLATE_ID_RECEIPT = 'template_qwdj90s';  // User's receipt template ID
+const TEMPLATE_ID_ACCOUNT = 'template_account_confirmation';  // Will be updated later
+const PUBLIC_KEY = 'v2vohWnibCcIzHkBm';  // User's public key
 
 // Initialize EmailJS
 export const initEmailJS = () => {
+  console.log('Initializing EmailJS with public key:', PUBLIC_KEY);
   emailjs.init(PUBLIC_KEY);
 };
 
@@ -18,31 +19,34 @@ export const initEmailJS = () => {
  */
 export const sendReceiptEmail = async (data: any): Promise<{success: boolean; message?: string}> => {
   try {
-    console.log('Sending receipt email for:', data.fullName);
+    console.log('Preparing to send receipt email for:', data.fullName);
+    console.log('Using SERVICE_ID:', SERVICE_ID);
+    console.log('Using TEMPLATE_ID_RECEIPT:', TEMPLATE_ID_RECEIPT);
     
     // Add timestamp if not present
     const emailData = {
       ...data,
       timestamp: data.timestamp || new Date().toISOString(),
-      cc_agency: 'khalfaouimanar28@gmail.com',  // Agency email always gets a copy
     };
     
     // Create a properly formatted template object for EmailJS
     const templateParams = {
       to_name: data.fullName || 'Valued Customer',
       to_email: data.email,
+      from_name: 'Mira Booking',
       destination: data.destination,
       visa_type: data.visaType,
       processing_time: data.processingTime,
       price: data.price,
-      formatted_price: data.formattedPrice || `${data.price} ${data.currency || 'USD'}`,
+      formatted_price: data.formattedPrice || `${data.price} ${data.currency || 'DZD'}`,
       travel_date: data.travelDate,
-      agency_email: 'khalfaouimanar28@gmail.com',
-      cc_email: 'khalfaouimanar28@gmail.com',
-      reply_to: 'khalfaouimanar28@gmail.com',
+      cc_email: 'sitekdigital@gmail.com',
+      reply_to: 'sitekdigital@gmail.com',
       date: new Date().toLocaleDateString(),
       ...emailData
     };
+    
+    console.log('Email template parameters:', JSON.stringify(templateParams, null, 2));
     
     // Track retries
     let retries = 0;
@@ -50,6 +54,15 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
     
     const sendWithRetry = async (): Promise<{ success: boolean; message?: string }> => {
       try {
+        console.log(`Sending email attempt ${retries + 1}/${maxRetries + 1}`);
+        
+        // Send email with EmailJS - add debug info
+        console.log('Full EmailJS parameters:', {
+          serviceId: SERVICE_ID,
+          templateId: TEMPLATE_ID_RECEIPT,
+          publicKey: PUBLIC_KEY.substring(0, 4) + '...'
+        });
+        
         // Send email with EmailJS
         const response = await emailjs.send(
           SERVICE_ID,
@@ -64,6 +77,7 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
         };
       } catch (error) {
         console.error(`Email attempt ${retries + 1} failed:`, error);
+        
         if (retries < maxRetries) {
           retries++;
           console.log(`Retrying email send (${retries}/${maxRetries})...`);
@@ -78,9 +92,25 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
     return await sendWithRetry();
   } catch (error) {
     console.error('Error sending email:', error);
+    let errorMessage = 'Unknown error';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('Error details:', error.stack);
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (typeof error === 'object' && error !== null) {
+      errorMessage = JSON.stringify(error);
+    }
+    
+    // Log error to console in a format that's easy to read
+    console.error('EMAILJS ERROR DETAILS:');
+    console.error('- Message:', errorMessage);
+    console.error('- Type:', typeof error);
+    
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: errorMessage
     };
   }
 };
@@ -100,9 +130,9 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
       to_email: data.email,
       first_name: data.firstName,
       last_name: data.lastName,
-      agency_email: 'khalfaouimanar28@gmail.com',
-      cc_email: 'khalfaouimanar28@gmail.com',
-      reply_to: 'khalfaouimanar28@gmail.com',
+      from_name: 'Mira Booking',
+      cc_email: 'sitekdigital@gmail.com',
+      reply_to: 'sitekdigital@gmail.com',
       date: new Date().toLocaleDateString(),
       user_email: data.email,
       ...data
@@ -148,9 +178,9 @@ export const sendTestEmail = async (
     const templateParams = {
       to_name: data.fullName || 'Test User',
       to_email: to,
-      agency_email: 'khalfaouimanar28@gmail.com',
-      cc_email: 'khalfaouimanar28@gmail.com',
-      reply_to: 'khalfaouimanar28@gmail.com',
+      from_name: 'Mira Booking',
+      cc_email: 'sitekdigital@gmail.com',
+      reply_to: 'sitekdigital@gmail.com',
       date: new Date().toLocaleDateString(),
       ...data
     };
