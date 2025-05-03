@@ -493,7 +493,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     // Initialize EmailJS
     initEmailJS();
   }, []);
-  
+
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -535,10 +535,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         });
       }
     } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+    setFormData({
+      ...formData,
+      [name]: value
+    });
     }
     
     // Update required documents when visa type changes
@@ -655,6 +655,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
+    // Make sure EmailJS is initialized
+    try {
+      initEmailJS();
+      console.log('EmailJS re-initialized before sending');
+    } catch (initError) {
+      console.error('Error initializing EmailJS:', initError);
+    }
+    
     // Create email data object
     const emailData = {
       fullName: formData.fullName,
@@ -672,19 +680,26 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       language: language
     };
 
+    console.log('Prepared email data:', JSON.stringify(emailData));
+
     // Reset the email status
     setEmailStatus('sending');
-
+    
     try {
+      console.log('Starting email send process...');
+      
       // Send receipt email using EmailJS
       const result = await sendReceiptEmail(emailData);
       
       // Store email status for debugging
-      localStorage.setItem('emailSendStatus', JSON.stringify({
+      const debugData = {
         timestamp: new Date().toISOString(),
         data: emailData,
         result: result,
-      }));
+      };
+      
+      console.log('Email send attempt completed:', debugData);
+      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
       
       if (result.success) {
         console.log('Email success:', result.message);
@@ -697,17 +712,26 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       } else {
         console.error('Email failed:', result.message);
         setEmailStatus('error');
+        
+        // Show error alert for debugging
+        alert('Error sending email: ' + result.message);
       }
     } catch (error) {
       // Store error for debugging
-      localStorage.setItem('emailSendStatus', JSON.stringify({
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const debugData = {
         timestamp: new Date().toISOString(),
         data: emailData,
-        error: error instanceof Error ? error.message : String(error)
-      }));
+        error: errorMessage
+      };
+      
+      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
       
       console.error('Failed to send email:', error);
       setEmailStatus('error');
+      
+      // Show error alert for debugging
+      alert('Exception sending email: ' + errorMessage);
     }
   };
 
@@ -1153,37 +1177,37 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                               <option value="" disabled>{t.selectUsaCity}</option>
                               {usaCities.map((city) => (
                                 <option key={city} value={city}>{city}</option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
-                          </div>
+                ))}
+              </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
                         </div>
-
-                        <div className="form-group">
-                          <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
-                            {t.travelDate} <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                            <input
-                              type="date"
-                              id="travelDate"
-                              name="travelDate"
-                              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-                              value={formData.travelDate}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
+                      </div>
+            </div>
+            
+                    <div className="form-group">
+                      <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
+                        {t.travelDate} <span className="text-red-500">*</span>
+              </label>
+                      <div className="relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
                         </div>
+                        <input
+                          type="date"
+                          id="travelDate"
+                          name="travelDate"
+                          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                          value={formData.travelDate}
+                onChange={handleChange}
+                required
+              />
+                      </div>
+            </div>
                       </>
                     ) : formData.destination === 'Canada' ? (
                       <>
@@ -1215,8 +1239,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
                             </div>
-                          </div>
-                        </div>
+                      </div>
+            </div>
 
                         <div className="form-group">
                           <label htmlFor="travelDate" className="block text-sm font-medium text-gray-700 mb-2">
@@ -1398,7 +1422,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                 <div className="mb-8">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t.passportUpload}
-                  </label>
+              </label>
                   
                   {/* Add the Scan Passport button prominently at the top */}
                   <div className="mb-4">
@@ -1518,7 +1542,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       <div className="flex text-sm text-gray-600">
                         <label htmlFor="passport-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
                           <span>{t.dragDrop}</span>
-                          <input
+              <input
                             id="passport-upload" 
                             name="passport-upload" 
                             type="file" 
