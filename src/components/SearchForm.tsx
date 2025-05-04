@@ -855,51 +855,60 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Add function to process MRZ in the captured image
   const processMRZ = async (canvas: HTMLCanvasElement) => {
     try {
-      // In a real implementation, this would call a server endpoint or use a client-side library
-      // For demo purposes, we'll simulate MRZ detection with a timeout
-      setTimeout(() => {
-        try {
-          // Simulated MRZ detection result - generate a more realistic example
-          const mockResult: MRZResult = {
-            documentType: 'P',
-            documentNumber: formData.fullName ? `${formData.fullName.substring(0, 2).toUpperCase()}${Math.floor(Math.random() * 10000000)}` : 'AB1234567',
-            surname: formData.fullName ? formData.fullName.split(' ').slice(1).join(' ').toUpperCase() : 'SMITH',
-            givenNames: formData.fullName ? formData.fullName.split(' ')[0].toUpperCase() : 'JOHN',
-            nationality: formData.nationality || 'USA',
-            birthDate: '19900101',
-            expiryDate: '20300101',
-            gender: 'M',
-            personalNumber: '',
-            fullName: formData.fullName ? formData.fullName.toUpperCase() : 'JOHN SMITH'
-          };
-          
-          setScanResult(mockResult);
-          setIsScanning(false);
-          closeCamera();
-          
-          // Convert dates to readable format
-          const birthDate = formatMRZDate(mockResult.birthDate || '');
-          const expiryDate = formatMRZDate(mockResult.expiryDate || '');
-          
-          // Update form with extracted data
-          setFormData({
-            ...formData,
-            fullName: mockResult.fullName || formData.fullName,
-            nationality: mockResult.nationality || formData.nationality,
-            passportNumber: mockResult.documentNumber,
-            birthDate: birthDate,
-            expiryDate: expiryDate,
-            mrzData: mockResult
-          });
-        } catch (err) {
-          console.error('Error processing MRZ data:', err);
-          setScanError('Error processing passport data');
-          setIsScanning(false);
-        }
-      }, 2000);
+      setIsScanning(true);
+      
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else throw new Error('Failed to convert image to blob');
+        }, 'image/jpeg', 0.95);
+      });
+      
+      // Create form data for API call
+      const mrzFormData = new FormData();
+      mrzFormData.append('image', blob, 'passport.jpg');
+      
+      // Call MRZ reading API
+      const response = await fetch('https://mira-booking-backend.khalfaouimanar28.workers.dev/api/read-mrz', {
+        method: 'POST',
+        body: mrzFormData,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`MRZ detection failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success || !result.data) {
+        throw new Error('Failed to detect passport data. Please try again with better lighting and positioning.');
+      }
+      
+      const mrzResult: MRZResult = result.data;
+      
+      setScanResult(mrzResult);
+      setIsScanning(false);
+      closeCamera();
+      
+      // Convert dates to readable format
+      const birthDate = formatMRZDate(mrzResult.birthDate || '');
+      const expiryDate = formatMRZDate(mrzResult.expiryDate || '');
+      
+      // Update form with extracted data
+      setFormData({
+        ...formData,
+        fullName: mrzResult.fullName || formData.fullName,
+        nationality: mrzResult.nationality || formData.nationality,
+        passportNumber: mrzResult.documentNumber,
+        birthDate: birthDate,
+        expiryDate: expiryDate,
+        mrzData: mrzResult
+      });
+      
     } catch (error) {
       console.error('MRZ detection failed:', error);
-      setScanError(t.scanFailed);
+      setScanError(error instanceof Error ? error.message : t.scanFailed);
       setIsScanning(false);
     }
   };

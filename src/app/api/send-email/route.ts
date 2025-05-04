@@ -7,7 +7,6 @@ import { NextResponse } from 'next/server';
 import { generateReceiptEmailTemplate } from '@/lib/emailTemplates';
 import { generateAccountConfirmationEmail } from '@/lib/accountEmail';
 import { Resend } from 'resend';
-import { sendMockEmail } from './mailgun';
 
 // Create Resend instance
 // Resend is much more reliable than direct SMTP and has a generous free tier
@@ -36,7 +35,7 @@ const sendEmail = async (to: string, cc: string, subject: string, data: any) => 
     console.log('Template type:', data.template || 'receipt');
     
     // Implement retry logic for reliability
-    let lastError = null;
+    let lastError: any = null;
     const maxRetries = 3;
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -76,13 +75,12 @@ const sendEmail = async (to: string, cc: string, subject: string, data: any) => 
       }
     }
     
-    console.warn('All Resend API attempts failed, falling back to mock implementation');
-    // After all retries, fall back to mock implementation
-    return await sendMockEmail(to, cc, subject, data);
+    // After all retries failed, return an error
+    console.error('All Resend API attempts failed');
+    throw new Error('Failed to send email after multiple attempts');
   } catch (error) {
     console.error('Email sending error:', error);
-    // Always fall back to mock implementation if anything fails
-    return await sendMockEmail(to, cc, subject, data);
+    throw error; // Let the caller handle the error
   }
 };
 
@@ -106,14 +104,6 @@ export async function POST(request: Request) {
     
     console.log('📧 Sending email with Resend...');
     const result = await sendEmail(to, cc || AGENCY_EMAIL, subject, data);
-    
-    if (!result.success) {
-      console.error('❌ Email error:', result);
-      return NextResponse.json(
-        { error: 'Failed to send email', details: 'See server logs for details' },
-        { status: 500 }
-      );
-    }
     
     console.log('✅ Email sent successfully:', result);
     return NextResponse.json({ success: true, result });
