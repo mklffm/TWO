@@ -71,37 +71,59 @@ export default function CreateAccount() {
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-        }),
-        credentials: 'include',
-        mode: 'cors',
-      });
+      console.log('Attempting to register user...');
+      // Use a more direct approach with error handling
+      let response;
+      
+      try {
+        response = await fetch('https://mira-booking-backend.khalfaouimanar28.workers.dev/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+          }),
+          credentials: 'include',
+          mode: 'cors',
+        });
+        console.log('Fetch response received:', response.status, response.statusText);
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError);
+        throw new Error('Network error: Failed to connect to the server. Please check your internet connection and try again.');
+      }
 
       // Get the response text
-      const textResponse = await response.text();
+      let textResponse;
+      try {
+        textResponse = await response.text();
+        console.log('Response text:', textResponse);
+      } catch (textError) {
+        console.error('Error reading response text:', textError);
+        throw new Error('Error reading server response');
+      }
       
       // Try to parse as JSON if there's content
       let data = {};
       if (textResponse) {
         try {
           data = JSON.parse(textResponse);
+          console.log('Parsed response data:', data);
         } catch (parseError) {
           console.error('Invalid JSON response:', textResponse);
-          throw new Error('The server returned an invalid response');
+          throw new Error('The server returned an invalid response format. Please try again later.');
         }
       }
 
       if (!response.ok) {
-        throw new Error((data as any).message || 'Registration failed');
+        // Handle specific error cases
+        if ((data as any).error === 'Email already registered') {
+          throw new Error('This email is already registered. Please try logging in or use a different email.');
+        }
+        throw new Error((data as any).error || (data as any).message || 'Registration failed. Please try again later.');
       }
 
       // Store the token

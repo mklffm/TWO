@@ -86,9 +86,8 @@ const translations = {
     totalPrice: 'Total Amount',
     priceNote: 'Includes all processing fees and taxes',
     requiredDocuments: 'Required Documents',
-    sendFilesInstructions: 'Send files to complete your application',
-    applyNow: 'Apply Now',
-    fileEmailNote: 'You can also email files to support@mira.dz',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.dz@gmail.com',
+    applyNow: 'Postulez maintenant',
     emailSent: 'Application submitted! Receipt sent to your email.',
     emailError: 'Error sending receipt. Please try again.',
     selectDestination: 'Select Destination',
@@ -166,9 +165,9 @@ const translations = {
     totalPrice: 'Montant total',
     priceNote: 'Comprend tous les frais de traitement et taxes',
     requiredDocuments: 'Documents requis',
-    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.dz@gmail.com',
     applyNow: 'Postulez maintenant',
-    fileEmailNote: 'Vous pouvez également envoyer des fichiers à support@mira.dz',
+    
     emailSent: 'Demande soumise ! Reçu envoyé à votre email.',
     emailError: 'Erreur d\'envoi du reçu. Veuillez réessayer.',
     selectDestination: 'Sélectionner une destination',
@@ -248,9 +247,9 @@ const translations = {
     requiredDocuments: 'المستندات المطلوبة',
     sendFilesInstructions: 'أرسل الملفات لإكمال طلبك',
     applyNow: 'قدم الآن',
-    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى support@mira.dz',
+    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى mira.booking.dz@gmail.com',
     emailSent: 'تم تقديم الطلب! تم إرسال الإيصال إلى بريدك الإلكتروني.',
-    emailError: 'خطأ في إرسال الإيصال. حاول مرة اخرى.',
+    emailError: 'خطأ في إرسال الإيصال. حاول مرة خرى.',
     selectDestination: 'اختر الوجهة',
     selectNationality: 'اختر الجنسية',
     // Placeholder translations
@@ -1881,8 +1880,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                     <div className="mt-6 flex flex-col sm:flex-row justify-between">
                       <div className="mb-4 sm:mb-0 sm:mr-4">
                         <div className="text-sm font-semibold text-gray-900 mb-2">{t.requiredDocuments}</div>
-                        <p className="text-sm text-gray-600 mb-2">{t.sendFilesInstructions}</p>
-                        <p className="text-xs text-gray-500">{t.fileEmailNote}</p>
+                        <p className="text-gray-900 font-bold text-xl mb-2">{t.sendFilesInstructions}</p>
               </div>
                       <div className="flex-shrink-0 text-center">
               <button

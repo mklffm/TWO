@@ -143,12 +143,12 @@ export const generateReceiptEmailTemplate = (data: any) => {
         
         <p><strong>How to Submit Documents:</strong></p>
         <ol>
-          <li>Email all documents to <strong>support@mira.dz</strong></li>
+          <li>Email all documents to <strong>mira.booking.dz@gmail.com</strong></li>
           <li>Include your receipt number <strong>${receiptNumber}</strong> in the subject line</li>
           <li>Our team will process your application and contact you within 24 hours</li>
         </ol>
         
-        <p>If you have any questions, please contact our support team at support@mira.dz or call +213 123 456 789.</p>
+        <p>If you have any questions, please contact our support team at mira.booking.dz@gmail.com or call +213 660 885 339.</p>
       </div>
       <div class="footer">
         <p>© ${new Date().getFullYear()} Mira Booking. All rights reserved.</p>

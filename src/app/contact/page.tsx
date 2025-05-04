@@ -26,7 +26,7 @@ const translations = {
     subject: "Subject",
     message: "Message",
     send: "Send",
-    address: "123 Champs-Élysées, 75008 Paris, France",
+    address: "Constantine, Algeria",
     emailAddress: "mira.booking.dz@gmail.com",
     phoneNumber: "+213 660 885 339 / +213 654 729 019",
     officeHours: "Office Hours: Mon-Fri 9:00 AM - 6:00 PM",
@@ -50,7 +50,7 @@ const translations = {
     subject: "Sujet",
     message: "Message",
     send: "Envoyer",
-    address: "123 Rue des Champs-Élysées, 75008 Paris, France",
+    address: "Constantine, Algérie",
     emailAddress: "mira.booking.dz@gmail.com",
     phoneNumber: "+213 660 885 339 / +213 654 729 019",
     officeHours: "Heures d'ouverture: Lun-Ven 9:00 - 18:00",
@@ -74,7 +74,7 @@ const translations = {
     subject: "الموضوع",
     message: "الرسالة",
     send: "إرسال",
-    address: "١٢٣ شارع الشانزليزيه، ٧٥٠٠٨ باريس، فرنسا",
+    address: "قسنطينة، الجزائر",
     emailAddress: "mira.booking.dz@gmail.com",
     phoneNumber: "٢١٣٦٦٠٨٨٥٣٣٩+ / ٢١٣٦٥٤٧٢٩٠١٩+",
     officeHours: "ساعات العمل: الاثنين-الجمعة ٩:٠٠ - ١٨:٠٠",
@@ -96,7 +96,7 @@ const GoogleMapComponent = () => {
   return (
     <div className="w-full h-[300px] rounded-lg overflow-hidden shadow-md">
       <iframe 
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.1471255133193!2d2.2987851!3d48.8693308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fc45c100001%3A0x53be91db5149a906!2sChamps-%C3%89lys%C3%A9es%2C%20Paris%2C%20France!5e0!3m2!1sen!2sus!4v1649939602182!5m2!1sen!2sus" 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d102682.55040633759!2d6.5345053!3d36.3654624!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f17717c4785627%3A0xc87c8afd8166fb38!2sConstantine%2C%20Algeria!5e0!3m2!1sen!2sus!4v1715015479913!5m2!1sen!2sus" 
         width="100%" 
         height="100%" 
         style={{ border: 0 }} 

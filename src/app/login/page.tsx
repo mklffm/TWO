@@ -74,7 +74,13 @@ export default function Login() {
       }
 
       if (!response.ok) {
-        throw new Error((data as any).message || 'Invalid credentials');
+        // Handle specific error cases
+        if ((data as any).error === 'Invalid credentials') {
+          throw new Error('Email or password incorrect. Please check your credentials and try again.');
+        } else if (response.status === 429) {
+          throw new Error('Too many login attempts. Please try again later.');
+        }
+        throw new Error((data as any).error || (data as any).message || 'Login failed. Please try again later.');
       }
 
       // Store the token

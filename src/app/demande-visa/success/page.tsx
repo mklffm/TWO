@@ -14,7 +14,7 @@ const translations = {
     description: "Start your visa process quickly and easily with our online application form. We'll guide you through each step of the process.",
     nextSteps: 'Next Steps',
     step1: 'Check your email for the receipt and confirmation details',
-    step2: 'Send the following documents to support@mira.dz:',
+    step2: 'Send the following documents to mira.booking.dz@gmail.com:',
     documentList: 'Passport scan (first page), ID photo with white background, Flight and hotel reservations (if available)',
     step3: 'Include your receipt number in the email subject line',
     step4: 'Our team will process your application within the timeframe you selected',
@@ -29,7 +29,7 @@ const translations = {
     description: "Commencez votre processus de visa rapidement et facilement avec notre formulaire de demande en ligne. Nous vous guiderons à chaque étape du processus.",
     nextSteps: 'Prochaines Étapes',
     step1: 'Vérifiez votre email pour le reçu et les détails de confirmation',
-    step2: 'Envoyez les documents suivants à support@mira.dz:',
+    step2: 'Envoyez les documents suivants à mira.booking.dz@gmail.com:',
     documentList: 'Scan du passeport (première page), photo d\'identité avec fond blanc, réservations de vol et d\'hôtel (si disponibles)',
     step3: 'Incluez votre numéro de reçu dans l\'objet de l\'email',
     step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné',
@@ -44,7 +44,7 @@ const translations = {
     description: "ابدأ عملية التأشيرة الخاصة بك بسرعة وسهولة باستخدام نموذج الطلب عبر الإنترنت. سنرشدك خلال كل خطوة من خطوات العملية.",
     nextSteps: 'الخطوات التالية',
     step1: 'تحقق من بريدك الإلكتروني للحصول على الإيصال وتفاصيل التأكيد',
-    step2: 'أرسل المستندات التالية إلى support@mira.dz:',
+    step2: 'أرسل المستندات التالية إلى mira.booking.dz@gmail.com:',
     documentList: 'مسح جواز السفر (الصفحة الأولى)، صورة شخصية بخلفية بيضاء، حجوزات الطيران والفندق (إن وجدت)',
     step3: 'قم بتضمين رقم الإيصال الخاص بك في سطر موضوع البريد الإلكتروني',
     step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته',
@@ -151,8 +151,8 @@ export default function ApplicationSuccessPage() {
             
             <div className="mt-10 border-t border-gray-200 pt-8">
               <p className="text-base text-gray-600">{t.questions}</p>
-              <p className="mt-2 text-base font-medium text-primary-600">support@mira.dz</p>
-              <p className="mt-1 text-base font-medium text-primary-600">+213 123 456 789</p>
+              <p className="mt-2 text-base font-medium text-primary-600">mira.booking.dz@gmail.com</p>
+              <p className="mt-1 text-base font-medium text-primary-600">+213 660 885 339</p>
             </div>
             
             <div className="mt-8 flex flex-col sm:flex-row sm:space-x-4">

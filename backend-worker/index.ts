@@ -11,10 +11,15 @@ const app = new Hono();
 
 // Global middleware for CORS
 app.all('*', (c: any) => {
-  // Add CORS headers
-  c.header('Access-Control-Allow-Origin', '*');
+  // Get the origin from the request
+  const origin = c.req.header('Origin') || '*';
+  
+  // Allow specific origins or all in development
+  c.header('Access-Control-Allow-Origin', origin);
   c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  c.header('Access-Control-Allow-Credentials', 'true');
+  c.header('Access-Control-Max-Age', '86400'); // 24 hours
   
   // Handle OPTIONS request
   if (c.req.method === 'OPTIONS') {
