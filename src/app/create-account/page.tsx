@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService';
+import { AUTH_API } from '@/config/api';
 
 export default function CreateAccount() {
   const router = useRouter();
@@ -76,7 +77,7 @@ export default function CreateAccount() {
       let response;
       
       try {
-        response = await fetch('http://127.0.0.1:8787/api/auth/register', {
+        response = await fetch(AUTH_API.REGISTER, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

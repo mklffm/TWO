@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-const API_BASE = 'https://mira-booking-backend.khalfaouimanar28.workers.dev/api/auth';
+import { AUTH_API } from '@/config/api';
 
 interface User {
   id: string;
@@ -11,10 +10,10 @@ interface User {
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => Promise<void>;
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const response = await fetch(`${API_BASE}/login`, {
+      const response = await fetch(AUTH_API.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,16 +77,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
+  const register = async (firstName: string, lastName: string, email: string, password: string) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const response = await fetch(`${API_BASE}/register`, {
+      const response = await fetch(AUTH_API.REGISTER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, firstName, lastName }),
+        body: JSON.stringify({ firstName, lastName, email, password }),
       });
       if (!response.ok) {
         throw new Error('Registration failed');
@@ -102,7 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
     setCurrentUser(null);
@@ -110,10 +109,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = {
     currentUser,
+    loading,
     login,
     register,
-    logout,
-    loading
+    logout
   };
 
   return (

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
+import { AUTH_API } from '@/config/api';
 
 export default function Login() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8787/api/auth/login', {
+      const response = await fetch(AUTH_API.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

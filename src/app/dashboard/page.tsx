@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
-
-const API_BASE = 'https://mira-booking-backend.khalfaouimanar28.workers.dev/api';
+import { API_BASE_URL } from "@/config/api";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -47,7 +46,7 @@ export default function Dashboard() {
 
   const fetchApplications = async (token: string) => {
     try {
-      const response = await fetch(`${API_BASE}/applications`, {
+      const response = await fetch(`${API_BASE_URL}/applications`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
