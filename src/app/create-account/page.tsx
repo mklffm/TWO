@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService';
-import { AUTH_API, useFallbackApi } from '@/config/api';
+import { AUTH_API, useFallbackApi, useMockAuth } from '@/config/api';
+import { mockRegister } from '@/lib/mockAuthService';
 
 export default function CreateAccount() {
   const router = useRouter();
@@ -72,7 +73,44 @@ export default function CreateAccount() {
     }
 
     try {
-      console.log('Attempting to register user...');
+      // Check if we should use mock auth
+      if (useMockAuth) {
+        console.log('Using mock authentication for registration');
+        try {
+          const { token } = await mockRegister(
+            formData.firstName,
+            formData.lastName,
+            formData.email,
+            formData.password
+          );
+          
+          localStorage.setItem('token', token);
+          
+          // Send confirmation email
+          try {
+            await sendAccountConfirmationEmail({
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              timestamp: new Date().toISOString()
+            });
+          } catch (emailError) {
+            console.error('Error sending confirmation email:', emailError);
+            // Don't fail registration if email fails
+          }
+          
+          // Trigger a storage event for Header component to detect login
+          window.dispatchEvent(new Event('storage'));
+          
+          // Redirect to dashboard
+          router.push('/dashboard');
+          return;
+        } catch (mockError: any) {
+          throw new Error(mockError.message || 'Registration failed');
+        }
+      }
+    
+      console.log('Attempting to register user with backend API...');
       // Use a more direct approach with error handling
       let response;
       let usedFallback = false;

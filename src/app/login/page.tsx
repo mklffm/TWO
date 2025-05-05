@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import { AUTH_API, useFallbackApi } from '@/config/api';
+import { AUTH_API, useFallbackApi, useMockAuth } from '@/config/api';
+import { mockLogin } from '@/lib/mockAuthService';
 
 export default function Login() {
   const router = useRouter();
@@ -50,6 +51,25 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // Check if we should use mock auth
+      if (useMockAuth) {
+        console.log('Using mock authentication');
+        try {
+          const { token } = await mockLogin(formData.email, formData.password);
+          localStorage.setItem('token', token);
+          
+          // Trigger a storage event for Header component to detect login
+          window.dispatchEvent(new Event('storage'));
+          
+          // Redirect to dashboard
+          router.push('/dashboard');
+          return;
+        } catch (mockError: any) {
+          throw new Error(mockError.message || 'Login failed');
+        }
+      }
+      
+      // If not using mock auth, continue with API login
       let response;
       let usedFallback = false;
       

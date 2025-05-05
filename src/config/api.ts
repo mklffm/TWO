@@ -7,8 +7,11 @@
 // Determine if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
+// TEMPORARY: Force development mode to enable mock auth while backend is fixed
+export const FORCE_DEVELOPMENT_MODE = true;
+
 // Determine the current environment
-const isProduction = isBrowser && (
+const isProduction = isBrowser && !FORCE_DEVELOPMENT_MODE && (
   window.location.hostname === 'www.mirabooking.com' || 
   window.location.hostname === 'mirabooking.com' ||
   window.location.hostname.endsWith('mira-booking.pages.dev')
@@ -31,6 +34,9 @@ export const useFallbackApi = () => {
   }
   return API_BASE_URL;
 };
+
+// Check if we should use mock auth (when backend is down)
+export const useMockAuth = !isProduction || FORCE_DEVELOPMENT_MODE;
 
 // Auth endpoints
 export const AUTH_API = {
@@ -55,5 +61,6 @@ export default {
   API_BASE_URL,
   AUTH_API,
   BOOKING_API,
-  useFallbackApi
+  useFallbackApi,
+  useMockAuth
 }; 
