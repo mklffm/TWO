@@ -21,6 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Create environment file
+        run: |
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET || 'default-secret-for-jwt' }}" > .env
+          echo "Creating build environment file"
+          
       - name: Build
         run: npm run build:cloudflare
         
@@ -33,7 +38,7 @@ jobs:
           postCommands: |
             echo "Deployed successfully to Cloudflare Workers at $(date)"
           
-      # Optional: Notify about deployment success
+      # Optional: Notify about deployment status
       - name: Notify Deployment Status
         if: always()
         uses: rtCamp/action-slack-notify@v2
