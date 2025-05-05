@@ -15,16 +15,16 @@ const https = require('https');
 // Configuration (replace with your actual values)
 const config = {
   // Your Cloudflare API token with Workers permission
-  apiToken: process.env.CF_API_TOKEN || 'your-api-token-here',
+  apiToken: process.env.CLOUDFLARE_API_TOKEN || process.env.CF_API_TOKEN,
   
   // Your Cloudflare account ID
-  accountId: process.env.CF_ACCOUNT_ID || 'your-account-id-here',
+  accountId: process.env.CF_ACCOUNT_ID,
   
   // Worker name
   workerName: 'mira-booking',
   
   // Directories to watch
-  watchDirs: ['src', 'backend-worker'],
+  watchDirs: ['src', 'backend-worker', 'public'],
   
   // Polling interval in milliseconds (1 second)
   pollInterval: 1000,
@@ -32,6 +32,22 @@ const config = {
   // Build command to run before deploying
   buildCommand: 'npm run build:cloudflare'
 };
+
+// Validate required environment variables
+if (!config.apiToken) {
+  console.error('❌ Error: Cloudflare API token environment variable is not set.');
+  console.log('Please set your Cloudflare API token:');
+  console.log('  $env:CLOUDFLARE_API_TOKEN="your_token_here"    # Windows PowerShell (Recommended)');
+  console.log('  $env:CF_API_TOKEN="your_token_here"            # Windows PowerShell (Legacy)');
+  process.exit(1);
+}
+
+if (!config.accountId) {
+  console.error('❌ Error: CF_ACCOUNT_ID environment variable is not set.');
+  console.log('Please set your Cloudflare account ID:');
+  console.log('  $env:CF_ACCOUNT_ID="your_account_id"');
+  process.exit(1);
+}
 
 // File modification times cache
 const lastModified = new Map();
@@ -131,78 +147,25 @@ async function deploy() {
     
     // Deploy using wrangler
     console.log('Deploying with wrangler...');
-    execSync('npx wrangler deploy', { stdio: 'inherit' });
     
-    // Or alternatively use the Cloudflare API directly
-    // await deployWithCloudflareAPI();
+    // Build the command with explicit env vars to ensure they're passed
+    const deployCmd = `npx wrangler deploy --name=${config.workerName} --env=production`;
+    console.log(`Running: ${deployCmd}`);
+    
+    // Execute with environment variables
+    execSync(deployCmd, { 
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        CLOUDFLARE_API_TOKEN: config.apiToken,
+        CF_ACCOUNT_ID: config.accountId
+      }
+    });
     
     console.log('✅ Deployment successful!');
   } catch (error) {
     console.error('❌ Deployment failed:', error.message);
   }
-}
-
-// Deploy using Cloudflare API directly
-async function deployWithCloudflareAPI() {
-  return new Promise((resolve, reject) => {
-    // Get worker script
-    const scriptPath = path.resolve(process.cwd(), './dist/worker.js');
-    const script = fs.readFileSync(scriptPath, 'utf8');
-    
-    // Prepare request data
-    const data = JSON.stringify({
-      metadata: {
-        body_part: 'script',
-      },
-      script: script,
-      // Add any additional configuration here
-    });
-    
-    // API request options
-    const options = {
-      hostname: 'api.cloudflare.com',
-      port: 443,
-      path: `/client/v4/accounts/${config.accountId}/workers/scripts/${config.workerName}`,
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': data.length,
-        'Authorization': `Bearer ${config.apiToken}`,
-      },
-    };
-    
-    // Make HTTP request
-    const req = https.request(options, (res) => {
-      let responseBody = '';
-      
-      res.on('data', (chunk) => {
-        responseBody += chunk;
-      });
-      
-      res.on('end', () => {
-        try {
-          const response = JSON.parse(responseBody);
-          
-          if (response.success) {
-            console.log('API deployment successful:', response.result);
-            resolve(response);
-          } else {
-            console.error('API deployment failed:', response.errors);
-            reject(new Error(JSON.stringify(response.errors)));
-          }
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
-    
-    req.on('error', (error) => {
-      reject(error);
-    });
-    
-    req.write(data);
-    req.end();
-  });
 }
 
 // Main function

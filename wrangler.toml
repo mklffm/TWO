@@ -1,15 +1,10 @@
-# Configuration for Cloudflare Pages
+# Configuration for Cloudflare Workers
 name = "mira-booking"
 compatibility_date = "2023-12-01"
-
-# Pages configuration
-pages_build_output_dir = "./out"
-
-# Real-time updates configuration
+compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 main = "./backend-worker/index.ts"
 minify = true
-compatibility_flags = ["nodejs_compat"]
 
 # Routes configuration
 routes = [
@@ -17,13 +12,26 @@ routes = [
 ]
 
 # Domain configuration
-custom_domain = "www.mirabooking.com"
+[triggers]
+crons = []
+
+[site]
+bucket = "./out"
 
 # Environment variables
 [vars]
 ENVIRONMENT = "production"
 DEPLOY_TIME = "real-time"
 JWT_SECRET = "your-secret-key"
+
+# Production environment configuration
+[env.production]
+name = "mira-booking"
+workers_dev = false
+routes = [
+  { pattern = "*", zone_name = "mirabooking.com" }
+]
+vars = { ENVIRONMENT = "production" }
 
 # D1 Database configuration
 [[d1_databases]]

@@ -30,6 +30,8 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           wranglerVersion: '3'
+          postCommands: |
+            echo "Deployed successfully to Cloudflare Workers at $(date)"
           
       # Optional: Notify about deployment success
       - name: Notify Deployment Status

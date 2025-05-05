@@ -13,6 +13,8 @@
     "deploy": "npx wrangler deploy",
     "deploy:watch": "node deploy-realtime.js",
     "deploy:instant": "CF_DEPLOY_WAIT=0 npm run deploy",
+    "check:token": "node check-api-token.js",
+    "deploy:manual": "npx wrangler deploy --env=production",
     "generate:token": "npx wrangler --version && echo \"To create your API token, go to https://dash.cloudflare.com/profile/api-tokens and use the 'Edit Cloudflare Workers' template\""
   },
   "dependencies": {
