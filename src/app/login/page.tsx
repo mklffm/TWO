@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import { AUTH_API } from '@/config/api';
+import { AUTH_API, useFallbackApi } from '@/config/api';
 
 export default function Login() {
   const router = useRouter();
@@ -50,18 +50,52 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(AUTH_API.LOGIN, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        mode: 'cors',
-        credentials: 'include',
-      });
+      let response;
+      let usedFallback = false;
+      
+      try {
+        console.log('Making login request to:', AUTH_API.LOGIN);
+        response = await fetch(AUTH_API.LOGIN, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(formData),
+          mode: 'cors',
+          // Remove credentials:include when dealing with CORS on different domains
+        });
+        console.log('Login response status:', response.status);
+      } catch (fetchError) {
+        console.error('Primary login fetch error:', fetchError);
+        
+        // Try fallback API URL if primary fails
+        try {
+          console.log('Attempting fallback API for login');
+          const fallbackUrl = useFallbackApi() + '/api/auth/login';
+          console.log('Using fallback URL:', fallbackUrl);
+          
+          response = await fetch(fallbackUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            mode: 'cors',
+          });
+          
+          usedFallback = true;
+          console.log('Fallback login response status:', response.status);
+        } catch (fallbackError) {
+          console.error('Fallback login fetch error:', fallbackError);
+          throw new Error('Network error: Failed to connect to the server. Please check your internet connection and try again.');
+        }
+      }
 
       // Get the response text
       const textResponse = await response.text();
+      console.log('Login response text:', textResponse);
       
       // Try to parse as JSON if there's content
       let data = {};
@@ -70,7 +104,13 @@ export default function Login() {
           data = JSON.parse(textResponse);
         } catch (parseError) {
           console.error('Invalid JSON response:', textResponse);
-          throw new Error('The server returned an invalid response');
+          
+          // If response contains HTML (like Cloudflare error pages)
+          if (textResponse.includes('<html') || textResponse.includes('<!DOCTYPE')) {
+            throw new Error('The server is currently unavailable. Please try again later.');
+          }
+          
+          throw new Error('The server returned an invalid response format. Please try again later.');
         }
       }
 

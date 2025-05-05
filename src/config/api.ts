@@ -14,10 +14,23 @@ const isProduction = isBrowser && (
   window.location.hostname.endsWith('mira-booking.pages.dev')
 );
 
+// Primary and fallback API URLs
+const PRIMARY_PRODUCTION_API = 'https://mira-booking-backend.khalfaouimanar28.workers.dev';
+const FALLBACK_PRODUCTION_API = 'https://mira-backend.pages.dev'; // Add a fallback if you have one
+
 // Set API base URLs based on environment
 export const API_BASE_URL = isProduction 
-  ? 'https://mira-booking-backend.khalfaouimanar28.workers.dev'
+  ? PRIMARY_PRODUCTION_API
   : 'http://127.0.0.1:8787';
+
+// Helper function to switch to fallback API if primary fails
+export const useFallbackApi = () => {
+  if (isProduction && API_BASE_URL === PRIMARY_PRODUCTION_API) {
+    console.log('Switching to fallback API URL');
+    return FALLBACK_PRODUCTION_API;
+  }
+  return API_BASE_URL;
+};
 
 // Auth endpoints
 export const AUTH_API = {
@@ -41,5 +54,6 @@ export const BOOKING_API = {
 export default {
   API_BASE_URL,
   AUTH_API,
-  BOOKING_API
+  BOOKING_API,
+  useFallbackApi
 }; 

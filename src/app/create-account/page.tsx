@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService';
-import { AUTH_API } from '@/config/api';
+import { AUTH_API, useFallbackApi } from '@/config/api';
 
 export default function CreateAccount() {
   const router = useRouter();
@@ -75,12 +75,16 @@ export default function CreateAccount() {
       console.log('Attempting to register user...');
       // Use a more direct approach with error handling
       let response;
+      let usedFallback = false;
       
       try {
+        // Add retry logic and better error handling
+        console.log('Making registration request to:', AUTH_API.REGISTER);
         response = await fetch(AUTH_API.REGISTER, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
           body: JSON.stringify({
             firstName: formData.firstName,
@@ -88,13 +92,41 @@ export default function CreateAccount() {
             email: formData.email,
             password: formData.password,
           }),
-          credentials: 'include',
+          // Don't use credentials:include when dealing with CORS on different domains
+          // as it requires additional server configuration
           mode: 'cors',
         });
         console.log('Fetch response received:', response.status, response.statusText);
       } catch (fetchError) {
-        console.error('Fetch error:', fetchError);
-        throw new Error('Network error: Failed to connect to the server. Please check your internet connection and try again.');
+        console.error('Primary fetch error:', fetchError);
+        
+        // Try fallback API URL if primary fails
+        try {
+          console.log('Attempting fallback API');
+          const fallbackUrl = useFallbackApi() + '/api/auth/register';
+          console.log('Using fallback URL:', fallbackUrl);
+          
+          response = await fetch(fallbackUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              password: formData.password,
+            }),
+            mode: 'cors',
+          });
+          
+          usedFallback = true;
+          console.log('Fallback response received:', response.status, response.statusText);
+        } catch (fallbackError) {
+          console.error('Fallback fetch error:', fallbackError);
+          throw new Error('Network error: Failed to connect to the server. Please check your internet connection and try again.');
+        }
       }
 
       // Get the response text
@@ -115,6 +147,12 @@ export default function CreateAccount() {
           console.log('Parsed response data:', data);
         } catch (parseError) {
           console.error('Invalid JSON response:', textResponse);
+          
+          // If response contains HTML (like Cloudflare error pages)
+          if (textResponse.includes('<html') || textResponse.includes('<!DOCTYPE')) {
+            throw new Error('The server is currently unavailable. Please try again later.');
+          }
+          
           throw new Error('The server returned an invalid response format. Please try again later.');
         }
       }
