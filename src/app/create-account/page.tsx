@@ -84,7 +84,9 @@ export default function CreateAccount() {
             formData.password
           );
           
+          // Store token in localStorage
           localStorage.setItem('token', token);
+          console.log('Token stored in localStorage');
           
           // Send confirmation email
           try {
@@ -94,6 +96,7 @@ export default function CreateAccount() {
               email: formData.email,
               timestamp: new Date().toISOString()
             });
+            console.log('Confirmation email sent');
           } catch (emailError) {
             console.error('Error sending confirmation email:', emailError);
             // Don't fail registration if email fails
@@ -101,9 +104,14 @@ export default function CreateAccount() {
           
           // Trigger a storage event for Header component to detect login
           window.dispatchEvent(new Event('storage'));
+          console.log('Storage event dispatched');
           
-          // Redirect to dashboard
-          router.push('/dashboard');
+          // Add small delay before redirect to ensure token is properly stored
+          setTimeout(() => {
+            console.log('Redirecting to dashboard...');
+            router.push('/dashboard');
+          }, 300);
+          
           return;
         } catch (mockError: any) {
           throw new Error(mockError.message || 'Registration failed');
@@ -206,20 +214,31 @@ export default function CreateAccount() {
       // Store the token
       if ((data as any).token) {
         localStorage.setItem('token', (data as any).token);
+        console.log('Token stored in localStorage:', (data as any).token.substring(0, 10) + '...');
         
         // Send confirmation email
-        await sendAccountConfirmationEmail({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          timestamp: new Date().toISOString()
-        });
+        try {
+          await sendAccountConfirmationEmail({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            timestamp: new Date().toISOString()
+          });
+          console.log('Confirmation email sent');
+        } catch (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          // Don't fail registration if email fails
+        }
         
         // Trigger a storage event for Header component to detect login
         window.dispatchEvent(new Event('storage'));
+        console.log('Storage event dispatched');
         
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Add small delay before redirect to ensure token is properly stored
+        setTimeout(() => {
+          console.log('Redirecting to dashboard...');
+          router.push('/dashboard');
+        }, 300);
       } else {
         throw new Error('Registration successful but authentication failed. Please try logging in.');
       }
