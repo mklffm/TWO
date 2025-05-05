@@ -6,6 +6,9 @@ workers_dev = true
 main = "./backend-worker/index.ts"
 minify = true
 
+# Pages configuration
+pages_build_output_dir = "./out"
+
 # Routes configuration
 routes = [
   { pattern = "*", zone_name = "mirabooking.com" }
