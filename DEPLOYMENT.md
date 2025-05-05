@@ -8,11 +8,20 @@ This guide provides comprehensive instructions for deploying the Mira Booking ap
 - **Node.js**: Version 20 or higher installed
 - **Git**: For version control and pushing changes
 
+## Configuration Files
+
+The project uses two separate configuration files:
+
+1. **wrangler.toml** - Used for Cloudflare Workers development
+2. **wrangler.pages.toml** - Used for Cloudflare Pages deployments
+
+When deploying to Cloudflare Pages, make sure to use the Pages-specific configuration.
+
 ## Deployment Options
 
 There are several ways to deploy the Mira Booking application:
 
-### Option 1: Simple Deployment Script
+### Option 1: Simple Deployment Script (Recommended)
 
 We've created a simplified deployment script that handles the entire process:
 
@@ -23,6 +32,11 @@ node deploy-to-cloudflare.js
 # To skip the build step (if you've already built)
 node deploy-to-cloudflare.js --skip-build
 ```
+
+This script automatically:
+- Checks for authentication with Cloudflare
+- Builds the project (unless skipped)
+- Deploys using the Pages-specific configuration
 
 ### Option 2: Manual Deployment Steps
 
@@ -35,7 +49,7 @@ If you prefer to run the commands manually:
 
 2. **Deploy to Cloudflare Pages**:
    ```bash
-   npx wrangler pages deploy out --project-name=mira-booking --branch=main
+   npx wrangler pages deploy out --project-name=mira-booking --branch=main --config=wrangler.pages.toml
    ```
 
 ### Option 3: GitHub Actions (Automated CI/CD)
@@ -79,7 +93,7 @@ The application is configured to be deployed to the following domains:
 - Primary domain: mirabooking.com
 - Secondary domain: www.mirabooking.com
 
-These are configured in the `wrangler.toml` file.
+These are configured in the wrangler configuration files.
 
 ## Troubleshooting
 
@@ -96,6 +110,8 @@ If you encounter issues during deployment:
 3. **Deployment Errors**:
    - Verify that the `out` directory exists and contains the build files
    - Check the Cloudflare Pages dashboard for specific error messages
+   - Make sure you're using the correct configuration file (wrangler.pages.toml for Pages deployments)
+   - Ensure there are no conflicting settings between Workers and Pages configurations
 
 ## Maintenance
 

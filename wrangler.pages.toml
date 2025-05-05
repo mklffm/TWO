@@ -1,0 +1,33 @@
+# Cloudflare Pages Configuration
+name = "mira-booking"
+compatibility_date = "2023-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Pages build output directory
+pages_build_output_dir = "./out"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+DEPLOY_TIME = "real-time"
+# Don't hardcode secrets in the repo, use GitHub Secrets
+JWT_SECRET = ""
+
+# Production environment configuration
+[env.production]
+vars = { 
+  ENVIRONMENT = "production",
+  DEPLOY_TIME = "real-time" 
+}
+
+# D1 Database configuration
+[[d1_databases]]
+binding = "DB"
+database_name = "mira-booking-db"
+database_id = "0c1c1907-868c-4727-b348-90d2770c2c60"
+
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "cache-namespace-id"
+preview_id = "preview-cache-namespace-id" 

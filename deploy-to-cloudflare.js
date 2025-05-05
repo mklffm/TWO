@@ -13,6 +13,7 @@ const path = require('path');
 const config = {
   projectName: 'mira-booking',
   outputDir: './out',
+  configFile: './wrangler.pages.toml',
   branch: 'main', // For production deployments
   accountId: process.env.CF_ACCOUNT_ID || ''
 };
@@ -42,6 +43,13 @@ function checkRequirements() {
     process.exit(1);
   }
   
+  // Check if config file exists
+  if (!fs.existsSync(path.resolve(config.configFile))) {
+    console.error(`❌ Configuration file not found: ${config.configFile}`);
+    process.exit(1);
+  }
+  console.log(`✅ Configuration file exists: ${config.configFile}`);
+  
   // Check if output directory exists
   if (!fs.existsSync(path.resolve(config.outputDir))) {
     console.error(`❌ Build output directory not found: ${config.outputDir}`);
@@ -67,7 +75,7 @@ function buildProject() {
 function deployToCloudflarePages() {
   console.log('🚀 Deploying to Cloudflare Pages...');
   
-  const command = `npx wrangler pages deploy ${config.outputDir} --project-name=${config.projectName} --branch=${config.branch}`;
+  const command = `npx wrangler pages deploy ${config.outputDir} --project-name=${config.projectName} --branch=${config.branch} --config=${config.configFile}`;
   
   try {
     execSync(command, { stdio: 'inherit' });
