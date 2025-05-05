@@ -68,7 +68,7 @@ export default function Login() {
           // Add small delay before redirect to ensure token is properly stored
           setTimeout(() => {
             console.log('Redirecting to dashboard...');
-            router.push('/dashboard');
+            window.location.href = '/dashboard';
           }, 300);
           
           return;
@@ -138,7 +138,7 @@ export default function Login() {
         
         setTimeout(() => {
           console.log('Redirecting to dashboard...');
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }, 300);
         
         return;
@@ -166,7 +166,7 @@ export default function Login() {
               
               setTimeout(() => {
                 console.log('Redirecting to dashboard after HTML fallback...');
-                router.push('/dashboard');
+                window.location.href = '/dashboard';
               }, 300);
               
               return;
@@ -202,7 +202,7 @@ export default function Login() {
         // Add small delay before redirect to ensure token is properly stored
         setTimeout(() => {
           console.log('Redirecting to dashboard...');
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }, 300);
       } else {
         console.log('No token in response, creating mock token');
@@ -216,7 +216,7 @@ export default function Login() {
         
         setTimeout(() => {
           console.log('Redirecting to dashboard with mock token...');
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }, 300);
       }
     } catch (err: any) {
@@ -349,6 +349,13 @@ export default function Login() {
                 type="submit"
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all duration-200"
+                onClick={(e) => {
+                  // This is an additional backup to the form's onSubmit handler
+                  if (!loading) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
               >
                 {loading ? (
                   <span className="flex items-center">
