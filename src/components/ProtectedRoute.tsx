@@ -1,24 +1,23 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { currentUser, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  // Check if user is logged in
+  // This is a simple implementation using localStorage
+  // In a real app, you would use a more robust auth system
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+  if (!isLoggedIn) {
+    // Redirect to login if not logged in
+    return <Navigate to="/login" replace />;
   }
 
-  if (!currentUser) {
-    return <Navigate to="/login" />;
-  }
-
+  // Render children if authenticated
   return <>{children}</>;
-} 
+};
+
+export default ProtectedRoute; 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 const API_BASE = 'https://mira-booking-backend.khalfaouimanar28.workers.dev/api/auth';
 
@@ -19,94 +19,92 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+    const checkLoggedIn = () => {
       try {
-        // Optionally, you can add a /me endpoint to your backend to verify token and get user info
-        // For now, decode token payload (not secure, but works for demo)
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setCurrentUser({
-          id: payload.id,
-          email: payload.email,
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-        });
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userString = localStorage.getItem('user');
+        
+        if (isLoggedIn && userString) {
+          setCurrentUser(JSON.parse(userString));
+        }
       } catch (error) {
-        localStorage.removeItem('token');
-        setCurrentUser(null);
+        console.error('Error checking authentication state:', error);
       } finally {
         setLoading(false);
       }
     };
-    checkAuth();
+
+    checkLoggedIn();
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!response.ok) {
-      throw new Error('Login failed');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const response = await fetch(`${API_BASE}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      const data = await response.json();
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('user', JSON.stringify(data));
+      setCurrentUser(data);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-    const data = await response.json();
-    localStorage.setItem('token', data.token);
-    setCurrentUser({
-      id: data.id,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-    });
   };
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
-    const response = await fetch(`${API_BASE}/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, firstName, lastName }),
-    });
-    if (!response.ok) {
-      throw new Error('Registration failed');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const response = await fetch(`${API_BASE}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+      const data = await response.json();
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('user', JSON.stringify(data));
+      setCurrentUser(data);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
     }
-    const data = await response.json();
-    localStorage.setItem('token', data.token);
-    setCurrentUser({
-      id: data.id,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-    });
   };
 
   const logout = async () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
     setCurrentUser(null);
   };
 
@@ -115,8 +113,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-    loading,
+    loading
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-} 
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}; 
