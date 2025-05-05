@@ -48,14 +48,95 @@ jobs:
             echo "❌ Build output directory 'out' is missing"
             exit 1
           fi
+      
+      - name: Check for required secrets
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.CF_API_TOKEN }}" ]; then
+            echo "⚠️ CF_API_TOKEN secret is not set. Deployment will be skipped."
+            echo "missing_secrets=true" >> $GITHUB_OUTPUT
+          elif [ -z "${{ secrets.CF_ACCOUNT_ID }}" ]; then
+            echo "⚠️ CF_ACCOUNT_ID secret is not set. Deployment will be skipped."
+            echo "missing_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ All required secrets are set."
+            echo "missing_secrets=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Update wrangler.toml configuration
+        if: steps.check_secrets.outputs.missing_secrets == 'false'
+        run: |
+          # Update wrangler.toml to address inheritance warnings
+          cat > wrangler.toml << EOF
+          # Configuration for Cloudflare Workers
+          name = "mira-booking"
+          compatibility_date = "2023-12-01"
+          compatibility_flags = ["nodejs_compat"]
+          workers_dev = true
+          main = "./backend-worker/index.ts"
+          minify = true
+
+          # Routes configuration
+          routes = [
+            { pattern = "*", zone_name = "mirabooking.com" }
+          ]
+
+          # Domain configuration
+          [triggers]
+          crons = []
+
+          [site]
+          bucket = "./out"
+
+          # Environment variables
+          [vars]
+          ENVIRONMENT = "production"
+          DEPLOY_TIME = "real-time"
+          JWT_SECRET = ""
+
+          # Production environment configuration
+          [env.production]
+          name = "mira-booking"
+          workers_dev = false
+          routes = [
+            { pattern = "*", zone_name = "mirabooking.com" },
+            { pattern = "*", zone_name = "www.mirabooking.com" }
+          ]
+          vars = { 
+            ENVIRONMENT = "production",
+            DEPLOY_TIME = "real-time",
+            JWT_SECRET = ""
+          }
+
+          # D1 Database configuration
+          [[env.production.d1_databases]]
+          binding = "DB"
+          database_name = "mira-booking-db"
+          database_id = "0c1c1907-868c-4727-b348-90d2770c2c60"
+
+          # KV namespace for caching
+          [[env.production.kv_namespaces]]
+          binding = "CACHE"
+          id = "cache-namespace-id"
+          preview_id = "preview-cache-namespace-id"
+
+          # Setting up local development
+          [dev]
+          port = 8787
+          local_protocol = "http"
+          ip = "localhost"
+          EOF
+
+          echo "Updated wrangler.toml to handle inheritance warnings"
           
       - name: Deploy to Cloudflare Workers
+        if: steps.check_secrets.outputs.missing_secrets == 'false'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           echo "Starting direct deployment with wrangler..."
-          echo "Using Cloudflare Account: ${CF_ACCOUNT_ID}"
+          echo "Using Cloudflare Account ID (masked): ${CF_ACCOUNT_ID:0:3}...${CF_ACCOUNT_ID: -3}"
           echo "API Token is set: ${{ secrets.CF_API_TOKEN != '' }}"
           
           # Check wrangler version
@@ -65,6 +146,15 @@ jobs:
           npx wrangler deploy --env production
           
           echo "Deployment completed at $(date)"
+      
+      - name: Deployment Skipped
+        if: steps.check_secrets.outputs.missing_secrets == 'true'
+        run: |
+          echo "⚠️ Deployment was skipped because one or more required secrets are missing."
+          echo "Please add the following secrets to your GitHub repository:"
+          echo "- CF_API_TOKEN: Your Cloudflare API token with Workers permissions"
+          echo "- CF_ACCOUNT_ID: Your Cloudflare account ID"
+          echo "See README.md for instructions on how to set up these secrets."
           
       # Optional: Notify about deployment status
       - name: Notify Deployment Status
