@@ -19,7 +19,7 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
       },
       body: JSON.stringify({
         to: data.email,
-        cc: 'khalfaouimanar28@gmail.com', // Agency email
+        cc: 'mira.booking.dz@gmail.com', // Agency email
         subject: `Welcome to Mira Booking, ${data.firstName}!`,
         data: {
           ...data,

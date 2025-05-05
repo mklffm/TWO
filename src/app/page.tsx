@@ -55,55 +55,59 @@ const serviceBenefits = [
   {
     id: 'expert',
     icon: '👨‍💼',
-    title: 'Expert Guidance',
-    description: 'Our visa specialists have years of experience with various visa types and country requirements.'
+    title: {
+      en: 'Expert Guidance',
+      fr: 'Accompagnement Expert',
+      ar: 'إرشاد الخبراء'
+    },
+    description: {
+      en: 'Our visa specialists have years of experience with various visa types and country requirements.',
+      fr: 'Nos spécialistes des visas ont des années d\'expérience avec différents types de visas et exigences des pays.',
+      ar: 'متخصصو التأشيرات لدينا لديهم سنوات من الخبرة مع مختلف أنواع التأشيرات ومتطلبات البلدان.'
+    }
   },
   {
     id: 'fast',
     icon: '⚡',
-    title: 'Fast Processing',
-    description: 'We expedite your visa application to ensure you get your visa in the shortest time possible.'
+    title: {
+      en: 'Fast Processing',
+      fr: 'Traitement Rapide',
+      ar: 'معالجة سريعة'
+    },
+    description: {
+      en: 'We expedite your visa application to ensure you get your visa in the shortest time possible.',
+      fr: 'Nous accélérons votre demande de visa pour vous assurer d\'obtenir votre visa dans les plus brefs délais.',
+      ar: 'نعجل بطلب التأشيرة الخاص بك لضمان حصولك على التأشيرة في أقصر وقت ممكن.'
+    }
   },
   {
     id: 'docs',
     icon: '📄',
-    title: 'Document Support',
-    description: 'We provide a customized checklist and review all your documents to ensure they meet requirements.'
+    title: {
+      en: 'Document Support',
+      fr: 'Support de Documents',
+      ar: 'دعم المستندات'
+    },
+    description: {
+      en: 'We provide a customized checklist and review all your documents to ensure they meet requirements.',
+      fr: 'Nous fournissons une liste de contrôle personnalisée et examinons tous vos documents pour s\'assurer qu\'ils répondent aux exigences.',
+      ar: 'نقدم قائمة تحقق مخصصة ونراجع جميع مستنداتك للتأكد من أنها تلبي المتطلبات.'
+    }
   },
   {
     id: 'track',
     icon: '🔍',
-    title: 'Application Tracking',
-    description: 'Track your visa application status in real-time through our online portal.'
+    title: {
+      en: 'Application Tracking',
+      fr: 'Suivi des Demandes',
+      ar: 'تتبع الطلبات'
+    },
+    description: {
+      en: 'Track your visa application status in real-time through our online portal.',
+      fr: 'Suivez l\'état de votre demande de visa en temps réel via notre portail en ligne.',
+      ar: 'تتبع حالة طلب التأشيرة الخاص بك في الوقت الفعلي من خلال بوابتنا عبر الإنترنت.'
+    }
   },
-];
-
-// Sample testimonials
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sophie Martin',
-    location: 'Paris, France',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-    quote: 'The visa application process was so simple with Mira Booking. I got my Schengen visa in just 5 days!',
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Ahmed Hassan',
-    location: 'Cairo, Egypt',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-    quote: 'I was worried about my UK visa application, but the team made it stress-free and successful.',
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Maria Rodriguez',
-    location: 'Barcelona, Spain',
-    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
-    quote: 'Their document checklist service saved me so much time. My USA visa was approved on the first try!',
-    rating: 4
-  }
 ];
 
 // Text translations
@@ -131,8 +135,6 @@ const translations = {
     approvalRate: "Visa Approval Rate",
     applicationsProcessed: "Applications Processed",
     countriesCovered: "Countries Covered",
-    testimonialsTitle: "What Our Clients Say",
-    testimonialsSubtitle: "Read testimonials from our satisfied visa applicants",
     ctaTitle: "Ready to Apply for Your Visa?",
     ctaSubtitle: "Get a personalized quote for your visa application today!",
     startApplication: "Start My Application",
@@ -170,8 +172,6 @@ const translations = {
     approvalRate: "Taux d'Approbation des Visas",
     applicationsProcessed: "Demandes Traitées",
     countriesCovered: "Pays Couverts",
-    testimonialsTitle: "Ce Que Disent Nos Clients",
-    testimonialsSubtitle: "Lisez les témoignages de nos demandeurs de visa satisfaits",
     ctaTitle: "Prêt à Faire Votre Demande de Visa?",
     ctaSubtitle: "Obtenez un devis personnalisé pour votre demande de visa aujourd'hui!",
     startApplication: "Commencer Ma Demande",
@@ -209,8 +209,6 @@ const translations = {
     approvalRate: "معدل الموافقة على التأشيرات",
     applicationsProcessed: "الطلبات المعالجة",
     countriesCovered: "الدول المشمولة",
-    testimonialsTitle: "ماذا يقول عملاؤنا",
-    testimonialsSubtitle: "اقرأ شهادات من مقدمي طلبات التأشيرة الراضين",
     ctaTitle: "هل أنت مستعد لتقديم طلب الحصول على تأشيرتك؟",
     ctaSubtitle: "احصل على عرض سعر مخصص لطلب التأشيرة الخاص بك اليوم!",
     startApplication: "ابدأ طلبي",
@@ -546,14 +544,14 @@ export default function HomePage() {
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
                 >
-                  <div className="flex-shrink-0 mr-4">
+                  <div className={`flex-shrink-0 ${language === 'ar' ? 'ml-4 order-2' : 'mr-4 order-1'}`}>
                     <div className="bg-gradient-to-r from-primary-500 to-secondary-600 h-16 w-16 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                       {benefit.icon}
                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
-                    <p className="text-gray-600">{benefit.description}</p>
+                  <div className={language === 'ar' ? 'text-right order-1' : 'order-2'}>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{language ? benefit.title[language] : benefit.title.fr}</h3>
+                    <p className="text-gray-600">{language ? benefit.description[language] : benefit.description.fr}</p>
                   </div>
                 </div>
               ))}
@@ -575,69 +573,16 @@ export default function HomePage() {
               <p className="text-xl text-primary-100 max-w-2xl mx-auto">{t.statsSubtitle}</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center max-w-3xl mx-auto">
               <div className="p-8 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-300 hover:translate-y-[-10px]">
                 <div className="text-5xl md:text-6xl font-bold mb-2 text-shadow-lg">98%</div>
                 <p className="text-xl">{t.approvalRate}</p>
               </div>
               
               <div className="p-8 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-300 hover:translate-y-[-10px]">
-                <div className="text-5xl md:text-6xl font-bold mb-2 text-shadow-lg">5,000+</div>
-                <p className="text-xl">{t.applicationsProcessed}</p>
-              </div>
-              
-              <div className="p-8 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 transform transition-all duration-300 hover:translate-y-[-10px]">
                 <div className="text-5xl md:text-6xl font-bold mb-2 text-shadow-lg">50+</div>
                 <p className="text-xl">{t.countriesCovered}</p>
               </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Testimonials */}
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16 slide-in-bottom">
-              <span className="inline-block px-4 py-1 rounded-full bg-primary-100 text-primary-800 text-sm font-medium mb-4">
-                {language === 'en' ? 'TESTIMONIALS' : 
-                 language === 'fr' ? 'TÉMOIGNAGES' : 
-                 'الشهادات'}
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t.testimonialsTitle}</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t.testimonialsSubtitle}</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <div 
-                  key={testimonial.id} 
-                  className="bg-gray-50 p-8 rounded-xl shadow-xl relative group"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
-                >
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-400 to-secondary-500 transform origin-left transition-transform duration-300 scale-x-0 group-hover:scale-x-100"></div>
-                  <div className="flex items-center mb-6">
-                    <div className="h-16 w-16 rounded-full overflow-hidden mr-4 ring-4 ring-primary-100">
-                      <Image src={testimonial.image} alt={testimonial.name} width={64} height={64} className="object-cover h-full w-full" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-500">{testimonial.location}</p>
-                    </div>
-                  </div>
-                  <svg className="h-8 w-8 text-primary-200 mb-4" fill="currentColor" viewBox="0 0 32 32">
-                    <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-                  </svg>
-                  <p className="text-gray-600 mb-6 italic">"{ testimonial.quote }"</p>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>

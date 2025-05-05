@@ -76,7 +76,7 @@ export default function CreateAccount() {
       let response;
       
       try {
-        response = await fetch('https://mira-booking-backend.khalfaouimanar28.workers.dev/api/auth/register', {
+        response = await fetch('http://127.0.0.1:8787/api/auth/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

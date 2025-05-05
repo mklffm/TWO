@@ -9,7 +9,11 @@
     "build:cloudflare": "touch .env && npx next build -E .env --no-lint",
     "build:no-ts": "node build-no-ts.js",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "npx wrangler deploy",
+    "deploy:watch": "node deploy-realtime.js",
+    "deploy:instant": "CF_DEPLOY_WAIT=0 npm run deploy",
+    "generate:token": "npx wrangler --version && echo \"To create your API token, go to https://dash.cloudflare.com/profile/api-tokens and use the 'Edit Cloudflare Workers' template\""
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

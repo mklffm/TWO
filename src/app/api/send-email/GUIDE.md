@@ -23,7 +23,7 @@ This guide walks you through setting up email sending for the Mira Booking appli
    EMAIL_USER=your.gmail.account@gmail.com
    EMAIL_PASS=your-16-character-app-password
    EMAIL_FROM=your.gmail.account@gmail.com
-   AGENCY_EMAIL=sitekdigital@gmail.com
+   AGENCY_EMAIL=mira.booking.dz@gmail.com
    ```
 
 4. **Restart your application**
@@ -52,7 +52,7 @@ This guide walks you through setting up email sending for the Mira Booking appli
    MAILGUN_API_KEY=your-mailgun-api-key
    MAILGUN_DOMAIN=your-mailgun-domain
    EMAIL_FROM=support@your-domain.com
-   AGENCY_EMAIL=sitekdigital@gmail.com
+   AGENCY_EMAIL=mira.booking.dz@gmail.com
    ```
 
 6. **Restart your application**

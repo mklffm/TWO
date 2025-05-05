@@ -1,10 +1,19 @@
 import { Hono } from 'hono';
+import { Context, Next } from 'hono';
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
-// @ts-ignore - Simplified for build
-export const authMiddleware = new Hono();
+// Interface for environment bindings
+interface Bindings {
+  DB: any;
+  JWT_SECRET: string;
+  [key: string]: any;
+}
 
-authMiddleware.use('*', async (c: any, next) => {
+// Create middleware router with proper typing
+const authMiddleware = new Hono<{ Bindings: Bindings }>();
+
+// Authentication middleware
+authMiddleware.use('*', async (c: Context, next: Next) => {
   try {
     // Get token from Authorization header
     const authHeader = c.req.header('Authorization');
@@ -19,7 +28,7 @@ authMiddleware.use('*', async (c: any, next) => {
       return c.json({ error: 'Invalid token' }, 401);
     }
     const payload = jwt.decode(token).payload as any;
-    // @ts-ignore - Using optional chaining to safely access env
+    
     const db = c.env?.DB;
     
     if (!db) {
@@ -48,4 +57,6 @@ authMiddleware.use('*', async (c: any, next) => {
     console.error('Auth middleware error:', error);
     return c.json({ error: 'Unauthorized' }, 401);
   }
-}); 
+});
+
+export { authMiddleware }; 

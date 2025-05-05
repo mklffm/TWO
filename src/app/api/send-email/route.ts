@@ -4,8 +4,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import { generateReceiptEmailTemplate } from '@/lib/emailTemplates';
-import { generateAccountConfirmationEmail } from '@/lib/accountEmail';
+import { generateReceiptEmailTemplate } from '../../../lib/emailTemplates';
+import { generateAccountConfirmationEmail } from '../../../lib/accountEmail';
 import { Resend } from 'resend';
 
 // Create Resend instance
@@ -17,7 +17,7 @@ const resend = new Resend(RESEND_API_KEY);
 // Use Resend's default domain - no verification needed
 const FROM_EMAIL = 'onboarding@resend.dev'; // This works immediately without verification
 const FROM_NAME = 'Mira Booking';
-const AGENCY_EMAIL = 'khalfaouimanar28@gmail.com'; // Updated with the correct agency email
+const AGENCY_EMAIL = 'mira.booking.dz@gmail.com';
 
 // Function to send email using Resend
 const sendEmail = async (to: string, cc: string, subject: string, data: any) => {

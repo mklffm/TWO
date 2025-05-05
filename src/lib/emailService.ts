@@ -28,7 +28,7 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
           },
           body: JSON.stringify({
             to: data.email,
-            cc: 'khalfaouimanar28@gmail.com', // Agency email updated
+            cc: 'mira.booking.dz@gmail.com', // Agency email updated
             subject: `Visa Application Receipt for ${data.fullName}`,
             data: emailData,
           }),

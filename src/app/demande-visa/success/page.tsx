@@ -13,10 +13,6 @@ const translations = {
     subtitle: "Fill out our form to apply for a visa",
     description: "Start your visa process quickly and easily with our online application form. We'll guide you through each step of the process.",
     nextSteps: 'Next Steps',
-    step1: 'Check your email for the receipt and confirmation details',
-    step2: 'Send the following documents to mira.booking.dz@gmail.com:',
-    documentList: 'Passport scan (first page), ID photo with white background, Flight and hotel reservations (if available)',
-    step3: 'Include your receipt number in the email subject line',
     step4: 'Our team will process your application within the timeframe you selected',
     questions: 'If you have any questions, please contact us at:',
     backHome: 'Back to Home',
@@ -28,10 +24,6 @@ const translations = {
     subtitle: "Remplissez notre formulaire pour demander un visa",
     description: "Commencez votre processus de visa rapidement et facilement avec notre formulaire de demande en ligne. Nous vous guiderons à chaque étape du processus.",
     nextSteps: 'Prochaines Étapes',
-    step1: 'Vérifiez votre email pour le reçu et les détails de confirmation',
-    step2: 'Envoyez les documents suivants à mira.booking.dz@gmail.com:',
-    documentList: 'Scan du passeport (première page), photo d\'identité avec fond blanc, réservations de vol et d\'hôtel (si disponibles)',
-    step3: 'Incluez votre numéro de reçu dans l\'objet de l\'email',
     step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné',
     questions: 'Si vous avez des questions, veuillez nous contacter à :',
     backHome: 'Retour à l\'Accueil',
@@ -43,10 +35,6 @@ const translations = {
     subtitle: "املأ نموذجنا للتقدم بطلب للحصول على تأشيرة",
     description: "ابدأ عملية التأشيرة الخاصة بك بسرعة وسهولة باستخدام نموذج الطلب عبر الإنترنت. سنرشدك خلال كل خطوة من خطوات العملية.",
     nextSteps: 'الخطوات التالية',
-    step1: 'تحقق من بريدك الإلكتروني للحصول على الإيصال وتفاصيل التأكيد',
-    step2: 'أرسل المستندات التالية إلى mira.booking.dz@gmail.com:',
-    documentList: 'مسح جواز السفر (الصفحة الأولى)، صورة شخصية بخلفية بيضاء، حجوزات الطيران والفندق (إن وجدت)',
-    step3: 'قم بتضمين رقم الإيصال الخاص بك في سطر موضوع البريد الإلكتروني',
     step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته',
     questions: 'إذا كانت لديك أي أسئلة، يرجى الاتصال بنا على:',
     backHome: 'العودة إلى الصفحة الرئيسية',
@@ -110,40 +98,6 @@ export default function ApplicationSuccessPage() {
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-base text-gray-700">{t.step1}</p>
-                </div>
-              </div>
-              
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary-100 text-primary-600">
-                    2
-                  </div>
-                </div>
-                <div className="ml-4">
-                  <p className="text-base text-gray-700">{t.step2}</p>
-                  <p className="text-sm text-gray-600 mt-1">{t.documentList}</p>
-                </div>
-              </div>
-              
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary-100 text-primary-600">
-                    3
-                  </div>
-                </div>
-                <div className="ml-4">
-                  <p className="text-base text-gray-700">{t.step3}</p>
-                </div>
-              </div>
-              
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary-100 text-primary-600">
-                    4
-                  </div>
-                </div>
-                <div className="ml-4">
                   <p className="text-base text-gray-700">{t.step4}</p>
                 </div>
               </div>
@@ -159,7 +113,7 @@ export default function ApplicationSuccessPage() {
               <Link href="/" className="w-full sm:w-auto mb-3 sm:mb-0 inline-flex justify-center items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                 {t.backHome}
               </Link>
-              <Link href="/application-status" className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+              <Link href="/login" className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                 {t.dashboard}
               </Link>
             </div>

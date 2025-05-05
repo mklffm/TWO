@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { Context, Next } from 'hono';
 import loginRouter from './api/auth/login';
 import registerRouter from './api/auth/register';
 import logoutRouter from './api/auth/logout';
@@ -6,11 +7,30 @@ import profileRouter from './api/auth/profile';
 import passwordRouter from './api/auth/password';
 import { authMiddleware } from './middleware/auth';
 
-// @ts-ignore - Simplified for build
-const app = new Hono();
+// Type for environment variables
+interface Bindings {
+  DB: any;
+  JWT_SECRET: string;
+  [key: string]: any;
+}
+
+// Create Hono app with proper typing
+const app = new Hono<{ Bindings: Bindings }>();
+
+// Add a root path handler to confirm the server is working
+app.get('/', (c) => {
+  return c.json({
+    status: 'ok',
+    message: 'Mira Booking API Server is running',
+    version: '1.0.0',
+    endpoints: {
+      auth: ['/api/auth/login', '/api/auth/register', '/api/auth/logout', '/api/auth/profile', '/api/auth/password']
+    }
+  });
+});
 
 // Global middleware for CORS
-app.all('*', (c: any) => {
+app.use('*', async (c: Context, next: Next) => {
   // Get the origin from the request
   const origin = c.req.header('Origin') || '*';
   
@@ -26,16 +46,18 @@ app.all('*', (c: any) => {
     return c.text('', 204);
   }
   
-  // @ts-ignore - Using any type to get past build errors
-  return c.next();
+  // Continue to the next middleware/handler
+  await next();
 });
 
+// Auth routes that don't need authentication
 app.route('/api/auth/login', loginRouter);
 app.route('/api/auth/register', registerRouter);
 app.route('/api/auth/logout', logoutRouter);
 app.route('/api/auth/profile', profileRouter);
 app.route('/api/auth/password', passwordRouter);
 
-app.use('/api/*', authMiddleware);
+// Apply auth middleware to protected routes
+app.use('/api/*', authMiddleware as any);
 
 export default app; 

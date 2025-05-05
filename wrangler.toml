@@ -5,8 +5,42 @@ compatibility_date = "2023-12-01"
 # Pages configuration
 pages_build_output_dir = "./out"
 
+# Real-time updates configuration
+workers_dev = true
+main = "./backend-worker/index.ts"
+minify = true
+compatibility_flags = ["nodejs_compat"]
+
+# Enable auto-deployments and minimize deploy time
+build.upload.format = "service-worker"
+build.watch_dir = ["src", "backend-worker"]
+
+# Edge caching for better performance
+routes = [
+  { pattern = "*", zone_name = "mira-booking.com" }
+]
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+DEPLOY_TIME = "real-time"
+JWT_SECRET = "your-secret-key"
+
 # D1 Database configuration
 [[d1_databases]]
 binding = "DB"
 database_name = "mira-booking-db"
-database_id = "0c1c1907-868c-4727-b348-90d2770c2c60" 
+database_id = "0c1c1907-868c-4727-b348-90d2770c2c60"
+
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "cache-namespace-id"
+preview_id = "preview-cache-namespace-id"
+
+# Setting up live reloading for local development
+[dev]
+port = 8787
+local_protocol = "http"
+ip = "localhost"
+watch_dir = ["src", "backend-worker"] 
