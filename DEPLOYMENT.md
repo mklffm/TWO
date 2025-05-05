@@ -95,6 +95,55 @@ The application is configured to be deployed to the following domains:
 
 These are configured in the wrangler configuration files.
 
+## DNS Propagation and Custom Domains
+
+After deploying your site to Cloudflare Pages, you might notice that the changes appear on the *.pages.dev URL but not on your custom domain (www.mirabooking.com). This is often due to DNS propagation delays.
+
+### Understanding DNS Propagation
+
+DNS propagation is the time it takes for DNS changes to spread across the internet. When you update your DNS records or deploy a new version of your site, it can take anywhere from a few minutes to 48 hours for those changes to be visible to all users globally. This happens because:
+
+1. DNS records are cached by various servers along the path from a user to your website
+2. Different DNS servers have different cache expiration times (TTL - Time To Live)
+3. Some ISPs might ignore TTL settings and cache DNS records for longer periods
+
+### Troubleshooting Custom Domain Issues
+
+If your site is working at https://mira-booking.pages.dev but not at www.mirabooking.com, try these steps:
+
+1. **Clear your browser cache**: This ensures you're not viewing a cached version of the site
+   ```
+   Chrome: Ctrl+Shift+Delete → Select "Cached images and files" → Clear data
+   Firefox: Ctrl+Shift+Delete → Select "Cache" → Clear
+   ```
+
+2. **Check DNS records**: Verify that your DNS records are correctly pointing to Cloudflare
+   ```bash
+   # View your current deployments
+   npx wrangler pages deployment list --project-name=mira-booking
+   
+   # Check that your custom domains are set up
+   npx wrangler pages project list
+   ```
+
+3. **Use alternative DNS servers**: Try accessing your site using a different DNS resolver
+   ```
+   Add 1.1.1.1 (Cloudflare's DNS) to your network settings temporarily
+   ```
+
+4. **Check from different networks**: Try accessing your site from a mobile device using cellular data
+
+5. **Wait for propagation**: In some cases, you simply need to wait for DNS changes to propagate fully
+
+### Verifying Custom Domain Setup
+
+To make sure your custom domain is properly set up in Cloudflare Pages:
+
+1. Go to the Cloudflare Dashboard (https://dash.cloudflare.com)
+2. Navigate to Workers & Pages → Pages → mira-booking
+3. Click on "Custom domains" and verify that www.mirabooking.com is listed
+4. Check the DNS tab to ensure the CNAME record for www points to mira-booking.pages.dev
+
 ## Troubleshooting
 
 If you encounter issues during deployment:
