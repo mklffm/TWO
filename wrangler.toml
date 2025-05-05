@@ -17,8 +17,12 @@ build.watch_dir = ["src", "backend-worker"]
 
 # Edge caching for better performance
 routes = [
-  { pattern = "*", zone_name = "mira-booking.com" }
+  { pattern = "*", zone_name = "mirabooking.com" }
 ]
+
+# Domain configuration
+[triggers]
+domains = ["www.mirabooking.com", "mirabooking.com"]
 
 # Environment variables
 [vars]
