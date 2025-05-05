@@ -22,14 +22,16 @@ bucket = "./out"
 [vars]
 ENVIRONMENT = "production"
 DEPLOY_TIME = "real-time"
-JWT_SECRET = "your-secret-key"
+# Don't hardcode secrets in the repo, use GitHub Secrets
+JWT_SECRET = ""
 
 # Production environment configuration
 [env.production]
 name = "mira-booking"
 workers_dev = false
 routes = [
-  { pattern = "*", zone_name = "mirabooking.com" }
+  { pattern = "*", zone_name = "mirabooking.com" },
+  { pattern = "*", zone_name = "www.mirabooking.com" }
 ]
 vars = { ENVIRONMENT = "production" }
 

@@ -1,13 +1,12 @@
-import { Hono } from 'hono';
-import { Context } from 'hono';
+import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
+import { getCookie } from 'hono/cookie';
 import { db } from '../db';
 
-export const authMiddleware = new Hono();
-
-authMiddleware.use('*', async (c: Context, next) => {
+// Convert to a middleware function instead of a Hono instance
+export async function authMiddleware(c: Context, next: Next) {
   try {
-    const token = c.req.cookie('auth_token');
+    const token = getCookie(c, 'auth_token');
 
     if (!token) {
       return c.json({ error: 'Unauthorized' }, 401);
@@ -47,4 +46,4 @@ authMiddleware.use('*', async (c: Context, next) => {
     console.error('Auth middleware error:', error);
     return c.json({ error: 'Unauthorized' }, 401);
   }
-}); 
+} 

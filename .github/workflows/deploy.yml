@@ -21,14 +21,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Run diagnostics
+        run: node github-workflow-debug.js
+        
       - name: Create environment file
         run: |
           echo "JWT_SECRET=${{ secrets.JWT_SECRET || 'default-secret-for-jwt' }}" > .env
-          echo "Creating build environment file"
+          echo "Creating build environment file with JWT_SECRET"
+          
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+        continue-on-error: true
           
       - name: Build
-        run: npm run build:cloudflare
-        
+        run: |
+          echo "Starting build process..."
+          npm run build:cloudflare
+          echo "Build completed"
+          
+      - name: Check build output
+        run: |
+          if [ -d "out" ]; then
+            echo "✅ Build output directory 'out' exists"
+            ls -la out
+          else
+            echo "❌ Build output directory 'out' is missing"
+            exit 1
+          fi
+          
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
