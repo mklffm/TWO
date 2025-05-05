@@ -33,30 +33,95 @@ node deploy-to-cloudflare.js
 node deploy-to-cloudflare.js --skip-build
 ```
 
-This script automatically:
-- Checks for authentication with Cloudflare
-- Builds the project (unless skipped)
-- Deploys using the Pages-specific configuration
-
 ### Option 2: Manual Deployment Steps
 
 If you prefer to run the commands manually:
 
 1. **Build the application**:
    ```bash
-   npm run build:cloudflare
+   npm run build
    ```
 
 2. **Deploy to Cloudflare Pages**:
+   
+   First, temporarily rename the configuration files to use the Pages-specific config:
    ```bash
-   npx wrangler pages deploy out --project-name=mira-booking --branch=main --config=wrangler.pages.toml
+   # In Windows
+   ren wrangler.toml wrangler.worker.toml
+   ren wrangler.pages.toml wrangler.toml
+   
+   # In Linux/Mac
+   mv wrangler.toml wrangler.worker.toml
+   mv wrangler.pages.toml wrangler.toml
+   ```
+   
+   Then deploy:
+   ```bash
+   npx wrangler pages deployment create out --project-name=mira-booking --branch=main
+   ```
+   
+   Finally, restore the original configuration:
+   ```bash
+   # In Windows
+   ren wrangler.toml wrangler.pages.toml
+   ren wrangler.worker.toml wrangler.toml
+   
+   # In Linux/Mac
+   mv wrangler.toml wrangler.pages.toml
+   mv wrangler.worker.toml wrangler.toml
    ```
 
-### Option 3: GitHub Actions (Automated CI/CD)
+## Troubleshooting
 
-The repository is configured with GitHub Actions for automatic deployment when changes are pushed to the `master` branch.
+### Custom Domain Issues
 
-The workflow file is located at `.github/workflows/deploy.yml`.
+If your deployment is successful but changes aren't showing up on your custom domain (www.mirabooking.com):
+
+1. **DNS Propagation**: DNS changes can take up to 48 hours to fully propagate. The deployment may be live on the Cloudflare Pages URL (https://mira-booking.pages.dev) before it's visible on the custom domain.
+
+2. **Cache Issues**: Cloudflare may cache the old version of your site. Try:
+   - Opening the site in an incognito/private browsing window
+   - Using a different browser
+   - Clearing your browser cache
+
+3. **Force a New Deployment**:
+   ```bash
+   # Temporarily switch to Pages configuration
+   ren wrangler.toml wrangler.worker.toml
+   ren wrangler.pages.toml wrangler.toml
+   
+   # Create a new production deployment
+   npx wrangler pages deployment create out --project-name=mira-booking --branch=main
+   
+   # Switch back to Worker configuration
+   ren wrangler.toml wrangler.pages.toml
+   ren wrangler.worker.toml wrangler.toml
+   ```
+
+4. **Check Active Deployment**:
+   ```bash
+   npx wrangler pages deployment list --project-name=mira-booking --environment=production
+   ```
+   The most recent deployment should be at the top and should be linked to the custom domain.
+
+5. **Verify Custom Domain Configuration**:
+   ```bash
+   npx wrangler pages project list
+   ```
+   Confirm that your project has the custom domain listed.
+
+## GitHub Workflow
+
+The `.github/workflows/deploy.yml` file automates deployment when changes are pushed to the main branch.
+
+## Environment Variables
+
+Important environment variables used in deployment:
+
+- `CF_API_TOKEN`: Cloudflare API token with Pages deployment permissions
+- `CF_ACCOUNT_ID`: Your Cloudflare account ID (e3a38c538e41a3c681cf1c38a8fe447f)
+
+These should be configured as GitHub Secrets for the automated workflow to function properly.
 
 ## Authentication with Cloudflare
 
