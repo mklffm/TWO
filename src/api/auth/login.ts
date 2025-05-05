@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { Context } from 'hono';
+import { setCookie } from 'hono/cookie';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { db } from '../../db';
@@ -37,8 +38,8 @@ app.post('/', async (c: Context) => {
       { expiresIn: '7d' }
     );
 
-    // Set cookie
-    c.cookie('auth_token', token, {
+    // Set cookie using setCookie helper
+    setCookie(c, 'auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Lax',
