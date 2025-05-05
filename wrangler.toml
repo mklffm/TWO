@@ -11,18 +11,13 @@ main = "./backend-worker/index.ts"
 minify = true
 compatibility_flags = ["nodejs_compat"]
 
-# Enable auto-deployments and minimize deploy time
-build.upload.format = "service-worker"
-build.watch_dir = ["src", "backend-worker"]
-
-# Edge caching for better performance
+# Routes configuration
 routes = [
   { pattern = "*", zone_name = "mirabooking.com" }
 ]
 
 # Domain configuration
-[triggers]
-domains = ["www.mirabooking.com", "mirabooking.com"]
+custom_domain = "www.mirabooking.com"
 
 # Environment variables
 [vars]
@@ -42,9 +37,8 @@ binding = "CACHE"
 id = "cache-namespace-id"
 preview_id = "preview-cache-namespace-id"
 
-# Setting up live reloading for local development
+# Setting up local development
 [dev]
 port = 8787
 local_protocol = "http"
-ip = "localhost"
-watch_dir = ["src", "backend-worker"] 
+ip = "localhost" 
