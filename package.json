@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:deploy": "SKIP_TYPESCRIPT_CHECK=1 next build",
-    "build:cloudflare": "touch .env && npx next build --no-lint",
+    "build:cloudflare": "echo {} > .env && npx next build --no-lint",
     "build:no-ts": "node build-no-ts.js",
     "start": "next start",
     "lint": "next lint",

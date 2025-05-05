@@ -1,3 +1,7 @@
+// This file is no longer needed since we're using the App Router approach
+// It's maintained only for reference
+
+/*
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navigation from './components/Navigation';
@@ -39,4 +43,10 @@ export default function App() {
       </AuthProvider>
     </Router>
   );
+}
+*/
+
+// Placeholder app component for Next.js App Router
+export default function App() {
+  return null;
 } 

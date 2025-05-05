@@ -1,4 +1,4 @@
-// File: /Users/macbookpro/Downloads/One/Mira booking copy 10/src/app/conditions/page.tsx
+// File: D:\BOOKING\TWO\src\app\conditions\page.tsx
 import * as entry from '../../../../src/app/conditions/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
