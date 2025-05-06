@@ -17,16 +17,31 @@ interface MockUser {
   password: string; // WARNING: This is not secure, only for development
 }
 
+// Default test user
+const DEFAULT_USER: MockUser = {
+  id: '1',
+  email: 'test@example.com',
+  firstName: 'Test',
+  lastName: 'User',
+  password: 'password123',
+};
+
 // Get mock users from localStorage
 const getMockUsers = (): MockUser[] => {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return [DEFAULT_USER];
   
   try {
     const users = localStorage.getItem(MOCK_USERS_KEY);
-    return users ? JSON.parse(users) : [];
+    if (!users) {
+      // Initialize with default user if no users exist
+      const defaultUsers = [DEFAULT_USER];
+      saveMockUsers(defaultUsers);
+      return defaultUsers;
+    }
+    return JSON.parse(users);
   } catch (e) {
     console.error('Error getting mock users:', e);
-    return [];
+    return [DEFAULT_USER];
   }
 };
 
@@ -92,6 +107,7 @@ export const mockLogin = async (
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 800));
   
+  // Initialize storage with default user if needed
   const users = getMockUsers();
   
   // Find user
@@ -135,6 +151,14 @@ export const mockGetUserFromToken = (token: string): {
     return null;
   }
 };
+
+// Make sure default user is added on initial load
+if (typeof window !== 'undefined') {
+  const users = getMockUsers();
+  if (!users.some(user => user.email === DEFAULT_USER.email)) {
+    saveMockUsers([...users, DEFAULT_USER]);
+  }
+}
 
 export default {
   mockRegister,

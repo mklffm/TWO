@@ -124,7 +124,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/macbookpro/Downloads/One/Mira booking copy 10/src/generated/prisma",
+      "value": "/Users/macbookpro/Downloads/Mira1/TWO/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -138,11 +138,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/macbookpro/Downloads/One/Mira booking copy 10/prisma/schema.prisma",
+    "sourceFilePath": "/Users/macbookpro/Downloads/Mira1/TWO/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
@@ -152,7 +152,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

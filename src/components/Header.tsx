@@ -423,14 +423,14 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
                           {t.myProfile}
                         </Link>
                         <Link 
-                          href="/dashboard" 
+                          href="/" 
                           className={`flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 ${language === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`}
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <svg className={`w-5 h-5 ${language === 'ar' ? 'ml-2' : 'mr-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                           </svg>
-                          {t.dashboard}
+                          {t.home}
                         </Link>
                         <button 
                           onClick={handleLogout}
@@ -578,8 +578,8 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
                   <Link href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>
                     {t.myProfile}
                   </Link>
-                  <Link href="/dashboard" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>
-                    {t.dashboard}
+                  <Link href="/" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>
+                    {t.home}
                   </Link>
                   <button 
                     onClick={handleLogout}

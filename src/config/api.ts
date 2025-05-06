@@ -7,8 +7,8 @@
 // Determine if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
-// TEMPORARY: Force development mode to enable mock auth while backend is fixed
-export const FORCE_DEVELOPMENT_MODE = true;
+// Set to false to use real authentication
+export const FORCE_DEVELOPMENT_MODE = false;
 
 // Determine the current environment
 const isProduction = isBrowser && !FORCE_DEVELOPMENT_MODE && (
@@ -20,11 +20,10 @@ const isProduction = isBrowser && !FORCE_DEVELOPMENT_MODE && (
 // Primary and fallback API URLs
 const PRIMARY_PRODUCTION_API = 'https://mira-booking-backend.khalfaouimanar28.workers.dev';
 const FALLBACK_PRODUCTION_API = 'https://mira-backend.pages.dev'; // Add a fallback if you have one
+const LOCAL_API = 'http://127.0.0.1:8787';
 
 // Set API base URLs based on environment
-export const API_BASE_URL = isProduction 
-  ? PRIMARY_PRODUCTION_API
-  : 'http://127.0.0.1:8787';
+export const API_BASE_URL = isProduction ? PRIMARY_PRODUCTION_API : LOCAL_API;
 
 // Helper function to switch to fallback API if primary fails
 export const useFallbackApi = () => {
@@ -35,8 +34,8 @@ export const useFallbackApi = () => {
   return API_BASE_URL;
 };
 
-// Check if we should use mock auth (when backend is down)
-export const useMockAuth = !isProduction || FORCE_DEVELOPMENT_MODE;
+// Set to false to use real authentication
+export const useMockAuth = false;
 
 // Auth endpoints
 export const AUTH_API = {

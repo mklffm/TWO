@@ -36,7 +36,7 @@ export default function CreateAccount() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      router.push('/dashboard');
+      router.push('/');
     }
   }, [router]);
 
@@ -109,7 +109,7 @@ export default function CreateAccount() {
           // Add small delay before redirect to ensure token is properly stored
           setTimeout(() => {
             console.log('Redirecting to dashboard...');
-            router.push('/dashboard');
+            router.push('/');
           }, 300);
           
           return;
@@ -237,7 +237,7 @@ export default function CreateAccount() {
         // Add small delay before redirect to ensure token is properly stored
         setTimeout(() => {
           console.log('Redirecting to dashboard...');
-          router.push('/dashboard');
+          router.push('/');
         }, 300);
       } else {
         throw new Error('Registration successful but authentication failed. Please try logging in.');
