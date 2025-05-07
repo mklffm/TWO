@@ -588,18 +588,18 @@ export default function HomePage() {
         </section>
         
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-primary-700 to-secondary-600 text-white relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <section className="py-20 bg-white text-gray-800 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
           
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-shadow-lg">{t.ctaTitle}</h2>
-              <p className="text-xl mb-10 text-primary-100">{t.ctaSubtitle}</p>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-gray-800">{t.ctaTitle}</h2>
+              <p className="text-xl mb-10 text-gray-600">{t.ctaSubtitle}</p>
               <Link 
-                href="/#booking-form" 
-                className="btn bg-white text-primary-600 hover:bg-gray-100 text-lg px-10 py-4 rounded-full inline-flex items-center font-medium shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-105"
+                href="/demande-visa" 
+                className="btn bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white text-lg px-10 py-4 rounded-full inline-flex items-center font-medium shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-105"
               >
                 {t.startApplication}
                 <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
