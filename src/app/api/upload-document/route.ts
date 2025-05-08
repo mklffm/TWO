@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
 // Email configuration for Gmail
-const FROM_EMAIL = 'sitekdigital@gmail.com'; // Your email address
+const FROM_EMAIL = 'mira.booking.dz@gmail.com'; // Your email address
 const FROM_NAME = 'Mira Booking';
-const AGENCY_EMAIL = 'sitekdigital@gmail.com';
+const AGENCY_EMAIL = 'mira.booking.dz@gmail.com';
 
 // Create transporter for Gmail
 const transporter = nodemailer.createTransport({

@@ -105,7 +105,7 @@ export default function ApplicationSuccessPage() {
             
             <div className="mt-10 border-t border-gray-200 pt-8">
               <p className="text-base text-gray-600">{t.questions}</p>
-              <p className="mt-2 text-base font-medium text-primary-600">sitekdigital@gmail.com</p>
+              <p className="mt-2 text-base font-medium text-primary-600">mira.booking.dz@gmail.com</p>
               <p className="mt-1 text-base font-medium text-primary-600">+213 660 885 339</p>
             </div>
             

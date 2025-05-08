@@ -1,57 +1,9 @@
-# Configuration for Cloudflare Workers
+# Configuration for Cloudflare Pages
 name = "mira-booking"
-compatibility_date = "2023-12-01"
-compatibility_flags = ["nodejs_compat"]
-workers_dev = true
-main = "./backend-worker/index.ts"
-minify = true
-
-# Pages configuration
 pages_build_output_dir = "./out"
 
-# Routes configuration
-routes = [
-  { pattern = "*", zone_name = "mirabooking.com" }
-]
-
-# Domain configuration
-[triggers]
-crons = []
-
-[site]
-bucket = "./out"
-
-# Environment variables
+# Environment variables (if needed for build)
 [vars]
 ENVIRONMENT = "production"
 DEPLOY_TIME = "real-time"
-# Don't hardcode secrets in the repo, use GitHub Secrets
-JWT_SECRET = ""
-
-# Production environment configuration
-[env.production]
-name = "mira-booking"
-workers_dev = false
-routes = [
-  { pattern = "*", zone_name = "mirabooking.com" },
-  { pattern = "*", zone_name = "www.mirabooking.com" }
-]
-vars = { ENVIRONMENT = "production" }
-
-# D1 Database configuration
-[[d1_databases]]
-binding = "DB"
-database_name = "mira-booking-db"
-database_id = "0c1c1907-868c-4727-b348-90d2770c2c60"
-
-# KV namespace for caching
-[[kv_namespaces]]
-binding = "CACHE"
-id = "cache-namespace-id"
-preview_id = "preview-cache-namespace-id"
-
-# Setting up local development
-[dev]
-port = 8787
-local_protocol = "http"
-ip = "localhost" 
+JWT_SECRET = "" 
