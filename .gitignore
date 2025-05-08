@@ -38,3 +38,7 @@ next-env.d.ts
 .wrangler/
 .tmp/
 wrangler.pages.toml
+
+# Temporary files
+tmp/
+tmp/uploads/

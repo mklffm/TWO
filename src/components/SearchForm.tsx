@@ -1,15 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { sendReceiptEmail } from '@/lib/emailjsService';
 import { initEmailJS } from '@/lib/emailjsService';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-// Note: In a production app, we would use a server-side API for MRZ detection
-// This is just for demonstration purposes
-import * as mrz from 'mrz-detection';
-// Use the MRZResult interface from the module
-import { MRZResult } from 'mrz-detection';
 
 // Define translation type
 type TranslationLanguage = 'en' | 'fr' | 'ar';
@@ -24,19 +18,14 @@ interface FormData {
   nationality: string;
   destination: string;
   usaCity?: string;
-  canadaCity?: string;  // Add this line
+  canadaCity?: string;
   travelDate: string;
   visaType: VisaType;
   processingTime: ProcessingTime;
-  passportFile: File | null;
   agencyName: string;
   agencyId: string;
   clientNumber: string;
   bulkClientFile: File | null;
-  passportNumber?: string;
-  birthDate?: string;
-  expiryDate?: string;
-  mrzData?: MRZResult;
 }
 
 // Define props interface
@@ -68,7 +57,6 @@ const translations = {
     standard: 'Standard (7-10 days)',
     expedited: 'Expedited (3-5 days)',
     urgent: 'Urgent (24-48 hours)',
-    passportUpload: 'Passport Scan',
     dragDrop: 'Drag and drop or click to upload',
     fileRequirements: 'PDF, JPG, JPEG, PNG (max. 5MB)',
     getQuote: 'Get Quote',
@@ -86,7 +74,7 @@ const translations = {
     totalPrice: 'Total Amount',
     priceNote: 'Includes all processing fees and taxes',
     requiredDocuments: 'Required Documents',
-    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.dz@gmail.com',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à sitekdigital@gmail.com',
     applyNow: 'Postulez maintenant',
     emailSent: 'Application submitted! Receipt sent to your email.',
     emailError: 'Error sending receipt. Please try again.',
@@ -106,19 +94,6 @@ const translations = {
     available: 'Available',
     volumeDiscount: 'Volume Discount',
     currencyCode: 'DZD',
-    scanPassport: "Scan Passport",
-    scanInstructions: "Position passport in frame",
-    scanFailed: "Scan failed. Try again or enter manually.",
-    scanSuccess: "Passport scanned successfully!",
-    scanButtonText: "Scan with Camera",
-    rescan: "Scan Again",
-    useScannedData: "Use Scanned Data",
-    passportNumber: "Passport Number",
-    birthDate: "Date of Birth",
-    expiryDate: "Passport Expiry Date",
-    scanningPassport: "Scanning passport...",
-    allowCamera: "Please allow camera access",
-    extractedInfo: "Extracted Information",
     usaCity: "US City",
     selectUsaCity: "Select US City",
     canadaCity: "Canadian City",
@@ -147,7 +122,6 @@ const translations = {
     standard: 'Standard (7-10 jours)',
     expedited: 'Accéléré (3-5 jours)',
     urgent: 'Urgent (24-48 heures)',
-    passportUpload: 'Scan du passeport',
     dragDrop: 'Glisser-déposer ou cliquer pour télécharger',
     fileRequirements: 'PDF, JPG, JPEG, PNG (max. 5Mo)',
     getQuote: 'Obtenir un devis',
@@ -165,7 +139,7 @@ const translations = {
     totalPrice: 'Montant total',
     priceNote: 'Comprend tous les frais de traitement et taxes',
     requiredDocuments: 'Documents requis',
-    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.dz@gmail.com',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à sitekdigital@gmail.com',
     applyNow: 'Postulez maintenant',
     
     emailSent: 'Demande soumise ! Reçu envoyé à votre email.',
@@ -186,19 +160,6 @@ const translations = {
     available: 'Disponible',
     volumeDiscount: 'Remise sur Volume',
     currencyCode: 'DZD',
-    scanPassport: "Scanner le Passeport",
-    scanInstructions: "Positionnez le passeport dans le cadre",
-    scanFailed: "Échec du scan. Réessayez ou saisissez manuellement.",
-    scanSuccess: "Passeport scanné avec succès !",
-    scanButtonText: "Scanner avec la Caméra",
-    rescan: "Scanner à Nouveau",
-    useScannedData: "Utiliser les Données Scannées",
-    passportNumber: "Numéro de Passeport",
-    birthDate: "Date de Naissance",
-    expiryDate: "Date d'Expiration du Passeport",
-    scanningPassport: "Scan du passeport en cours...",
-    allowCamera: "Veuillez autoriser l'accès à la caméra",
-    extractedInfo: "Informations Extraites",
     usaCity: "Ville aux États-Unis",
     selectUsaCity: "Sélectionner une ville aux États-Unis",
     canadaCity: "Ville Canadienne",
@@ -227,7 +188,6 @@ const translations = {
     standard: 'قياسي (7-10 أيام)',
     expedited: 'مستعجل (3-5 أيام)',
     urgent: 'عاجل (24-48 ساعة)',
-    passportUpload: 'مسح جواز السفر',
     dragDrop: 'اسحب وأفلت أو انقر للتحميل',
     fileRequirements: 'PDF، JPG، JPEG، PNG (بحد أقصى 5 ميجابايت)',
     getQuote: 'الحصول على عرض سعر',
@@ -245,9 +205,9 @@ const translations = {
     totalPrice: 'المبلغ الإجمالي',
     priceNote: 'يشمل جميع رسوم المعالجة والضرائب',
     requiredDocuments: 'المستندات المطلوبة',
-    sendFilesInstructions: 'أرسل الملفات لإكمال طلبك',
+    sendFilesInstructions: 'أرسل الملفات لإكمال طلبك إلى sitekdigital@gmail.com',
     applyNow: 'قدم الآن',
-    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى mira.booking.dz@gmail.com',
+    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى sitekdigital@gmail.com',
     emailSent: 'تم تقديم الطلب! تم إرسال الإيصال إلى بريدك الإلكتروني.',
     emailError: 'خطأ في إرسال الإيصال. حاول مرة خرى.',
     selectDestination: 'اختر الوجهة',
@@ -266,19 +226,6 @@ const translations = {
     available: 'متاح',
     volumeDiscount: 'خصم الحجم',
     currencyCode: 'دج',
-    scanPassport: "مسح جواز السفر",
-    scanInstructions: "ضع جواز السفر في الإطار",
-    scanFailed: "فشل المسح. حاول مرة أخرى أو أدخل يدوياً.",
-    scanSuccess: "تم مسح جواز السفر بنجاح!",
-    scanButtonText: "المسح بالكاميرا",
-    rescan: "إعادة المسح",
-    useScannedData: "استخدام البيانات الممسوحة",
-    passportNumber: "رقم جواز السفر",
-    birthDate: "تاريخ الميلاد",
-    expiryDate: "تاريخ انتهاء صلاحية جواز السفر",
-    scanningPassport: "جارٍ مسح جواز السفر...",
-    allowCamera: "يرجى السماح بالوصول إلى الكاميرا",
-    extractedInfo: "المعلومات المستخرجة",
     usaCity: "مدينة في الولايات المتحدة",
     selectUsaCity: "اختر مدينة في الولايات المتحدة",
     canadaCity: "مدينة كندية",
@@ -464,28 +411,15 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     nationality: '',
     destination: '',
     usaCity: '',
-    canadaCity: '',  // Add this line
+    canadaCity: '',
     travelDate: '',
     visaType: 'tourist',
     processingTime: 'standard',
-    passportFile: null,
     agencyName: '',
     agencyId: '',
     clientNumber: '1',
     bulkClientFile: null
   });
-
-  // Add refs for camera elements
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  // Add state variables for passport scanning
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<MRZResult | null>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
   
   // Initialize EmailJS on component mount
   useEffect(() => {
@@ -573,11 +507,9 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     const file = e.target.files?.[0] || null;
     if (!file) return;
     
-    const fieldName = e.target.name === 'passport-upload' ? 'passportFile' : 'bulkClientFile';
-    
-      setFormData({
-        ...formData,
-      [fieldName]: file
+    setFormData({
+      ...formData,
+      bulkClientFile: file
     });
   };
   
@@ -662,6 +594,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       console.error('Error initializing EmailJS:', initError);
     }
     
+    // Generate a receipt number
+    const timestamp = new Date().getTime();
+    const receiptNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
+    
     // Create email data object
     const emailData = {
       fullName: formData.fullName,
@@ -676,7 +612,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       currency: getCurrencyCode(),
       formattedPrice: t.priceFormatter.replace('{price}', customPrice.toString()).replace('{currency}', getCurrencyCode()),
       timestamp: new Date().toISOString(),
-      language: language
+      language: language,
+      receiptNumber: receiptNumber
     };
 
     console.log('Prepared email data:', JSON.stringify(emailData));
@@ -733,217 +670,6 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       alert('Exception sending email: ' + errorMessage);
     }
   };
-
-  // Add function to open camera
-  const openCamera = async () => {
-    setScanError(null);
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Your browser does not support camera access');
-      }
-      
-      const constraints = {
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: { ideal: 'environment' }
-        },
-        audio: false
-      };
-      
-      // Try to check permission if the API is available
-      let permissionDenied = false;
-      try {
-        if (navigator.permissions && navigator.permissions.query) {
-          const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
-          if (permission.state === 'denied') {
-            permissionDenied = true;
-            throw new Error('Camera access denied. Please enable camera access in your browser settings');
-          }
-        }
-      } catch (permErr) {
-        if (permissionDenied) {
-          throw permErr;
-        }
-        // If permissions API fails, continue anyway and try getUserMedia directly
-        console.warn('Permissions API not available, trying direct camera access');
-      }
-      
-      // Get media stream
-      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      setStream(mediaStream);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.onloadedmetadata = () => {
-          if (videoRef.current) {
-            videoRef.current.play().catch(err => {
-              console.error('Error playing video:', err);
-              setScanError('Failed to start camera stream');
-            });
-          }
-        };
-      }
-      
-      setIsCameraOpen(true);
-    } catch (err) {
-      console.error('Error accessing camera:', err);
-      
-      // Provide more helpful error messages
-      if (err instanceof Error) {
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          setScanError('Camera access denied. Please allow camera access and try again');
-        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-          setScanError('No camera found on your device');
-        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-          setScanError('Camera is already in use by another application');
-        } else if (err.name === 'OverconstrainedError') {
-          setScanError('Camera constraints cannot be satisfied');
-        } else {
-          setScanError(t.allowCamera + ': ' + err.message);
-        }
-      } else {
-        setScanError(t.allowCamera);
-      }
-    }
-  };
-  
-  // Add function to close camera
-  const closeCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setStream(null);
-    setIsCameraOpen(false);
-  };
-  
-  // Add function to capture image
-  const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    setIsScanning(true);
-    
-    try {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      
-      // Set dimensions
-      const width = video.videoWidth;
-      const height = video.videoHeight;
-      canvas.width = width;
-      canvas.height = height;
-      
-      // Draw video frame to canvas
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.drawImage(video, 0, 0, width, height);
-        const imageData = canvas.toDataURL('image/png');
-        setCapturedImage(imageData);
-        
-        // Process the image with MRZ detection
-        processMRZ(canvas);
-      } else {
-        throw new Error('Could not get canvas context');
-      }
-    } catch (error) {
-      console.error('Error capturing image:', error);
-      setScanError('Failed to capture image. Please try again.');
-      setIsScanning(false);
-    }
-  };
-  
-  // Add function to process MRZ in the captured image
-  const processMRZ = async (canvas: HTMLCanvasElement) => {
-    try {
-      setIsScanning(true);
-      
-      // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else throw new Error('Failed to convert image to blob');
-        }, 'image/jpeg', 0.95);
-      });
-      
-      // Create form data for API call
-      const mrzFormData = new FormData();
-      mrzFormData.append('image', blob, 'passport.jpg');
-      
-      // Call MRZ reading API
-      const response = await fetch('https://mira-booking-backend.khalfaouimanar28.workers.dev/api/read-mrz', {
-        method: 'POST',
-        body: mrzFormData,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`MRZ detection failed: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
-      
-      if (!result.success || !result.data) {
-        throw new Error('Failed to detect passport data. Please try again with better lighting and positioning.');
-      }
-      
-      const mrzResult: MRZResult = result.data;
-      
-      setScanResult(mrzResult);
-      setIsScanning(false);
-      closeCamera();
-      
-      // Convert dates to readable format
-      const birthDate = formatMRZDate(mrzResult.birthDate || '');
-      const expiryDate = formatMRZDate(mrzResult.expiryDate || '');
-      
-      // Update form with extracted data
-      setFormData({
-        ...formData,
-        fullName: mrzResult.fullName || formData.fullName,
-        nationality: mrzResult.nationality || formData.nationality,
-        passportNumber: mrzResult.documentNumber,
-        birthDate: birthDate,
-        expiryDate: expiryDate,
-        mrzData: mrzResult
-      });
-      
-    } catch (error) {
-      console.error('MRZ detection failed:', error);
-      setScanError(error instanceof Error ? error.message : t.scanFailed);
-      setIsScanning(false);
-    }
-  };
-  
-  // Add function to format MRZ dates (YYMMDD to readable format)
-  const formatMRZDate = (mrzDate: string): string => {
-    if (!mrzDate || mrzDate.length < 6) return '';
-    
-    // MRZ date format is YYMMDD
-    const year = mrzDate.substring(0, 2);
-    const month = mrzDate.substring(2, 4);
-    const day = mrzDate.substring(4, 6);
-    
-    // Determine century (19xx or 20xx)
-    const fullYear = parseInt(year) > 50 ? `19${year}` : `20${year}`;
-    
-    return `${fullYear}-${month}-${day}`;
-  };
-  
-  // Add function to cancel scan and reset
-  const cancelScan = () => {
-    closeCamera();
-    setCapturedImage(null);
-    setScanResult(null);
-    setScanError(null);
-  };
-  
-  // Add useEffect to clean up camera on unmount
-  useEffect(() => {
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [stream]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -1426,155 +1152,9 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                   </div>
             </div>
             
-                {/* File Upload Section */}
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t.passportUpload}
-              </label>
-                  
-                  {/* Add the Scan Passport button prominently at the top */}
-                  <div className="mb-4">
-                    <button 
-                      type="button"
-                      onClick={openCamera}
-                      className="w-full flex items-center justify-center py-3 px-4 border border-primary-300 rounded-lg text-primary-600 bg-primary-50 hover:bg-primary-100 transition-colors duration-200"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {t.scanButtonText}
-                    </button>
-                    
-                    {/* Camera error message */}
-                    {scanError && !isCameraOpen && !capturedImage && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                        <div className="flex items-center">
-                          <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>{scanError}</span>
-                        </div>
-                        <div className="mt-2 pl-7">
-                          <p className="text-xs text-red-600">
-                            Please try uploading your passport manually with the upload option below.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Camera interface for scanning */}
-                  {isCameraOpen && (
-                    <div className="relative mb-4">
-                      <div className="rounded-lg overflow-hidden border-2 border-primary-500">
-                        <video 
-                          ref={videoRef} 
-                          className="w-full h-auto" 
-                          autoPlay 
-                          playsInline
-                        ></video>
-                        
-                        <div className="absolute inset-0 border-2 border-dashed border-primary-400 m-6 pointer-events-none"></div>
-                        
-                        <div className="absolute bottom-4 left-0 right-0 text-center text-white bg-black/50 py-2 text-sm">
-                          {t.scanInstructions}
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between mt-4">
-                        <button
-                          type="button"
-                          onClick={cancelScan}
-                          className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                        >
-                          {language === 'ar' ? 'إلغاء' : language === 'fr' ? 'Annuler' : 'Cancel'}
-                        </button>
-                        
-                        <button
-                          type="button"
-                          onClick={captureImage}
-                          className="py-2 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
-                        >
-                          {language === 'ar' ? 'التقاط' : language === 'fr' ? 'Capturer' : 'Capture'}
-                        </button>
-                      </div>
-                      
-                      {/* Hidden canvas elements for processing */}
-                      <canvas ref={canvasRef} className="hidden"></canvas>
-                    </div>
-                  )}
-                  
-                  {/* Display scan results */}
-                  {capturedImage && !isCameraOpen && (
-                    <div className="mb-4">
-                      {isScanning ? (
-                        <div className="text-center py-8">
-                          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary-400 border-t-primary-600 mb-2"></div>
-                          <p>{t.scanningPassport}</p>
-                        </div>
-                      ) : (
-                        <div className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-medium text-gray-900">{t.extractedInfo}</h4>
-                            <button
-                              type="button"
-                              onClick={cancelScan}
-                              className="text-sm text-primary-600 hover:text-primary-800"
-                            >
-                              {t.rescan}
-                            </button>
-                          </div>
-                          
-                          {scanError ? (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-                              {scanError}
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-1 gap-4">
-                              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md">
-                                {t.scanSuccess}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary-500 transition-colors duration-200">
-                    <div className="space-y-1 text-center">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <div className="flex text-sm text-gray-600">
-                        <label htmlFor="passport-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                          <span>{t.dragDrop}</span>
-              <input
-                            id="passport-upload" 
-                            name="passport-upload" 
-                            type="file" 
-                            className="sr-only" 
-                            onChange={handleFileChange}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                          />
-                        </label>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {t.fileRequirements}
-                      </p>
-                      {formData.passportFile && (
-                        <p className="text-sm text-primary-600 mt-1">
-                          {formData.passportFile.name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
                 <div className="text-center">
-                  <button
-                    type="submit"
+          <button
+            type="submit"
                     className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-full shadow-lg text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105"
                   >
                     {t.getQuote}

@@ -13,7 +13,7 @@ const translations = {
     subtitle: "Fill out our form to apply for a visa",
     description: "Start your visa process quickly and easily with our online application form. We'll guide you through each step of the process.",
     nextSteps: 'Next Steps',
-    step4: 'Our team will process your application within the timeframe you selected',
+    step4: 'Our team will process your application within the timeframe you selected and we\'ll contact you soon',
     questions: 'If you have any questions, please contact us at:',
     backHome: 'Back to Home',
     dashboard: 'Track Your Application',
@@ -24,7 +24,7 @@ const translations = {
     subtitle: "Remplissez notre formulaire pour demander un visa",
     description: "Commencez votre processus de visa rapidement et facilement avec notre formulaire de demande en ligne. Nous vous guiderons à chaque étape du processus.",
     nextSteps: 'Prochaines Étapes',
-    step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné',
+    step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné et nous vous contacterons bientôt',
     questions: 'Si vous avez des questions, veuillez nous contacter à :',
     backHome: 'Retour à l\'Accueil',
     dashboard: 'Suivre Votre Demande',
@@ -35,7 +35,7 @@ const translations = {
     subtitle: "املأ نموذجنا للتقدم بطلب للحصول على تأشيرة",
     description: "ابدأ عملية التأشيرة الخاصة بك بسرعة وسهولة باستخدام نموذج الطلب عبر الإنترنت. سنرشدك خلال كل خطوة من خطوات العملية.",
     nextSteps: 'الخطوات التالية',
-    step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته',
+    step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته وسنتصل بك قريبًا',
     questions: 'إذا كانت لديك أي أسئلة، يرجى الاتصال بنا على:',
     backHome: 'العودة إلى الصفحة الرئيسية',
     dashboard: 'تتبع طلبك',
@@ -105,7 +105,7 @@ export default function ApplicationSuccessPage() {
             
             <div className="mt-10 border-t border-gray-200 pt-8">
               <p className="text-base text-gray-600">{t.questions}</p>
-              <p className="mt-2 text-base font-medium text-primary-600">mira.booking.dz@gmail.com</p>
+              <p className="mt-2 text-base font-medium text-primary-600">sitekdigital@gmail.com</p>
               <p className="mt-1 text-base font-medium text-primary-600">+213 660 885 339</p>
             </div>
             

@@ -9,6 +9,91 @@ import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService'
 import { AUTH_API, useFallbackApi, useMockAuth } from '@/config/api';
 import { mockRegister } from '@/lib/mockAuthService';
 
+// Translations for the create account page
+const translations = {
+  en: {
+    pageTitle: "Create Your Account",
+    pageSubtitle: "Join us to start booking your visa services",
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email address",
+    password: "Password",
+    confirmPassword: "Confirm password",
+    signUp: "Sign up",
+    signingUp: "Signing up...",
+    haveAccount: "Already have an account?",
+    signIn: "Sign in",
+    firstNamePlaceholder: "John",
+    lastNamePlaceholder: "Doe",
+    emailPlaceholder: "your@email.com",
+    passwordPlaceholder: "••••••••",
+    confirmPlaceholder: "••••••••",
+    passwordRequirements: "Password must be at least 6 characters long",
+    errorPasswordMatch: "Passwords do not match",
+    errorPasswordLength: "Password must be at least 6 characters long",
+    errorEmailUsed: "This email is already registered. Please try logging in or use a different email.",
+    errorNetwork: "Network error: Failed to connect to the server. Please check your internet connection and try again.",
+    errorServerUnavailable: "The server is currently unavailable. Please try again later.",
+    errorInvalidResponse: "The server returned an invalid response format. Please try again later.",
+    errorGeneric: "An error occurred during registration"
+  },
+  fr: {
+    pageTitle: "Créez Votre Compte",
+    pageSubtitle: "Rejoignez-nous pour commencer à réserver vos services de visa",
+    firstName: "Prénom",
+    lastName: "Nom",
+    email: "Adresse e-mail",
+    password: "Mot de passe",
+    confirmPassword: "Confirmer le mot de passe",
+    signUp: "S'inscrire",
+    signingUp: "Inscription en cours...",
+    haveAccount: "Vous avez déjà un compte ?",
+    signIn: "Se connecter",
+    firstNamePlaceholder: "John",
+    lastNamePlaceholder: "Doe",
+    emailPlaceholder: "votre@email.com",
+    passwordPlaceholder: "••••••••",
+    confirmPlaceholder: "••••••••",
+    passwordRequirements: "Le mot de passe doit contenir au moins 6 caractères",
+    errorPasswordMatch: "Les mots de passe ne correspondent pas",
+    errorPasswordLength: "Le mot de passe doit contenir au moins 6 caractères",
+    errorEmailUsed: "Cet e-mail est déjà enregistré. Veuillez vous connecter ou utiliser un autre e-mail.",
+    errorNetwork: "Erreur réseau : Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet et réessayer.",
+    errorServerUnavailable: "Le serveur est actuellement indisponible. Veuillez réessayer plus tard.",
+    errorInvalidResponse: "Le serveur a renvoyé un format de réponse invalide. Veuillez réessayer plus tard.",
+    errorGeneric: "Une erreur s'est produite lors de l'inscription"
+  },
+  ar: {
+    pageTitle: "إنشاء حسابك",
+    pageSubtitle: "انضم إلينا لبدء حجز خدمات التأشيرة الخاصة بك",
+    firstName: "الاسم الأول",
+    lastName: "اسم العائلة",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    confirmPassword: "تأكيد كلمة المرور",
+    signUp: "التسجيل",
+    signingUp: "جاري التسجيل...",
+    haveAccount: "هل لديك حساب بالفعل؟",
+    signIn: "تسجيل الدخول",
+    firstNamePlaceholder: "John",
+    lastNamePlaceholder: "Doe",
+    emailPlaceholder: "بريدك@الالكتروني.كوم",
+    passwordPlaceholder: "••••••••",
+    confirmPlaceholder: "••••••••",
+    passwordRequirements: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+    errorPasswordMatch: "كلمات المرور غير متطابقة",
+    errorPasswordLength: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+    errorEmailUsed: "هذا البريد الإلكتروني مسجل بالفعل. يرجى محاولة تسجيل الدخول أو استخدام بريد إلكتروني مختلف.",
+    errorNetwork: "خطأ في الشبكة: فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت لديك وحاول مرة أخرى.",
+    errorServerUnavailable: "الخادم غير متاح حاليًا. يرجى المحاولة مرة أخرى لاحقًا.",
+    errorInvalidResponse: "أعاد الخادم تنسيق استجابة غير صالح. يرجى المحاولة مرة أخرى لاحقًا.",
+    errorGeneric: "حدث خطأ أثناء التسجيل"
+  }
+};
+
+// Define valid language types
+type LanguageKey = 'en' | 'fr' | 'ar';
+
 export default function CreateAccount() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -22,13 +107,23 @@ export default function CreateAccount() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [language, setLanguage] = useState('fr');
+  const [language, setLanguage] = useState<LanguageKey>('fr');
+  
+  // Get translated content
+  const t = translations[language] || translations.fr;
+  
+  // Handle language changes from the Header component
+  const handleLanguageChange = (lang: string) => {
+    if (lang === 'en' || lang === 'fr' || lang === 'ar') {
+      setLanguage(lang as LanguageKey);
+    }
+  };
   
   // Get language preference from localStorage
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language');
     if (savedLanguage && ['en', 'fr', 'ar'].includes(savedLanguage)) {
-      setLanguage(savedLanguage);
+      setLanguage(savedLanguage as LanguageKey);
     }
   }, []);
   
@@ -61,13 +156,13 @@ export default function CreateAccount() {
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t.errorPasswordMatch);
       setLoading(false);
       return;
     }
     
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(t.errorPasswordLength);
       setLoading(false);
       return;
     }
@@ -114,7 +209,7 @@ export default function CreateAccount() {
           
           return;
         } catch (mockError: any) {
-          throw new Error(mockError.message || 'Registration failed');
+          throw new Error(mockError.message || t.errorGeneric);
         }
       }
     
@@ -171,7 +266,7 @@ export default function CreateAccount() {
           console.log('Fallback response received:', response.status, response.statusText);
         } catch (fallbackError) {
           console.error('Fallback fetch error:', fallbackError);
-          throw new Error('Network error: Failed to connect to the server. Please check your internet connection and try again.');
+          throw new Error(t.errorNetwork);
         }
       }
 
@@ -196,19 +291,19 @@ export default function CreateAccount() {
           
           // If response contains HTML (like Cloudflare error pages)
           if (textResponse.includes('<html') || textResponse.includes('<!DOCTYPE')) {
-            throw new Error('The server is currently unavailable. Please try again later.');
+            throw new Error(t.errorServerUnavailable);
           }
           
-          throw new Error('The server returned an invalid response format. Please try again later.');
+          throw new Error(t.errorInvalidResponse);
         }
       }
 
       if (!response.ok) {
         // Handle specific error cases
         if ((data as any).error === 'Email already registered') {
-          throw new Error('This email is already registered. Please try logging in or use a different email.');
+          throw new Error(t.errorEmailUsed);
         }
-        throw new Error((data as any).error || (data as any).message || 'Registration failed. Please try again later.');
+        throw new Error((data as any).error || (data as any).message || t.errorGeneric);
       }
 
       // Store the token
@@ -243,7 +338,7 @@ export default function CreateAccount() {
         throw new Error('Registration successful but authentication failed. Please try logging in.');
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred during registration');
+      setError(err.message || t.errorGeneric);
       console.error('Registration error:', err);
     } finally {
       setLoading(false);
@@ -252,7 +347,7 @@ export default function CreateAccount() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header language={language} setLanguage={setLanguage} />
+      <Header language={language} setLanguage={handleLanguageChange} />
       
       <div className="pt-16">
         {/* Hero Banner */}
@@ -260,7 +355,7 @@ export default function CreateAccount() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary-800/90 to-primary-600/80 z-10"></div>
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2000"
+              src="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2000"
               alt="Background"
               fill
               priority
@@ -268,63 +363,59 @@ export default function CreateAccount() {
             />
           </div>
           <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white z-20">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2">Create Your Account</h1>
-            <p className="text-lg md:text-xl">Join us to start booking your visa services</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-2">{t.pageTitle}</h1>
+            <p className="text-lg md:text-xl">{t.pageSubtitle}</p>
           </div>
         </div>
       </div>
       
-      <div className="flex-1 flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
           {error && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded" role="alert">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              </div>
+            <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+              <p>{error}</p>
             </div>
           )}
           
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className={`grid grid-cols-2 gap-4 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                  First name
+                    {t.firstName}
                 </label>
                 <div className="mt-1">
                   <input
                     id="firstName"
                     name="firstName"
                     type="text"
+                      autoComplete="given-name"
                     required
                     value={formData.firstName}
                     onChange={handleChange}
+                      placeholder={t.firstNamePlaceholder}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="John"
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                  Last name
+                    {t.lastName}
                 </label>
                 <div className="mt-1">
                   <input
                     id="lastName"
                     name="lastName"
                     type="text"
+                      autoComplete="family-name"
                     required
                     value={formData.lastName}
                     onChange={handleChange}
+                      placeholder={t.lastNamePlaceholder}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    placeholder="Doe"
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                   />
                 </div>
               </div>
@@ -332,7 +423,7 @@ export default function CreateAccount() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                  {t.email}
               </label>
               <div className="mt-1">
                 <input
@@ -343,134 +434,114 @@ export default function CreateAccount() {
                   required
                   value={formData.email}
                   onChange={handleChange}
+                    placeholder={t.emailPlaceholder}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  placeholder="your@email.com"
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                  {t.password}
               </label>
               <div className="mt-1 relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-black"
-                  placeholder="••••••••"
-                  style={{ color: 'black', WebkitTextFillColor: 'black', opacity: '1' }}
-                />
-                <div 
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" 
+                    placeholder={t.passwordPlaceholder}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm pr-10"
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  />
+                  <button
+                    type="button"
+                    className={`absolute inset-y-0 ${language === 'ar' ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                   )}
+                  </button>
                 </div>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters long</p>
+                <p className="mt-1 text-xs text-gray-500">{t.passwordRequirements}</p>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm password
+                  {t.confirmPassword}
               </label>
               <div className="mt-1 relative">
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-black"
-                  placeholder="••••••••"
-                  style={{ color: 'black', WebkitTextFillColor: 'black', opacity: '1' }}
-                />
-                <div 
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" 
+                    placeholder={t.confirmPlaceholder}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm pr-10"
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  />
+                  <button
+                    type="button"
+                    className={`absolute inset-y-0 ${language === 'ar' ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                   )}
-                </div>
+                  </button>
               </div>
-            </div>
-            
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                required
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                I agree to the <Link href="/conditions" className="text-primary-600 hover:text-primary-500">Terms and Conditions</Link>
-              </label>
             </div>
 
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-500 hover:from-primary-700 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-all duration-200"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className={`animate-spin ${language === 'ar' ? 'ml-3 -mr-1' : '-ml-1 mr-3'} h-5 w-5 text-white`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Creating account...
+                      {t.signingUp}
                   </span>
-                ) : 'Create account'}
+                  ) : (
+                    t.signUp
+                  )}
               </button>
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Already have an account?</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link
-                href="/login"
-                className="w-full flex justify-center py-2 px-4 border border-primary-500 rounded-md shadow-sm text-sm font-medium text-primary-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                Sign in
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                {t.haveAccount}{' '}
+                <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                  {t.signIn}
               </Link>
+              </p>
             </div>
           </div>
         </div>

@@ -249,6 +249,19 @@ export default function AboutPage() {
           </div>
         </section>
         
+        {/* Our Team Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">{t.ourTeam}</h2>
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden flex justify-center">
+            <div className="p-8 lg:p-12 flex flex-col justify-center items-center max-w-2xl w-full mx-auto">
+              <h3 className="text-2xl font-bold mb-3 text-gray-800 text-center">Chahinez Boubchira</h3>
+              <p className="text-lg text-gray-700 mb-2 text-center">Fondatrice of Mira Group for consulting services</p>
+              <p className="text-lg text-gray-700 mb-6 text-center">CEO of Mira booking for visa services</p>
+              <p className="text-gray-600 text-center">{t.teamContent}</p>
+            </div>
+          </div>
+        </section>
+        
         {/* Call to Action */}
         <section className="text-center mb-8">
           <p className="text-xl mb-6">{t.contactUs}</p>
