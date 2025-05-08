@@ -27,10 +27,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             Pour soumettre vos documents, veuillez les envoyer directement par email à:
           </p>
           <a 
-            href={`mailto:mira.booking.dz@gmail.com?subject=Documents pour ${visaType}: ${clientName}&body=Nom: ${clientName}%0AEmail: ${clientEmail}%0AType de Visa: ${visaType}%0A%0AMerci de joindre vos documents à cet email.`} 
+            href={`mailto:mira.booking.visa@gmail.com?subject=Documents pour ${visaType}: ${clientName}&body=Nom: ${clientName}%0AEmail: ${clientEmail}%0AType de Visa: ${visaType}%0A%0AMerci de joindre vos documents à cet email.`} 
             className="text-blue-600 font-semibold hover:underline"
           >
-            mira.booking.dz@gmail.com
+            mira.booking.visa@gmail.com
           </a>
           
           <p className="mt-4">
@@ -45,7 +45,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         
         <div className="mt-6">
           <a
-            href={`mailto:mira.booking.dz@gmail.com?subject=Documents pour ${visaType}: ${clientName}&body=Nom: ${clientName}%0AEmail: ${clientEmail}%0AType de Visa: ${visaType}%0A%0AMerci de joindre vos documents à cet email.`}
+            href={`mailto:mira.booking.visa@gmail.com?subject=Documents pour ${visaType}: ${clientName}&body=Nom: ${clientName}%0AEmail: ${clientEmail}%0AType de Visa: ${visaType}%0A%0AMerci de joindre vos documents à cet email.`}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Ouvrir mon application email

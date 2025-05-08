@@ -10,8 +10,8 @@ import { NextResponse } from 'next/server';
 import { generateReceiptEmailTemplate } from '@/lib/emailTemplates';
 
 // Email configuration
-const FROM_EMAIL = process.env.EMAIL_FROM || 'mira.booking.dz@gmail.com';
-const AGENCY_EMAIL = process.env.AGENCY_EMAIL || 'mira.booking.dz@gmail.com';
+const FROM_EMAIL = process.env.EMAIL_FROM || 'mira.booking.visa@gmail.com';
+const AGENCY_EMAIL = process.env.AGENCY_EMAIL || 'mira.booking.visa@gmail.com';
 
 // In memory email storage (will be lost after server restart)
 const emailStorage: any[] = [];

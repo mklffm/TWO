@@ -40,8 +40,8 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
       price: data.price,
       formatted_price: data.formattedPrice || `${data.price} ${data.currency || 'DZD'}`,
       travel_date: data.travelDate,
-      cc_email: 'mira.booking.dz@gmail.com',
-      reply_to: 'mira.booking.dz@gmail.com',
+      cc_email: 'mira.booking.visa@gmail.com',
+      reply_to: 'mira.booking.visa@gmail.com',
       date: new Date().toLocaleDateString(),
       ...emailData
     };
@@ -131,8 +131,8 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
       first_name: data.firstName,
       last_name: data.lastName,
       from_name: 'Mira Booking',
-      cc_email: 'mira.booking.dz@gmail.com',
-      reply_to: 'mira.booking.dz@gmail.com',
+      cc_email: 'mira.booking.visa@gmail.com',
+      reply_to: 'mira.booking.visa@gmail.com',
       date: new Date().toLocaleDateString(),
       user_email: data.email,
       ...data
@@ -179,8 +179,8 @@ export const sendTestEmail = async (
       to_name: data.fullName || 'Test User',
       to_email: to,
       from_name: 'Mira Booking',
-      cc_email: 'mira.booking.dz@gmail.com',
-      reply_to: 'mira.booking.dz@gmail.com',
+      cc_email: 'mira.booking.visa@gmail.com',
+      reply_to: 'mira.booking.visa@gmail.com',
       date: new Date().toLocaleDateString(),
       ...data
     };

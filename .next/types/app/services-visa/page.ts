@@ -1,4 +1,4 @@
-// File: D:\BOOKING\TWO\src\app\services-visa\page.tsx
+// File: /Users/macbookpro/Downloads/Mira1/TWO/src/app/services-visa/page.tsx
 import * as entry from '../../../../src/app/services-visa/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

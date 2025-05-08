@@ -19,7 +19,7 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
       },
       body: JSON.stringify({
         to: data.email,
-        cc: 'mira.booking.dz@gmail.com', // Agency email
+        cc: 'mira.booking.visa@gmail.com', // Agency email
         subject: `Welcome to Mira Booking, ${data.firstName}!`,
         data: {
           ...data,
@@ -128,7 +128,7 @@ export const generateAccountConfirmationEmail = (data: any) => {
           <a href="https://mira-booking.com/login" class="button">Log In Now</a>
         </p>
         
-        <p>If you have any questions or need assistance, please don't hesitate to contact our support team at mira.booking.dz@gmail.com or call +213 660 885 339.</p>
+        <p>If you have any questions or need assistance, please don't hesitate to contact our support team at mira.booking.visa@gmail.com or call +213 660 885 339.</p>
         
         <p>Best regards,<br>
         The Mira Booking Team</p>

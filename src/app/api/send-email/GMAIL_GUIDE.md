@@ -1,4 +1,4 @@
-# Setting up Gmail to Send Emails from mira.booking.dz@gmail.com
+# Setting up Gmail to Send Emails from mira.booking.visa@gmail.com
 
 This guide will walk you through the exact steps needed to configure your Gmail account to send emails through the Mira Booking application.
 
@@ -33,10 +33,10 @@ This guide will walk you through the exact steps needed to configure your Gmail 
 // Email configuration
 const EMAIL_HOST = 'smtp.gmail.com';
 const EMAIL_PORT = 587;
-const EMAIL_USER = 'mira.booking.dz@gmail.com'; // Agency email
+const EMAIL_USER = 'mira.booking.visa@gmail.com'; // Agency email
 const EMAIL_PASS = ''; // You'll need to add an app password here
-const FROM_EMAIL = 'mira.booking.dz@gmail.com';
-const AGENCY_EMAIL = 'mira.booking.dz@gmail.com';
+const FROM_EMAIL = 'mira.booking.visa@gmail.com';
+const AGENCY_EMAIL = 'mira.booking.visa@gmail.com';
 ```
 
 3. Replace the empty string for `EMAIL_PASS` with your generated App Password:

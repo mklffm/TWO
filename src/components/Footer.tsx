@@ -24,7 +24,7 @@ const translations = {
     contactInfo: "Contact Info",
     address: "123 Travel Street, Algiers",
     phone: "Phone: +213 660 885 339",
-    email: "Email: mira.booking.dz@gmail.com",
+    email: "Email: mira.booking.visa@gmail.com",
     rights: "All rights reserved."
   },
   fr: {
@@ -43,7 +43,7 @@ const translations = {
     contactInfo: "Coordonnées",
     address: "123 Rue du Voyage, Alger",
     phone: "Téléphone: +213 660 885 339",
-    email: "Email: mira.booking.dz@gmail.com",
+    email: "Email: mira.booking.visa@gmail.com",
     rights: "Tous droits réservés."
   },
   ar: {
@@ -62,7 +62,7 @@ const translations = {
     contactInfo: "معلومات الاتصال",
     address: "١٢٣ شارع السفر، الجزائر",
     phone: "هاتف: ٢١٣٦٦٠٨٨٥٣٣٩+",
-    email: "البريد الإلكتروني: mira.booking.dz@gmail.com",
+    email: "البريد الإلكتروني: mira.booking.visa@gmail.com",
     rights: "جميع الحقوق محفوظة."
   }
 };

@@ -343,7 +343,7 @@ export default function RequirementsPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">{t.contactUs}</h2>
                 <p className="mb-6 text-gray-700">{t.contactUsDesc}</p>
                 <a 
-                  href="mailto:mira.booking.dz@gmail.com" 
+                  href="mailto:mira.booking.visa@gmail.com" 
                   className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
