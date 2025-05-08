@@ -58,9 +58,17 @@ const saveMockUsers = (users: MockUser[]): void => {
 
 // Generate a mock token
 const generateMockToken = (user: Omit<MockUser, 'password'>): string => {
-  // In a real app, this would be a JWT. Here, we just stringify and encode the user object
-  const payload = btoa(JSON.stringify(user));
-  return `mock_token_${payload}`;
+  // Create a more JWT-like structure with three parts: header.payload.signature
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payload = btoa(JSON.stringify({
+    ...user,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 86400, // 24 hours
+  }));
+  const signature = btoa("mock_signature");
+  
+  // Combine in JWT format
+  return `${header}.${payload}.${signature}`;
 };
 
 // Register a new user
@@ -132,13 +140,27 @@ export const mockGetUserFromToken = (token: string): {
   firstName: string;
   lastName: string;
 } | null => {
-  if (!token || !token.startsWith('mock_token_')) {
+  if (!token) {
     return null;
   }
   
   try {
-    const payload = token.replace('mock_token_', '');
-    const decoded = JSON.parse(atob(payload));
+    // Split the token into its components
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      console.error('Invalid token format');
+      return null;
+    }
+    
+    // Decode the payload (second part)
+    const decoded = JSON.parse(atob(parts[1]));
+    
+    // Check if token is expired
+    const now = Math.floor(Date.now() / 1000);
+    if (decoded.exp && decoded.exp < now) {
+      console.error('Token expired');
+      return null;
+    }
     
     return {
       id: decoded.id,
@@ -147,7 +169,7 @@ export const mockGetUserFromToken = (token: string): {
       lastName: decoded.lastName,
     };
   } catch (e) {
-    console.error('Error decoding mock token:', e);
+    console.error('Error decoding token:', e);
     return null;
   }
 };

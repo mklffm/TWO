@@ -102,7 +102,7 @@ export default function Login() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      router.push('/');
+      router.push('/profile');
     }
   }, [router]);
 
@@ -140,7 +140,7 @@ export default function Login() {
           
           // Add small delay before redirect to ensure token is properly stored
           setTimeout(() => {
-            router.push('/');
+            router.push('/profile');
           }, 300);
           
           return;
@@ -240,7 +240,7 @@ export default function Login() {
         
         // Add small delay before redirect to ensure token is properly stored
         setTimeout(() => {
-          router.push('/');
+          router.push('/profile');
         }, 300);
       } else {
         throw new Error('Login successful but no authentication token received');
@@ -346,7 +346,7 @@ export default function Login() {
                   <div className="text-sm">
                     <Link href="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
                       {t.forgotPassword}
-                    </Link>
+                </Link>
               </div>
               </div>
             </div>

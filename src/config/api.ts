@@ -20,7 +20,7 @@ const isProduction = isBrowser && !FORCE_DEVELOPMENT_MODE && (
 // Primary and fallback API URLs
 const PRIMARY_PRODUCTION_API = 'https://mira-booking-backend.khalfaouimanar28.workers.dev';
 const FALLBACK_PRODUCTION_API = 'https://mira-backend.pages.dev'; // Add a fallback if you have one
-const LOCAL_API = 'http://127.0.0.1:8787';
+const LOCAL_API = PRIMARY_PRODUCTION_API; // Use production API for local development too
 
 // Set API base URLs based on environment
 export const API_BASE_URL = isProduction ? PRIMARY_PRODUCTION_API : LOCAL_API;
@@ -35,7 +35,7 @@ export const useFallbackApi = () => {
 };
 
 // Set to false to use real authentication
-export const useMockAuth = false;
+export const useMockAuth = true;
 
 // Auth endpoints
 export const AUTH_API = {
