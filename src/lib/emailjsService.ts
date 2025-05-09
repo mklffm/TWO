@@ -6,12 +6,36 @@ const TEMPLATE_ID_RECEIPT = 'template_jdr26xg';  // Updated receipt template ID
 const TEMPLATE_ID_ACCOUNT = 'template_account_confirmation';  // Will be updated later
 const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // Updated public key
 
+// Debug function to safely log data with sensitive information masked
+export const debugLog = (message: string, data: any = {}) => {
+  // Create a safe copy of the data for logging
+  const safeData = { ...data };
+  
+  // Mask sensitive fields if they exist
+  if (safeData.email) safeData.email = safeData.email.substring(0, 3) + '***@***' + safeData.email.split('@')[1];
+  if (safeData.to_email) safeData.to_email = safeData.to_email.substring(0, 3) + '***@***' + safeData.to_email.split('@')[1];
+  if (safeData.phone) safeData.phone = '***' + safeData.phone.substring(safeData.phone.length - 4);
+  
+  // Log with timestamp
+  console.log(`[EmailJS ${new Date().toISOString()}] ${message}`, safeData);
+};
+
 // Initialize EmailJS
 export const initEmailJS = () => {
-  console.log('Initializing EmailJS with public key:', PUBLIC_KEY);
-  console.log('Using service ID:', SERVICE_ID);
-  console.log('Using template ID:', TEMPLATE_ID_RECEIPT);
-  emailjs.init(PUBLIC_KEY);
+  try {
+    debugLog('Initializing EmailJS', {
+      publicKey: PUBLIC_KEY.substring(0, 4) + '***',
+      serviceId: SERVICE_ID,
+      templateId: TEMPLATE_ID_RECEIPT
+    });
+    
+    emailjs.init(PUBLIC_KEY);
+    debugLog('EmailJS initialized successfully');
+    return true;
+  } catch (error) {
+    debugLog('EmailJS initialization failed', { error });
+    return false;
+  }
 };
 
 /**
@@ -21,9 +45,12 @@ export const initEmailJS = () => {
  */
 export const sendReceiptEmail = async (data: any): Promise<{success: boolean; message?: string}> => {
   try {
-    console.log('Preparing to send receipt email for:', data.fullName);
-    console.log('Using SERVICE_ID:', SERVICE_ID);
-    console.log('Using TEMPLATE_ID_RECEIPT:', TEMPLATE_ID_RECEIPT);
+    debugLog('Preparing to send receipt email', { 
+      name: data.fullName, 
+      destination: data.destination,
+      serviceId: SERVICE_ID,
+      templateId: TEMPLATE_ID_RECEIPT
+    });
     
     // Add timestamp if not present
     const emailData = {
@@ -48,7 +75,11 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
       ...emailData
     };
     
-    console.log('Email template parameters:', JSON.stringify(templateParams, null, 2));
+    debugLog('Email template parameters prepared', {
+      to: templateParams.to_email,
+      subject: `Visa Application for ${templateParams.destination}`,
+      templateId: TEMPLATE_ID_RECEIPT
+    });
     
     // Track retries
     let retries = 0;
@@ -56,14 +87,10 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
     
     const sendWithRetry = async (): Promise<{ success: boolean; message?: string }> => {
       try {
-        console.log(`Sending email attempt ${retries + 1}/${maxRetries + 1}`);
+        debugLog(`Sending email attempt ${retries + 1}/${maxRetries + 1}`);
         
-        // Send email with EmailJS - add debug info
-        console.log('Full EmailJS parameters:', {
-          serviceId: SERVICE_ID,
-          templateId: TEMPLATE_ID_RECEIPT,
-          publicKey: PUBLIC_KEY.substring(0, 4) + '...'
-        });
+        // Re-initialize EmailJS before each send attempt to ensure the connection is fresh
+        initEmailJS();
         
         // Send email with EmailJS
         const response = await emailjs.send(
@@ -72,17 +99,17 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
           templateParams
         );
         
-        console.log('EmailJS Success:', response.status, response.text);
+        debugLog('EmailJS Success', { status: response.status, text: response.text });
         return { 
           success: true, 
           message: `Email sent successfully (Status: ${response.status})`
         };
       } catch (error) {
-        console.error(`Email attempt ${retries + 1} failed:`, error);
+        debugLog(`Email attempt ${retries + 1} failed`, { error });
         
         if (retries < maxRetries) {
           retries++;
-          console.log(`Retrying email send (${retries}/${maxRetries})...`);
+          debugLog(`Retrying email send (${retries}/${maxRetries})...`);
           // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, 1000));
           return sendWithRetry();
@@ -93,22 +120,28 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
     
     return await sendWithRetry();
   } catch (error) {
-    console.error('Error sending email:', error);
+    debugLog('Error sending email', { error });
     let errorMessage = 'Unknown error';
     
     if (error instanceof Error) {
       errorMessage = error.message;
-      console.error('Error details:', error.stack);
+      debugLog('Error details', { stack: error.stack });
     } else if (typeof error === 'string') {
       errorMessage = error;
     } else if (typeof error === 'object' && error !== null) {
       errorMessage = JSON.stringify(error);
     }
     
-    // Log error to console in a format that's easy to read
-    console.error('EMAILJS ERROR DETAILS:');
-    console.error('- Message:', errorMessage);
-    console.error('- Type:', typeof error);
+    // Store email debug data in localStorage for troubleshooting
+    if (typeof window !== 'undefined') {
+      const debugData = {
+        timestamp: new Date().toISOString(),
+        error: errorMessage,
+        serviceId: SERVICE_ID,
+        templateId: TEMPLATE_ID_RECEIPT
+      };
+      localStorage.setItem('emailjs_debug', JSON.stringify(debugData));
+    }
     
     return {
       success: false,
@@ -124,7 +157,10 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
  */
 export const sendAccountConfirmationEmail = async (data: any): Promise<{success: boolean; message?: string}> => {
   try {
-    console.log('Sending account confirmation email for:', data.firstName, data.lastName);
+    debugLog('Sending account confirmation email', {
+      name: `${data.firstName} ${data.lastName}`,
+      templateId: TEMPLATE_ID_ACCOUNT
+    });
     
     // Create a properly formatted template object for EmailJS
     const templateParams = {
@@ -147,13 +183,13 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
       templateParams
     );
     
-    console.log('EmailJS Success:', response.status, response.text);
+    debugLog('Account email sent successfully', { status: response.status });
     return { 
       success: true, 
       message: `Email sent successfully (Status: ${response.status})` 
     };
   } catch (error) {
-    console.error('Error sending account confirmation email:', error);
+    debugLog('Error sending account confirmation email', { error });
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -174,7 +210,7 @@ export const sendTestEmail = async (
   data: any
 ): Promise<{success: boolean; message?: string}> => {
   try {
-    console.log('Sending test email to:', to);
+    debugLog('Sending test email', { to, templateId });
     
     // Create template parameters
     const templateParams = {
@@ -187,6 +223,9 @@ export const sendTestEmail = async (
       ...data
     };
     
+    // Re-initialize EmailJS before sending
+    initEmailJS();
+    
     // Send email with EmailJS
     const response = await emailjs.send(
       SERVICE_ID,
@@ -194,13 +233,13 @@ export const sendTestEmail = async (
       templateParams
     );
     
-    console.log('EmailJS Test Success:', response.status, response.text);
+    debugLog('Test email sent successfully', { status: response.status, text: response.text });
     return { 
       success: true, 
       message: `Test email sent successfully (Status: ${response.status})` 
     };
   } catch (error) {
-    console.error('Error sending test email:', error);
+    debugLog('Error sending test email', { error });
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error'

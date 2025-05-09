@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { sendReceiptEmail } from '@/lib/emailjsService';
-import { initEmailJS } from '@/lib/emailjsService';
+import { initEmailJS, debugLog } from '@/lib/emailjsService';
 import { useRouter } from 'next/navigation';
 
 // Define translation type
@@ -143,7 +143,7 @@ const translations = {
     applyNow: 'Postulez maintenant',
     
     emailSent: 'Demande soumise ! Reçu envoyé à votre email.',
-    emailError: 'Erreur d\'envoi du reçu. Veuillez réessayer.',
+    emailError: 'Erreur d\'envoi du reçu. Veuillez réessayer ou nous contacter directement.',
     selectDestination: 'Sélectionner une destination',
     selectNationality: 'Sélectionner une nationalité',
     // Placeholder translations
@@ -427,6 +427,105 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     initEmailJS();
   }, []);
 
+  // Add a boolean to check if we're in development mode
+  const [isDev, setIsDev] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
+
+  // Check if we're in development mode
+  useEffect(() => {
+    // Only check on client side
+    if (typeof window !== 'undefined') {
+      setIsDev(process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost');
+    }
+  }, []);
+
+  // For debugging email issues
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  // Update debug info when in debug mode
+  useEffect(() => {
+    if (!showDebug) return;
+
+    const updateDebugInfo = () => {
+      const info = {
+        emailStatus,
+        emailjsDebug: localStorage.getItem('emailjs_debug'),
+        emailSendStatus: localStorage.getItem('emailSendStatus'),
+        emailTestResult: localStorage.getItem('emailTestResult'),
+        formData: JSON.stringify(formData, null, 2)
+      };
+      setDebugInfo(info);
+    };
+
+    updateDebugInfo();
+    const interval = setInterval(updateDebugInfo, 2000);
+    
+    return () => clearInterval(interval);
+  }, [showDebug, emailStatus, formData]);
+
+  // Test email function for development
+  const handleTestEmail = async () => {
+    try {
+      debugLog('Starting test email process');
+      
+      // Initialize EmailJS
+      const initialized = initEmailJS();
+      if (!initialized) {
+        throw new Error('Failed to initialize EmailJS for test');
+      }
+      
+      // Create test email data
+      const testData = {
+        fullName: 'Test User',
+        email: formData.email || 'test@example.com',
+        phone: formData.phone || '+1234567890',
+        nationality: formData.nationality || 'Test Country',
+        destination: formData.destination || 'Test Destination',
+        travelDate: formData.travelDate || new Date().toISOString().split('T')[0],
+        visaType: formData.visaType || 'tourist',
+        processingTime: formData.processingTime || 'standard',
+        price: 100,
+        currency: t.currencyCode,
+        formattedPrice: `100 ${t.currencyCode}`,
+        timestamp: new Date().toISOString(),
+        language: language,
+        receiptNumber: `TEST-${new Date().getTime()}`
+      };
+      
+      setEmailStatus('sending');
+      debugLog('Sending test email with data', {
+        email: testData.email,
+        destination: testData.destination
+      });
+      
+      const result = await sendReceiptEmail(testData);
+      debugLog('Test email result', { success: result.success });
+      
+      setEmailStatus(result.success ? 'success' : 'error');
+      
+      // Store test result in localStorage for debugging
+      localStorage.setItem('emailTestResult', JSON.stringify({
+        timestamp: new Date().toISOString(),
+        data: testData,
+        result: result
+      }));
+      
+      alert(result.success ? 'Test email sent successfully' : `Test email failed: ${result.message}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      debugLog('Test email error', { error: errorMessage });
+      
+      setEmailStatus('error');
+      alert(`Test email error: ${errorMessage}`);
+      
+      // Store error in localStorage
+      localStorage.setItem('emailTestError', JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: errorMessage
+      }));
+    }
+  };
+
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -575,6 +674,16 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       alert(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 
             language === 'fr' ? 'Veuillez remplir tous les champs obligatoires' : 
             'Please fill all required fields');
+      debugLog('Form validation failed - missing required fields', {
+        hasName: !!formData.fullName,
+        hasEmail: !!formData.email,
+        hasPhone: !!formData.phone,
+        hasNationality: !!formData.nationality,
+        hasDestination: !!formData.destination,
+        hasTravelDate: !!formData.travelDate,
+        hasVisaType: !!formData.visaType,
+        hasProcessingTime: !!formData.processingTime
+      });
       return;
     }
     
@@ -583,15 +692,43 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       alert(language === 'ar' ? 'يرجى اختيار مدينة كندية' : 
             language === 'fr' ? 'Veuillez sélectionner une ville canadienne' : 
             'Please select a Canadian city');
+      debugLog('Form validation failed - missing Canadian city', {
+        destination: formData.destination
+      });
       return;
     }
     
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert(language === 'ar' ? 'يرجى إدخال بريد إلكتروني صالح' : 
+            language === 'fr' ? 'Veuillez entrer une adresse e-mail valide' : 
+            'Please enter a valid email address');
+      debugLog('Form validation failed - invalid email format', {
+        email: formData.email
+      });
+      return;
+    }
+    
+    // Reset the email status first
+    setEmailStatus('sending');
+    
     // Make sure EmailJS is initialized
     try {
-      initEmailJS();
-      console.log('EmailJS re-initialized before sending');
+      const initialized = initEmailJS();
+      debugLog('EmailJS initialization result', { success: initialized });
+      
+      if (!initialized) {
+        throw new Error('Failed to initialize EmailJS');
+      }
     } catch (initError) {
-      console.error('Error initializing EmailJS:', initError);
+      debugLog('Error initializing EmailJS', { error: initError });
+      
+      setEmailStatus('error');
+      alert(language === 'ar' ? 'حدث خطأ أثناء تهيئة نظام البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 
+            language === 'fr' ? 'Une erreur s\'est produite lors de l\'initialisation du système de messagerie. Veuillez réessayer.' : 
+            'An error occurred while initializing the email system. Please try again.');
+      return;
     }
     
     // Generate a receipt number
@@ -616,13 +753,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       receiptNumber: receiptNumber
     };
 
-    console.log('Prepared email data:', JSON.stringify(emailData));
-
-    // Reset the email status
-    setEmailStatus('sending');
+    debugLog('Prepared email data for sending', {
+      receipt: receiptNumber,
+      destination: formData.destination,
+      visaType: formData.visaType
+    });
     
     try {
-      console.log('Starting email send process...');
+      debugLog('Starting email send process');
       
       // Send receipt email using EmailJS
       const result = await sendReceiptEmail(emailData);
@@ -634,11 +772,11 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         result: result,
       };
       
-      console.log('Email send attempt completed:', debugData);
+      debugLog('Email send attempt completed', { success: result.success });
       localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
       
       if (result.success) {
-        console.log('Email success:', result.message);
+        debugLog('Email sent successfully', { receiptNumber });
         setEmailStatus('success');
         
         // Redirect to application page after a short delay
@@ -646,11 +784,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
           router.push('/demande-visa/success');
         }, 1500);
       } else {
-        console.error('Email failed:', result.message);
+        debugLog('Email failed', { message: result.message });
         setEmailStatus('error');
         
-        // Show error alert for debugging
-        alert('Error sending email: ' + result.message);
+        // Show error alert with more descriptive message
+        const errorMessage = language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة.' : 
+                            language === 'fr' ? 'Erreur lors de l\'envoi de l\'e-mail. Veuillez réessayer ou nous contacter directement.' : 
+                            'Error sending email. Please try again or contact us directly.';
+        alert(errorMessage + (result.message ? ` (${result.message})` : ''));
       }
     } catch (error) {
       // Store error for debugging
@@ -662,12 +803,15 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       };
       
       localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
+      debugLog('Exception during email sending', { error: errorMessage });
       
-      console.error('Failed to send email:', error);
       setEmailStatus('error');
       
-      // Show error alert for debugging
-      alert('Exception sending email: ' + errorMessage);
+      // Show user-friendly error message
+      const userErrorMessage = language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يمكنك التواصل معنا مباشرة على mira.booking.visa@gmail.com' : 
+                              language === 'fr' ? 'Une erreur s\'est produite lors de l\'envoi de l\'e-mail. Vous pouvez nous contacter directement à mira.booking.visa@gmail.com' : 
+                              'An error occurred while sending the email. You can contact us directly at mira.booking.visa@gmail.com';
+      alert(userErrorMessage);
     }
   };
 
@@ -1480,35 +1624,39 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       <div className="flex-shrink-0 text-center">
               <button
                           onClick={handleApplyNow}
+                          className={`mt-6 w-full rounded-md bg-gradient-to-r from-primary-600 to-secondary-600 px-4 py-3 text-lg font-semibold text-white shadow-md hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-300 flex justify-center items-center ${
+                emailStatus === 'sending' ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
                           disabled={emailStatus === 'sending'}
-                          className="inline-flex items-center justify-center px-5 py-3 border border-transparent rounded-full shadow-md text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 w-full disabled:opacity-75 disabled:cursor-not-allowed"
                         >
                           {emailStatus === 'sending' ? (
-                            <span className="flex items-center justify-center">
-                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <>
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                               {t.sending}
-                            </span>
-                          ) : emailStatus === 'success' ? (
-                            <span className="flex items-center justify-center">
-                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                              </svg>
-                              {t.emailSent}
-                            </span>
-                          ) : emailStatus === 'error' ? (
-                            <span className="flex items-center justify-center">
-                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                              {t.emailError}
-                            </span>
-                          ) : (
-                            t.applyNow
-                          )}
-              </button>
+                            </>
+                          ) : t.applyNow}
+                        </button>
+                        
+                        {emailStatus === 'success' && (
+                          <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md flex items-center">
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {t.emailSent}
+                          </div>
+                        )}
+                        
+                        {emailStatus === 'error' && (
+                          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-center">
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            {t.emailError}
+                          </div>
+                        )}
                       </div>
                     </div>
             </div>
@@ -1516,6 +1664,44 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         </div>
       )}
           </form>
+          
+          {/* Development mode test button */}
+          {isDev && (
+            <div className="mt-6 border-t pt-4">
+              <p className="text-sm text-gray-500 mb-2">Development Test Controls</p>
+              <button
+                type="button"
+                onClick={handleTestEmail}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md text-sm"
+              >
+                Test EmailJS (Dev Only)
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Will use current form data if available
+              </p>
+            </div>
+          )}
+          
+          {/* Development debug panel */}
+          {isDev && showDebug && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-md">
+              <h3 className="font-bold mb-2">Email Debug Information</h3>
+              <div className="text-xs font-mono bg-black text-green-400 p-2 rounded h-60 overflow-auto">
+                <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Toggle debug mode button */}
+          {isDev && (
+            <button
+              type="button"
+              onClick={() => setShowDebug(!showDebug)}
+              className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            >
+              {showDebug ? 'Hide' : 'Show'} Debug Info
+            </button>
+          )}
         </div>
       </div>
     </div>
