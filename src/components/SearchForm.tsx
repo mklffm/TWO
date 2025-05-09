@@ -72,10 +72,10 @@ const translations = {
     totalPrice: 'Total Amount',
     priceNote: 'Includes all processing fees and taxes',
     requiredDocuments: 'Required Documents',
-    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.visa@gmail.com',
+    sendFilesInstructions: 'Upload files to complete your application',
     applyNow: 'Postulez maintenant',
-    emailSent: 'Application submitted! Receipt sent to your email.',
-    emailError: 'Error sending receipt. Please try again.',
+    emailSent: 'Application submitted successfully!',
+    emailError: 'Error submitting application. Please try again.',
     selectDestination: 'Select Destination',
     selectNationality: 'Select Nationality',
     // Placeholder translations
@@ -137,11 +137,11 @@ const translations = {
     totalPrice: 'Montant total',
     priceNote: 'Comprend tous les frais de traitement et taxes',
     requiredDocuments: 'Documents requis',
-    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.visa@gmail.com',
+    sendFilesInstructions: 'Téléchargez des fichiers pour compléter votre demande',
     applyNow: 'Postulez maintenant',
     
-    emailSent: 'Demande soumise ! Reçu envoyé à votre email.',
-    emailError: 'Erreur d\'envoi du reçu. Veuillez réessayer.',
+    emailSent: 'Demande soumise avec succès !',
+    emailError: 'Erreur lors de la soumission de la demande. Veuillez réessayer.',
     selectDestination: 'Sélectionner une destination',
     selectNationality: 'Sélectionner une nationalité',
     // Placeholder translations
@@ -203,11 +203,11 @@ const translations = {
     totalPrice: 'المبلغ الإجمالي',
     priceNote: 'يشمل جميع رسوم المعالجة والضرائب',
     requiredDocuments: 'المستندات المطلوبة',
-    sendFilesInstructions: 'أرسل الملفات لإكمال طلبك إلى mira.booking.visa@gmail.com',
+    sendFilesInstructions: 'قم بتحميل الملفات لإكمال طلبك',
     applyNow: 'قدم الآن',
-    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى mira.booking.visa@gmail.com',
-    emailSent: 'تم تقديم الطلب! تم إرسال الإيصال إلى بريدك الإلكتروني.',
-    emailError: 'خطأ في إرسال الإيصال. حاول مرة خرى.',
+    fileEmailNote: 'انقر على زر التطبيق لتقديم طلبك',
+    emailSent: 'تم تقديم الطلب بنجاح!',
+    emailError: 'خطأ في تقديم الطلب. حاول مرة أخرى.',
     selectDestination: 'اختر الوجهة',
     selectNationality: 'اختر الجنسية',
     // Placeholder translations
@@ -396,7 +396,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const [showPrice, setShowPrice] = useState(false);
   const [customPrice, setCustomPrice] = useState(7500);
   const [requiredDocuments, setRequiredDocuments] = useState(requiredDocumentsMap.tourist);
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formStatus, setFormStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   
   // Translation shorthand
   const t = translations[currentLanguage];
@@ -578,11 +578,11 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Generate a receipt number
+    // Generate a reference number
     const timestamp = new Date().getTime();
-    const receiptNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
+    const referenceNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
     
-    // Log form data (just to retain functionality without email)
+    // Log application data
     console.log('Application submitted:', {
       fullName: formData.fullName,
       email: formData.email,
@@ -594,11 +594,11 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       processingTime: formData.processingTime,
       price: customPrice,
       currency: getCurrencyCode(),
-      receiptNumber: receiptNumber
+      referenceNumber: referenceNumber
     });
 
-    // Set success status directly since we're removing email functionality
-    setEmailStatus('success');
+    // Set success status
+    setFormStatus('success');
     
     // Redirect to application page after a short delay
     setTimeout(() => {
@@ -1409,10 +1409,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       <div className="flex-shrink-0 text-center">
               <button
                           onClick={handleApplyNow}
-                          disabled={emailStatus === 'sending'}
+                          disabled={formStatus === 'processing'}
                           className="inline-flex items-center justify-center px-5 py-3 border border-transparent rounded-full shadow-md text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 w-full disabled:opacity-75 disabled:cursor-not-allowed"
                         >
-                          {emailStatus === 'sending' ? (
+                          {formStatus === 'processing' ? (
                             <span className="flex items-center justify-center">
                               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1420,14 +1420,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                               </svg>
                               {t.sending}
                             </span>
-                          ) : emailStatus === 'success' ? (
+                          ) : formStatus === 'success' ? (
                             <span className="flex items-center justify-center">
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                               </svg>
                               {t.emailSent}
                             </span>
-                          ) : emailStatus === 'error' ? (
+                          ) : formStatus === 'error' ? (
                             <span className="flex items-center justify-center">
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
