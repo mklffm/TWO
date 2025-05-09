@@ -407,10 +407,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     // Only initialize in browser environment
     if (typeof window !== 'undefined') {
       try {
+        console.log('Initializing EmailJS...');
         initEmailJS();
-        console.log('EmailJS initialized with new service ID');
+        console.log('EmailJS initialized successfully with new service ID');
       } catch (error) {
         console.error('Error initializing EmailJS:', error);
+        setFormStatus('error');
       }
     }
   }, []);
@@ -555,6 +557,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const handleApplyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
+    console.log('Apply Now button clicked');
+    
     // Basic validation
     if (!formData.fullName || !formData.email || !formData.phone || !formData.nationality ||
         !formData.destination || !formData.travelDate || !formData.visaType || !formData.processingTime) {
@@ -574,10 +578,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     
     // Set status to processing
     setFormStatus('processing');
+    console.log('Form status set to processing');
     
     // Generate a reference number
     const timestamp = new Date().getTime();
     const referenceNumber = `VISA-${timestamp}`;
+    console.log('Generated reference number:', referenceNumber);
     
     // Prepare form data with reference number
     const formDataWithRef = {
@@ -585,8 +591,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       referenceNumber
     };
     
+    console.log('Preparing to send email with form data:', JSON.stringify(formDataWithRef));
+    
     try {
       // Send email based on account type
+      console.log(`Sending ${accountType === 'b2c' ? 'individual' : 'bulk'} visa application email`);
+      
       let emailResult;
       
       if (accountType === 'b2c') {
@@ -595,7 +605,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
         emailResult = await sendBulkVisaApplicationEmail(formDataWithRef);
       }
       
+      console.log('Email result:', emailResult);
+      
       if (emailResult.success) {
+        console.log('Email sent successfully, updating UI');
         // Set success status
         setFormStatus('success');
         
@@ -610,23 +623,31 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
             destination: formData.destination
           });
           localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
+          console.log('Application data stored in localStorage');
         } catch (error) {
           console.error('Error storing application data locally:', error);
         }
         
         // Redirect to success page after a short delay
+        console.log('Redirecting to success page in 1 second');
         setTimeout(() => {
           router.push('/demande-visa/success');
         }, 1000);
       } else {
         // Set error status
-        setFormStatus('error');
         console.error('Failed to send email:', emailResult.error);
+        setFormStatus('error');
+        alert(language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 
+              language === 'fr' ? 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.' : 
+              'Error sending email. Please try again.');
       }
     } catch (error) {
       // Set error status
-      setFormStatus('error');
       console.error('Error in form submission:', error);
+      setFormStatus('error');
+      alert(language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 
+            language === 'fr' ? 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.' : 
+            'Error sending email. Please try again.');
     }
   };
 
