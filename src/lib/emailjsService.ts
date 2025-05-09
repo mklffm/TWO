@@ -9,6 +9,8 @@ const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // Updated public key
 // Initialize EmailJS
 export const initEmailJS = () => {
   console.log('Initializing EmailJS with public key:', PUBLIC_KEY);
+  console.log('Using service ID:', SERVICE_ID);
+  console.log('Using template ID:', TEMPLATE_ID_RECEIPT);
   emailjs.init(PUBLIC_KEY);
 };
 
