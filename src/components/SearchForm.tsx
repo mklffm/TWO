@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { initEmailJS, sendVisaApplicationEmail, sendBulkVisaApplicationEmail } from '../lib/emailjsService';
 
 // Define translation type
 type TranslationLanguage = 'en' | 'fr' | 'ar';
@@ -401,6 +402,19 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Translation shorthand
   const t = translations[currentLanguage];
   
+  // Initialize EmailJS when component mounts
+  useEffect(() => {
+    // Only initialize in browser environment
+    if (typeof window !== 'undefined') {
+      try {
+        initEmailJS();
+        console.log('EmailJS initialized with new service ID');
+      } catch (error) {
+        console.error('Error initializing EmailJS:', error);
+      }
+    }
+  }, []);
+  
   // Form data
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -418,33 +432,33 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     clientNumber: '1',
     bulkClientFile: null
   });
-  
+
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     // Special handling for USA cities selection
     if (name === 'destination' && value === 'USA') {
-      setFormData({
-        ...formData,
-        [name]: value,
+        setFormData({
+          ...formData,
+          [name]: value,
         usaCity: '' // Reset USA city when destination changes to USA
-      });
+        });
     } 
     // Special handling for Canada cities selection
     else if (name === 'destination' && value === 'Canada') {
-      setFormData({
-        ...formData,
-        [name]: value,
+        setFormData({
+          ...formData,
+          [name]: value,
         canadaCity: '' // Reset Canada city when destination changes to Canada
       });
     } 
     else {
       // For all other fields, handle normally
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+    setFormData({
+      ...formData,
+      [name]: value
+    });
     }
     
     // Reset price display when relevant fields change
@@ -463,8 +477,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     const file = e.target.files?.[0] || null;
     if (!file) return;
     
-    setFormData({
-      ...formData,
+      setFormData({
+        ...formData,
       bulkClientFile: file
     });
   };
@@ -540,8 +554,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle apply now button click
   const handleApplyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
-    // Basic validation - keep this for user experience
+    
+    // Basic validation
     if (!formData.fullName || !formData.email || !formData.phone || !formData.nationality ||
         !formData.destination || !formData.travelDate || !formData.visaType || !formData.processingTime) {
       alert(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 
@@ -550,7 +564,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Special validation for Canada - keep this for user experience
+    // Special validation for Canada
     if (formData.destination === 'Canada' && !formData.canadaCity) {
       alert(language === 'ar' ? 'يرجى اختيار مدينة كندية' : 
             language === 'fr' ? 'Veuillez sélectionner une ville canadienne' : 
@@ -558,36 +572,62 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Generate a reference number with a specific format that won't trigger external systems
+    // Set status to processing
+    setFormStatus('processing');
+    
+    // Generate a reference number
     const timestamp = new Date().getTime();
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    const referenceNumber = `REF-${randomStr}-${timestamp}`;
+    const referenceNumber = `VISA-${timestamp}`;
     
-    // Log to console only
-    console.log('Application submitted locally - Email functionality has been removed');
+    // Prepare form data with reference number
+    const formDataWithRef = {
+      ...formData,
+      referenceNumber
+    };
     
-    // Set success status immediately without any backend processing
-    setFormStatus('success');
-    
-    // Store in local storage only (no server interaction)
     try {
-      const existingApplications = JSON.parse(localStorage.getItem('visaApplications') || '[]');
-      existingApplications.push({
-        referenceNumber,
-        date: new Date().toISOString(),
-        status: 'Submitted',
-        fullName: formData.fullName,
-        destination: formData.destination
-      });
-      localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
+      // Send email based on account type
+      let emailResult;
+      
+      if (accountType === 'b2c') {
+        emailResult = await sendVisaApplicationEmail(formDataWithRef);
+      } else {
+        emailResult = await sendBulkVisaApplicationEmail(formDataWithRef);
+      }
+      
+      if (emailResult.success) {
+        // Set success status
+        setFormStatus('success');
+        
+        // Store in local storage
+        try {
+          const existingApplications = JSON.parse(localStorage.getItem('visaApplications') || '[]');
+          existingApplications.push({
+            referenceNumber,
+            date: new Date().toISOString(),
+            status: 'Submitted',
+            fullName: formData.fullName,
+            destination: formData.destination
+          });
+          localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
+        } catch (error) {
+          console.error('Error storing application data locally:', error);
+        }
+        
+        // Redirect to success page after a short delay
+        setTimeout(() => {
+          router.push('/demande-visa/success');
+        }, 1000);
+      } else {
+        // Set error status
+        setFormStatus('error');
+        console.error('Failed to send email:', emailResult.error);
+      }
     } catch (error) {
-      console.error('Error storing application data locally:', error);
+      // Set error status
+      setFormStatus('error');
+      console.error('Error in form submission:', error);
     }
-    
-    // Redirect to application page after a short delay
-    setTimeout(() => {
-      router.push('/demande-visa/success');
-    }, 1000);
   };
 
   return (
@@ -1069,11 +1109,11 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       </div>
                     </div>
                   </div>
-            </div>
-            
+                </div>
+
                 <div className="text-center">
-          <button
-            type="submit"
+                  <button
+                    type="submit"
                     className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-full shadow-lg text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105"
                   >
                     {t.getQuote}
