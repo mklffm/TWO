@@ -1,10 +1,10 @@
 import emailjs from '@emailjs/browser';
 
-// EmailJS service IDs - using exact ID from dashboard
-const SERVICE_ID = 'service_iiuxghk';  // Correct service ID with two i's as specified by user
-const TEMPLATE_ID_RECEIPT = 'template_qwdj90s';  // User's receipt template ID
-const TEMPLATE_ID_ACCOUNT = 'template_account_confirmation';  // Will be updated later
-const PUBLIC_KEY = 'v2vohWnibCcIzHkBm';  // User's public key
+// EmailJS service IDs - using new account with mira.booking.visa@gmail.com
+const SERVICE_ID = 'service_rwr5p9j';  // New service ID from mira.booking.visa@gmail.com account
+const TEMPLATE_ID_RECEIPT = 'template_7uftslu';  // New receipt template ID
+const TEMPLATE_ID_ACCOUNT = 'template_7uftslu';  // Using the same template for now (can be updated later)
+const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // New public key
 
 // Initialize EmailJS
 export const initEmailJS = () => {
