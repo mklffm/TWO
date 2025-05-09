@@ -135,9 +135,16 @@ export default function CreateAccount() {
     }
   }, [router]);
 
-  // Initialize EmailJS when component mounts
+  // Initialize email service on component mount
   useEffect(() => {
-    initEmailJS();
+    if (typeof window !== 'undefined') {
+      try {
+        initEmailJS();
+        console.log('Email service initialized');
+      } catch (error) {
+        console.warn('Email service initialization skipped');
+      }
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

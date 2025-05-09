@@ -18,7 +18,6 @@
     "generate:token": "npx wrangler --version && echo \"To create your API token, go to https://dash.cloudflare.com/profile/api-tokens and use the 'Edit Cloudflare Workers' template\""
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@prisma/client": "^6.6.0",
     "@sendgrid/mail": "^8.1.5",
     "@types/bcrypt": "^5.0.2",

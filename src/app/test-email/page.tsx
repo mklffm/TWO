@@ -12,8 +12,14 @@ export default function TestEmailPage() {
   
   // Initialize EmailJS when component mounts
   useEffect(() => {
-    // Initialize EmailJS
-    initEmailJS();
+    if (typeof window !== 'undefined') {
+      try {
+        initEmailJS();
+        console.log('Email service initialized');
+      } catch (error) {
+        console.warn('Email service initialization skipped');
+      }
+    }
   }, []);
   
   const handleSendTest = async () => {

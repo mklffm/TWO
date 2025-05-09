@@ -423,8 +423,15 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   
   // Initialize EmailJS on component mount
   useEffect(() => {
-    // Initialize EmailJS
-    initEmailJS();
+    // Initialize EmailJS only on client
+    if (typeof window !== 'undefined') {
+      try {
+        initEmailJS();
+        console.log('Email service initialized');
+      } catch (error) {
+        console.warn('Email service initialization skipped');
+      }
+    }
   }, []);
 
   // Handle form input changes
