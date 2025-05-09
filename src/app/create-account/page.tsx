@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
-import { sendAccountConfirmationEmail, initEmailJS } from '@/lib/emailjsService';
 import { AUTH_API, useFallbackApi, useMockAuth } from '@/config/api';
 import { mockRegister } from '@/lib/mockAuthService';
 
@@ -135,18 +134,6 @@ export default function CreateAccount() {
     }
   }, [router]);
 
-  // Initialize email service on component mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        initEmailJS();
-        console.log('Email service initialized');
-      } catch (error) {
-        console.warn('Email service initialization skipped');
-      }
-    }
-  }, []);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -190,19 +177,8 @@ export default function CreateAccount() {
           localStorage.setItem('token', token);
           console.log('Token stored in localStorage');
           
-          // Send confirmation email
-          try {
-            await sendAccountConfirmationEmail({
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              email: formData.email,
-              timestamp: new Date().toISOString()
-            });
-            console.log('Confirmation email sent');
-          } catch (emailError) {
-            console.error('Error sending confirmation email:', emailError);
-            // Don't fail registration if email fails
-          }
+          // Log account creation (instead of email sending)
+          console.log('Account created successfully for:', formData.email);
           
           // Trigger a storage event for Header component to detect login
           window.dispatchEvent(new Event('storage'));
@@ -318,19 +294,8 @@ export default function CreateAccount() {
         localStorage.setItem('token', (data as any).token);
         console.log('Token stored in localStorage:', (data as any).token.substring(0, 10) + '...');
         
-        // Send confirmation email
-        try {
-          await sendAccountConfirmationEmail({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            timestamp: new Date().toISOString()
-          });
-          console.log('Confirmation email sent');
-        } catch (emailError) {
-          console.error('Error sending confirmation email:', emailError);
-          // Don't fail registration if email fails
-        }
+        // Log account creation (instead of sending email)
+        console.log('Account created successfully for:', formData.email);
         
         // Trigger a storage event for Header component to detect login
         window.dispatchEvent(new Event('storage'));

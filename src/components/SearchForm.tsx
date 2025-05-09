@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { sendReceiptEmail } from '@/lib/emailjsService';
-import { initEmailJS } from '@/lib/emailjsService';
 import { useRouter } from 'next/navigation';
 
 // Define translation type
@@ -421,19 +419,6 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     bulkClientFile: null
   });
   
-  // Initialize EmailJS on component mount
-  useEffect(() => {
-    // Initialize EmailJS only on client
-    if (typeof window !== 'undefined') {
-      try {
-        initEmailJS();
-        console.log('Email service initialized');
-      } catch (error) {
-        console.warn('Email service initialization skipped');
-      }
-    }
-  }, []);
-
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -593,20 +578,12 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Make sure EmailJS is initialized
-    try {
-      initEmailJS();
-      console.log('EmailJS re-initialized before sending');
-    } catch (initError) {
-      console.error('Error initializing EmailJS:', initError);
-    }
-    
     // Generate a receipt number
     const timestamp = new Date().getTime();
     const receiptNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
     
-    // Create email data object
-    const emailData = {
+    // Log form data (just to retain functionality without email)
+    console.log('Application submitted:', {
       fullName: formData.fullName,
       email: formData.email,
       phone: formData.phone,
@@ -617,65 +594,16 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       processingTime: formData.processingTime,
       price: customPrice,
       currency: getCurrencyCode(),
-      formattedPrice: t.priceFormatter.replace('{price}', customPrice.toString()).replace('{currency}', getCurrencyCode()),
-      timestamp: new Date().toISOString(),
-      language: language,
       receiptNumber: receiptNumber
-    };
+    });
 
-    console.log('Prepared email data:', JSON.stringify(emailData));
-
-    // Reset the email status
-    setEmailStatus('sending');
+    // Set success status directly since we're removing email functionality
+    setEmailStatus('success');
     
-    try {
-      console.log('Starting email send process...');
-      
-      // Send receipt email using EmailJS
-      const result = await sendReceiptEmail(emailData);
-      
-      // Store email status for debugging
-      const debugData = {
-        timestamp: new Date().toISOString(),
-        data: emailData,
-        result: result,
-      };
-      
-      console.log('Email send attempt completed:', debugData);
-      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
-      
-      if (result.success) {
-        console.log('Email success:', result.message);
-        setEmailStatus('success');
-        
-        // Redirect to application page after a short delay
-        setTimeout(() => {
-          router.push('/demande-visa/success');
-        }, 1500);
-      } else {
-        console.error('Email failed:', result.message);
-        setEmailStatus('error');
-        
-        // Show error alert for debugging
-        alert('Error sending email: ' + result.message);
-      }
-    } catch (error) {
-      // Store error for debugging
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const debugData = {
-        timestamp: new Date().toISOString(),
-        data: emailData,
-        error: errorMessage
-      };
-      
-      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
-      
-      console.error('Failed to send email:', error);
-      setEmailStatus('error');
-      
-      // Show error alert for debugging
-      alert('Exception sending email: ' + errorMessage);
-    }
+    // Redirect to application page after a short delay
+    setTimeout(() => {
+      router.push('/demande-visa/success');
+    }, 1500);
   };
 
   return (
