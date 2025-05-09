@@ -1,9 +1,9 @@
 import emailjs from '@emailjs/browser';
 
 // EmailJS configuration constants
-const SERVICE_ID = 'service_b4815mv';  // New service ID provided
-const TEMPLATE_ID_VISA_APPLICATION = 'template_visa_application';
-const PUBLIC_KEY = 'aDONhWAvfGCEJCpob';  // This is a placeholder - replace with actual public key if needed
+const SERVICE_ID = 'service_b4815mv';  // Correct service ID
+const TEMPLATE_ID_VISA_APPLICATION = 'template_ercos5w';  // Correct template ID
+const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // Correct public key
 
 /**
  * Initialize EmailJS with public key
@@ -13,7 +13,7 @@ export const initEmailJS = (): void => {
   emailjs.init({
     publicKey: PUBLIC_KEY,
   });
-  console.log('EmailJS initialized with new service ID');
+  console.log('EmailJS initialized with correct service ID and template');
 };
 
 /**
