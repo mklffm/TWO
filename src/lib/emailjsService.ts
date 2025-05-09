@@ -27,6 +27,10 @@ export const sendVisaApplicationEmail = async (formData: any): Promise<any> => {
       SERVICE_ID,
       TEMPLATE_ID_VISA_APPLICATION,
       {
+        from_name: 'Mira Booking',
+        from_email: 'mira.booking.visa@gmail.com',
+        reply_to: 'mira.booking.visa@gmail.com',
+        to_email: formData.email,
         full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
@@ -60,6 +64,10 @@ export const sendBulkVisaApplicationEmail = async (formData: any): Promise<any> 
       SERVICE_ID,
       TEMPLATE_ID_VISA_APPLICATION,
       {
+        from_name: 'Mira Booking',
+        from_email: 'mira.booking.visa@gmail.com',
+        reply_to: 'mira.booking.visa@gmail.com',
+        to_email: formData.email,
         company_name: formData.agencyName,
         email: formData.email,
         phone: formData.phone,
