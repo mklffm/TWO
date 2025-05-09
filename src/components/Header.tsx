@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
-import Logo from './Logo';
 
 // Add type declaration for window.switchLanguage
 declare global {
@@ -279,17 +277,10 @@ const Header = ({ language, setLanguage }: HeaderProps) => {
     <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || !isHomePage ? 'bg-white shadow-md' : 'bg-gradient-to-b from-black/50 to-transparent'}`}>
       <div className={`container mx-auto px-4 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
         <div className="flex items-center justify-between h-[70px]">
-          {/* Logo */}
-          <div className="flex-shrink-0 w-[120px]">
-            <Link href="/" className="flex items-center">
-              <Image 
-                src="/images/mira-logo.png" 
-                alt="Mira Booking Logo" 
-                width={100} 
-                height={35} 
-                className="object-contain" 
-                priority
-              />
+          {/* Site Title */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+              Mira Booking
             </Link>
           </div>
           
