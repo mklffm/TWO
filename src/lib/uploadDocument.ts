@@ -1,97 +1,72 @@
 /**
- * Utility function to upload documents and send them as email attachments
- * 
- * This function handles:
- * 1. Creating a FormData object with the files and client information
- * 2. Sending the data to the API endpoint
- * 3. Handling success/error responses
+ * Utility function to upload documents
  */
 
-/**
- * Client information interface
- */
-interface ClientInfo {
-  name: string;
-  email: string;
+import { API_BASE_URL } from '@/config/api';
+
+// Client information needed for document uploads
+export interface ClientInfo {
+  fullName: string;
+  nationality: string;
+  destination: string;
+  travelDate: string;
   visaType: string;
+  processingTime: string;
+  receiptNumber: string;
 }
 
-/**
- * Upload response interface
- */
+// Response from the upload API
 interface UploadResponse {
   success: boolean;
   message: string;
-  emailId?: string;
-  error?: any;
+  documentInfo?: {
+    name: string;
+    size: number;
+    type: string;
+  };
 }
 
 /**
- * Upload documents and send them via email to the agency
- * @param files - The file(s) to upload (can be single file or array of files)
- * @param clientInfo - Client information
- * @returns Response with success/error information
+ * Upload documents to the server
  */
-export async function uploadDocumentToAgency(
-  files: File | File[],
+export const uploadDocument = async (
+  file: File,
   clientInfo: ClientInfo
-): Promise<UploadResponse> {
+): Promise<UploadResponse> => {
   try {
-    // Validate inputs
-    if (!files || (Array.isArray(files) && files.length === 0)) {
-      throw new Error('No files provided for upload');
-    }
+    console.log('Uploading document:', file.name);
     
-    // Create FormData
     const formData = new FormData();
     
-    // Add client information
-    formData.append('clientName', clientInfo.name || 'Unknown');
-    formData.append('clientEmail', clientInfo.email || '');
-    formData.append('visaType', clientInfo.visaType || 'Not specified');
+    // Add file to form data
+    formData.append('file', file);
     
-    // Add file(s)
-    if (Array.isArray(files)) {
-      // Multiple files
-      files.forEach((file, index) => {
-        formData.append(`file${index}`, file, file.name);
-      });
-    } else {
-      // Single file
-      formData.append('file', files, files.name);
-    }
+    // Add client info
+    formData.append('clientName', clientInfo.fullName);
+    formData.append('visaType', clientInfo.visaType);
+    formData.append('receiptNumber', clientInfo.receiptNumber);
+    formData.append('nationality', clientInfo.nationality);
+    formData.append('destination', clientInfo.destination);
+    formData.append('travelDate', clientInfo.travelDate);
+    formData.append('processingTime', clientInfo.processingTime);
     
-    // Show upload in progress in console
-    console.log('📤 Uploading document(s)...');
-    
-    // Send to API
-    const response = await fetch('/api/upload-document', {
+    // Upload to our API endpoint
+    const response = await fetch(`${API_BASE_URL}/api/upload-document`, {
       method: 'POST',
       body: formData,
-      // Don't set Content-Type header - browser will set it with boundary
     });
     
-    // Parse response
-    const result = await response.json();
-    
-    // Check for errors
     if (!response.ok) {
-      console.error('Upload failed:', result);
-      throw new Error(result.message || 'Document upload failed');
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to upload document');
     }
     
-    console.log('✅ Document uploaded successfully');
-    return {
-      success: true,
-      message: 'Document uploaded and sent to agency',
-      ...result
-    };
-  } catch (error: any) {
+    return await response.json();
+  } catch (error) {
     console.error('Error uploading document:', error);
     return {
       success: false,
-      message: error.message || 'Failed to upload document',
-      error
+      message: error instanceof Error ? error.message : 'Unknown error',
     };
   }
-} 
+}; 
