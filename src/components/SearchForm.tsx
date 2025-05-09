@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { sendReceiptEmail } from '@/lib/emailjsService';
+import { initEmailJS } from '@/lib/emailjsService';
 import { useRouter } from 'next/navigation';
-import { initEmailJS, sendVisaApplicationEmail, sendBulkVisaApplicationEmail } from '../lib/emailjsService';
 
 // Define translation type
 type TranslationLanguage = 'en' | 'fr' | 'ar';
@@ -73,10 +74,10 @@ const translations = {
     totalPrice: 'Total Amount',
     priceNote: 'Includes all processing fees and taxes',
     requiredDocuments: 'Required Documents',
-    sendFilesInstructions: 'Upload files to complete your application',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.visa@gmail.com',
     applyNow: 'Postulez maintenant',
-    emailSent: 'Application submitted successfully!',
-    emailError: 'Error submitting application. Please try again.',
+    emailSent: 'Application submitted! Receipt sent to your email.',
+    emailError: 'Error sending receipt. Please try again.',
     selectDestination: 'Select Destination',
     selectNationality: 'Select Nationality',
     // Placeholder translations
@@ -138,11 +139,11 @@ const translations = {
     totalPrice: 'Montant total',
     priceNote: 'Comprend tous les frais de traitement et taxes',
     requiredDocuments: 'Documents requis',
-    sendFilesInstructions: 'Téléchargez des fichiers pour compléter votre demande',
+    sendFilesInstructions: 'Envoyez des fichiers pour compléter votre demande à mira.booking.visa@gmail.com',
     applyNow: 'Postulez maintenant',
     
-    emailSent: 'Demande soumise avec succès !',
-    emailError: 'Erreur lors de la soumission de la demande. Veuillez réessayer.',
+    emailSent: 'Demande soumise ! Reçu envoyé à votre email.',
+    emailError: 'Erreur d\'envoi du reçu. Veuillez réessayer.',
     selectDestination: 'Sélectionner une destination',
     selectNationality: 'Sélectionner une nationalité',
     // Placeholder translations
@@ -204,11 +205,11 @@ const translations = {
     totalPrice: 'المبلغ الإجمالي',
     priceNote: 'يشمل جميع رسوم المعالجة والضرائب',
     requiredDocuments: 'المستندات المطلوبة',
-    sendFilesInstructions: 'قم بتحميل الملفات لإكمال طلبك',
+    sendFilesInstructions: 'أرسل الملفات لإكمال طلبك إلى mira.booking.visa@gmail.com',
     applyNow: 'قدم الآن',
-    fileEmailNote: 'انقر على زر التطبيق لتقديم طلبك',
-    emailSent: 'تم تقديم الطلب بنجاح!',
-    emailError: 'خطأ في تقديم الطلب. حاول مرة أخرى.',
+    fileEmailNote: 'يمكنك أيضًا إرسال الملفات إلى mira.booking.visa@gmail.com',
+    emailSent: 'تم تقديم الطلب! تم إرسال الإيصال إلى بريدك الإلكتروني.',
+    emailError: 'خطأ في إرسال الإيصال. حاول مرة خرى.',
     selectDestination: 'اختر الوجهة',
     selectNationality: 'اختر الجنسية',
     // Placeholder translations
@@ -397,25 +398,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const [showPrice, setShowPrice] = useState(false);
   const [customPrice, setCustomPrice] = useState(7500);
   const [requiredDocuments, setRequiredDocuments] = useState(requiredDocumentsMap.tourist);
-  const [formStatus, setFormStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   
   // Translation shorthand
   const t = translations[currentLanguage];
-  
-  // Initialize EmailJS when component mounts
-  useEffect(() => {
-    // Only initialize in browser environment
-    if (typeof window !== 'undefined') {
-      try {
-        console.log('Initializing EmailJS...');
-        initEmailJS();
-        console.log('EmailJS initialized successfully with new service ID');
-      } catch (error) {
-        console.error('Error initializing EmailJS:', error);
-        setFormStatus('error');
-      }
-    }
-  }, []);
   
   // Form data
   const [formData, setFormData] = useState<FormData>({
@@ -434,43 +420,85 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     clientNumber: '1',
     bulkClientFile: null
   });
+  
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    // Initialize EmailJS
+    initEmailJS();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    // Special handling for USA cities selection
-    if (name === 'destination' && value === 'USA') {
+    // Special handling for destination changes
+    if (name === 'destination') {
+      // Check if this is a specific Schengen country selection
+      if (value.startsWith('Schengen-')) {
+        // It's a specific Schengen country
         setFormData({
           ...formData,
-          [name]: value,
-        usaCity: '' // Reset USA city when destination changes to USA
+          [name]: value, // Keep the full value including the country
+          usaCity: undefined,
+          canadaCity: undefined
         });
-    } 
-    // Special handling for Canada cities selection
-    else if (name === 'destination' && value === 'Canada') {
+      } else if (value === 'USA') {
+        // Reset usaCity when USA is selected
         setFormData({
           ...formData,
           [name]: value,
-        canadaCity: '' // Reset Canada city when destination changes to Canada
-      });
-    } 
-    else {
-      // For all other fields, handle normally
+          usaCity: '',
+          canadaCity: undefined
+        });
+      } else if (value === 'Canada') {
+        // Reset canadaCity when Canada is selected
+        setFormData({
+          ...formData,
+          [name]: value,
+          canadaCity: '',
+          usaCity: undefined
+        });
+      } else {
+        // Clear city fields when a different destination is selected
+        setFormData({
+          ...formData,
+          [name]: value,
+          usaCity: undefined,
+          canadaCity: undefined
+        });
+      }
+    } else {
     setFormData({
       ...formData,
       [name]: value
     });
     }
     
-    // Reset price display when relevant fields change
-    if (['destination', 'visaType', 'processingTime', 'clientNumber'].includes(name)) {
-      setShowPrice(false);
+    // Update required documents when visa type changes
+    if (name === 'visaType' && (value === 'tourist' || value === 'business' || value === 'student' || value === 'investor' || value === 'work')) {
+      setRequiredDocuments(requiredDocumentsMap[value as VisaType]);
     }
     
-    // Update required documents based on visa type
-    if (name === 'visaType') {
-      setRequiredDocuments(requiredDocumentsMap[value as VisaType] || requiredDocumentsMap.tourist);
+    // Update price when processing time changes
+    if (name === 'processingTime') {
+      calculatePrice();
+    }
+    
+    // Update price when client number changes for B2B
+    if (name === 'clientNumber' && accountType === 'b2b') {
+      calculatePrice();
+    }
+    
+    // Reset visa type if destination changes and current visa type is investor or work
+    // and the new destination is not Qatar or UAE
+    if (name === 'destination' && 
+        (formData.visaType === 'investor' || formData.visaType === 'work') && 
+        value !== 'Qatar' && value !== 'UAE') {
+      setFormData({
+        ...formData,
+        [name]: value,
+        visaType: 'tourist'
+      });
     }
   };
   
@@ -479,8 +507,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     const file = e.target.files?.[0] || null;
     if (!file) return;
     
-      setFormData({
-        ...formData,
+    setFormData({
+      ...formData,
       bulkClientFile: file
     });
   };
@@ -528,24 +556,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Prevent actual form submission
-    e.stopPropagation();
-    
-    // Calculate price locally without sending data
     calculatePrice();
     setShowPrice(true);
-    
-    // Store minimal data in localStorage
-    try {
-      localStorage.setItem('visaQuoteGenerated', 'true');
-      localStorage.setItem('visaQuotePrice', customPrice.toString());
-      localStorage.setItem('visaQuoteTimestamp', new Date().toISOString());
-    } catch (error) {
-      console.error('Error storing price data locally:', error);
-    }
-    
-    console.log('Quote generated - email functionality disabled');
   };
   
   // Get currency code based on language
@@ -556,8 +568,6 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle apply now button click
   const handleApplyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    
-    console.log('Apply Now button clicked');
     
     // Basic validation
     if (!formData.fullName || !formData.email || !formData.phone || !formData.nationality ||
@@ -576,78 +586,88 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Set status to processing
-    setFormStatus('processing');
-    console.log('Form status set to processing');
+    // Make sure EmailJS is initialized
+    try {
+      initEmailJS();
+      console.log('EmailJS re-initialized before sending');
+    } catch (initError) {
+      console.error('Error initializing EmailJS:', initError);
+    }
     
-    // Generate a reference number
+    // Generate a receipt number
     const timestamp = new Date().getTime();
-    const referenceNumber = `VISA-${timestamp}`;
-    console.log('Generated reference number:', referenceNumber);
+    const receiptNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
     
-    // Prepare form data with reference number
-    const formDataWithRef = {
-      ...formData,
-      referenceNumber
+    // Create email data object
+    const emailData = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      nationality: formData.nationality,
+      destination: formData.destination,
+      travelDate: formData.travelDate,
+      visaType: formData.visaType,
+      processingTime: formData.processingTime,
+      price: customPrice,
+      currency: getCurrencyCode(),
+      formattedPrice: t.priceFormatter.replace('{price}', customPrice.toString()).replace('{currency}', getCurrencyCode()),
+      timestamp: new Date().toISOString(),
+      language: language,
+      receiptNumber: receiptNumber
     };
-    
-    console.log('Preparing to send email with form data:', JSON.stringify(formDataWithRef));
+
+    console.log('Prepared email data:', JSON.stringify(emailData));
+
+    // Reset the email status
+    setEmailStatus('sending');
     
     try {
-      // Send email based on account type
-      console.log(`Sending ${accountType === 'b2c' ? 'individual' : 'bulk'} visa application email`);
+      console.log('Starting email send process...');
       
-      let emailResult;
+      // Send receipt email using EmailJS
+      const result = await sendReceiptEmail(emailData);
       
-      if (accountType === 'b2c') {
-        emailResult = await sendVisaApplicationEmail(formDataWithRef);
-      } else {
-        emailResult = await sendBulkVisaApplicationEmail(formDataWithRef);
-      }
+      // Store email status for debugging
+      const debugData = {
+        timestamp: new Date().toISOString(),
+        data: emailData,
+        result: result,
+      };
       
-      console.log('Email result:', emailResult);
+      console.log('Email send attempt completed:', debugData);
+      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
       
-      if (emailResult.success) {
-        console.log('Email sent successfully, updating UI');
-        // Set success status
-        setFormStatus('success');
+      if (result.success) {
+        console.log('Email success:', result.message);
+        setEmailStatus('success');
         
-        // Store in local storage
-        try {
-          const existingApplications = JSON.parse(localStorage.getItem('visaApplications') || '[]');
-          existingApplications.push({
-            referenceNumber,
-            date: new Date().toISOString(),
-            status: 'Submitted',
-            fullName: formData.fullName,
-            destination: formData.destination
-          });
-          localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
-          console.log('Application data stored in localStorage');
-        } catch (error) {
-          console.error('Error storing application data locally:', error);
-        }
-        
-        // Redirect to success page after a short delay
-        console.log('Redirecting to success page in 1 second');
+        // Redirect to application page after a short delay
         setTimeout(() => {
           router.push('/demande-visa/success');
-        }, 1000);
+        }, 1500);
       } else {
-        // Set error status
-        console.error('Failed to send email:', emailResult.error);
-        setFormStatus('error');
-        alert(language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 
-              language === 'fr' ? 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.' : 
-              'Error sending email. Please try again.');
+        console.error('Email failed:', result.message);
+        setEmailStatus('error');
+        
+        // Show error alert for debugging
+        alert('Error sending email: ' + result.message);
       }
     } catch (error) {
-      // Set error status
-      console.error('Error in form submission:', error);
-      setFormStatus('error');
-      alert(language === 'ar' ? 'حدث خطأ في إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.' : 
-            language === 'fr' ? 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.' : 
-            'Error sending email. Please try again.');
+      // Store error for debugging
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const debugData = {
+        timestamp: new Date().toISOString(),
+        data: emailData,
+        error: errorMessage
+      };
+      
+      localStorage.setItem('emailSendStatus', JSON.stringify(debugData));
+      
+      console.error('Failed to send email:', error);
+      setEmailStatus('error');
+      
+      // Show error alert for debugging
+      alert('Exception sending email: ' + errorMessage);
     }
   };
 
@@ -1130,11 +1150,11 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       </div>
                     </div>
                   </div>
-                </div>
-
+            </div>
+            
                 <div className="text-center">
-                  <button
-                    type="submit"
+          <button
+            type="submit"
                     className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-full shadow-lg text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105"
                   >
                     {t.getQuote}
@@ -1454,10 +1474,10 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                       <div className="flex-shrink-0 text-center">
               <button
                           onClick={handleApplyNow}
-                          disabled={formStatus === 'processing'}
+                          disabled={emailStatus === 'sending'}
                           className="inline-flex items-center justify-center px-5 py-3 border border-transparent rounded-full shadow-md text-base font-medium text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 w-full disabled:opacity-75 disabled:cursor-not-allowed"
                         >
-                          {formStatus === 'processing' ? (
+                          {emailStatus === 'sending' ? (
                             <span className="flex items-center justify-center">
                               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1465,14 +1485,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                               </svg>
                               {t.sending}
                             </span>
-                          ) : formStatus === 'success' ? (
+                          ) : emailStatus === 'success' ? (
                             <span className="flex items-center justify-center">
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                               </svg>
                               {t.emailSent}
                             </span>
-                          ) : formStatus === 'error' ? (
+                          ) : emailStatus === 'error' ? (
                             <span className="flex items-center justify-center">
                               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>

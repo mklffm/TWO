@@ -1,158 +1,207 @@
 import emailjs from '@emailjs/browser';
 
-// Updated EmailJS configuration
-const SERVICE_ID = 'service_b4815mv';  // Service ID
-const TEMPLATE_ID = 'template_ercos5w';  // Template ID
-const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // Public key
+// EmailJS service IDs - using exact ID from dashboard
+const SERVICE_ID = 'service_cocz9ba';  // Updated service ID
+const TEMPLATE_ID_RECEIPT = 'template_jdr26xg';  // Updated receipt template ID
+const TEMPLATE_ID_ACCOUNT = 'template_account_confirmation';  // Will be updated later
+const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // Updated public key
 
-// Define base template parameters type
-type EmailTemplateParams = Record<string, unknown> & {
-  // Sender information
-  from_name: string;
-  from_email: string;
-  reply_to: string;
-  to_email: string;
-  
-  // Application details
-  full_name: string;
-  email: string;
-  phone: string;
-  nationality: string;
-  destination: string;
-  travel_date: string;
-  visa_type: string;
-  processing_time: string;
-  reference_number: string;
-  
-  // Optional fields
-  usa_city?: string;
-  canada_city?: string;
-  
-  // B2B specific fields
-  company_name?: string;
-  agency_id?: string;
-  client_number?: string;
+// Initialize EmailJS
+export const initEmailJS = () => {
+  console.log('Initializing EmailJS with public key:', PUBLIC_KEY);
+  emailjs.init(PUBLIC_KEY);
 };
 
 /**
- * Initialize EmailJS with public key
- * Should be called on component mount in client side only
+ * Send receipt email to customer using EmailJS
+ * @param data Form data and receipt information
+ * @returns Promise that resolves when email is sent
  */
-export const initEmailJS = (): void => {
+export const sendReceiptEmail = async (data: any): Promise<{success: boolean; message?: string}> => {
   try {
-    emailjs.init({
-      publicKey: PUBLIC_KEY,
-      blockHeadless: false, // Allow sending in development environments
-      limitRate: {
-        // Optional rate limiting
-        id: 'app', 
-        throttle: 10000,
-      }
-    });
-    console.log('EmailJS initialized with service:', SERVICE_ID);
-  } catch (error) {
-    console.error('Error initializing EmailJS:', error);
-  }
-};
-
-/**
- * Send visa application email using EmailJS
- * @param formData The form data to send
- * @returns Promise with the response from EmailJS
- */
-export const sendVisaApplicationEmail = async (formData: any): Promise<any> => {
-  try {
-    // Create a template parameters object
-    const templateParams: EmailTemplateParams = {
-      // Sender information
-      from_name: 'Mira Booking',
-      from_email: 'mira.booking.visa@gmail.com',
-      reply_to: 'mira.booking.visa@gmail.com',
-      to_email: formData.email,
-      
-      // Application details
-      full_name: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      nationality: formData.nationality,
-      destination: formData.destination,
-      travel_date: formData.travelDate,
-      visa_type: formData.visaType,
-      processing_time: formData.processingTime,
-      reference_number: formData.referenceNumber || `VISA-${Date.now()}`
+    console.log('Preparing to send receipt email for:', data.fullName);
+    console.log('Using SERVICE_ID:', SERVICE_ID);
+    console.log('Using TEMPLATE_ID_RECEIPT:', TEMPLATE_ID_RECEIPT);
+    
+    // Add timestamp if not present
+    const emailData = {
+      ...data,
+      timestamp: data.timestamp || new Date().toISOString(),
     };
     
-    // Add optional fields
-    if (formData.usaCity) {
-      templateParams.usa_city = formData.usaCity;
-    }
+    // Create a properly formatted template object for EmailJS
+    const templateParams = {
+      to_name: data.fullName || 'Valued Customer',
+      to_email: data.email,
+      from_name: 'Mira Booking',
+      destination: data.destination,
+      visa_type: data.visaType,
+      processing_time: data.processingTime,
+      price: data.price,
+      formatted_price: data.formattedPrice || `${data.price} ${data.currency || 'DZD'}`,
+      travel_date: data.travelDate,
+      cc_email: 'mira.booking.visa@gmail.com',
+      reply_to: 'mira.booking.visa@gmail.com',
+      date: new Date().toLocaleDateString(),
+      ...emailData
+    };
     
-    if (formData.canadaCity) {
-      templateParams.canada_city = formData.canadaCity;
-    }
-
-    console.log('Sending email with params:', JSON.stringify(templateParams));
+    console.log('Email template parameters:', JSON.stringify(templateParams, null, 2));
     
-    // Send the email
-    const response = await emailjs.send(
-      SERVICE_ID,
-      TEMPLATE_ID,
-      templateParams
-    );
+    // Track retries
+    let retries = 0;
+    const maxRetries = 2;
     
-    console.log('Email sent successfully:', response);
-    return { success: true, response };
+    const sendWithRetry = async (): Promise<{ success: boolean; message?: string }> => {
+      try {
+        console.log(`Sending email attempt ${retries + 1}/${maxRetries + 1}`);
+        
+        // Send email with EmailJS - add debug info
+        console.log('Full EmailJS parameters:', {
+          serviceId: SERVICE_ID,
+          templateId: TEMPLATE_ID_RECEIPT,
+          publicKey: PUBLIC_KEY.substring(0, 4) + '...'
+        });
+        
+        // Send email with EmailJS
+        const response = await emailjs.send(
+          SERVICE_ID,
+          TEMPLATE_ID_RECEIPT,
+          templateParams
+        );
+        
+        console.log('EmailJS Success:', response.status, response.text);
+        return { 
+          success: true, 
+          message: `Email sent successfully (Status: ${response.status})`
+        };
+      } catch (error) {
+        console.error(`Email attempt ${retries + 1} failed:`, error);
+        
+        if (retries < maxRetries) {
+          retries++;
+          console.log(`Retrying email send (${retries}/${maxRetries})...`);
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return sendWithRetry();
+        }
+        throw error;
+      }
+    };
+    
+    return await sendWithRetry();
   } catch (error) {
     console.error('Error sending email:', error);
-    return { success: false, error };
+    let errorMessage = 'Unknown error';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error('Error details:', error.stack);
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (typeof error === 'object' && error !== null) {
+      errorMessage = JSON.stringify(error);
+    }
+    
+    // Log error to console in a format that's easy to read
+    console.error('EMAILJS ERROR DETAILS:');
+    console.error('- Message:', errorMessage);
+    console.error('- Type:', typeof error);
+    
+    return {
+      success: false,
+      message: errorMessage
+    };
   }
 };
 
 /**
- * Send bulk visa application email for business clients
- * @param formData The form data for bulk applications
- * @returns Promise with the response from EmailJS
+ * Send account confirmation email using EmailJS
+ * @param data User registration data
+ * @returns Promise that resolves when email is sent
  */
-export const sendBulkVisaApplicationEmail = async (formData: any): Promise<any> => {
+export const sendAccountConfirmationEmail = async (data: any): Promise<{success: boolean; message?: string}> => {
   try {
-    // Create a template parameters object
-    const templateParams: EmailTemplateParams = {
-      // Sender information
+    console.log('Sending account confirmation email for:', data.firstName, data.lastName);
+    
+    // Create a properly formatted template object for EmailJS
+    const templateParams = {
+      to_name: `${data.firstName} ${data.lastName}`,
+      to_email: data.email,
+      first_name: data.firstName,
+      last_name: data.lastName,
       from_name: 'Mira Booking',
-      from_email: 'mira.booking.visa@gmail.com',
+      cc_email: 'mira.booking.visa@gmail.com',
       reply_to: 'mira.booking.visa@gmail.com',
-      to_email: formData.email,
-      
-      // Required fields that must be present in all templates
-      full_name: formData.fullName || formData.agencyName,
-      email: formData.email,
-      phone: formData.phone,
-      nationality: formData.nationality || 'N/A',
-      destination: formData.destination,
-      travel_date: formData.travelDate || new Date().toISOString().split('T')[0],
-      visa_type: formData.visaType || 'business',
-      processing_time: formData.processingTime || 'standard',
-      reference_number: `BULK-${Date.now()}`,
-      
-      // B2B specific fields
-      company_name: formData.agencyName,
-      agency_id: formData.agencyId || 'New Agency',
-      client_number: formData.clientNumber
+      date: new Date().toLocaleDateString(),
+      user_email: data.email,
+      ...data
     };
     
-    console.log('Sending bulk email with params:', JSON.stringify(templateParams));
-    
-    // Send the email
+    // Send email with EmailJS
     const response = await emailjs.send(
       SERVICE_ID,
-      TEMPLATE_ID,
+      TEMPLATE_ID_ACCOUNT,
       templateParams
     );
     
-    console.log('Bulk email sent successfully:', response);
-    return { success: true, response };
+    console.log('EmailJS Success:', response.status, response.text);
+    return { 
+      success: true, 
+      message: `Email sent successfully (Status: ${response.status})` 
+    };
   } catch (error) {
-    console.error('Error sending bulk email:', error);
-    return { success: false, error };
+    console.error('Error sending account confirmation email:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+/**
+ * Send a generic test email using EmailJS
+ * @param to Email address to send to
+ * @param templateId EmailJS template ID to use
+ * @param data Data to include in the email
+ * @returns Promise that resolves when email is sent
+ */
+export const sendTestEmail = async (
+  to: string, 
+  templateId: string = TEMPLATE_ID_RECEIPT,
+  data: any
+): Promise<{success: boolean; message?: string}> => {
+  try {
+    console.log('Sending test email to:', to);
+    
+    // Create template parameters
+    const templateParams = {
+      to_name: data.fullName || 'Test User',
+      to_email: to,
+      from_name: 'Mira Booking',
+      cc_email: 'mira.booking.visa@gmail.com',
+      reply_to: 'mira.booking.visa@gmail.com',
+      date: new Date().toLocaleDateString(),
+      ...data
+    };
+    
+    // Send email with EmailJS
+    const response = await emailjs.send(
+      SERVICE_ID,
+      templateId,
+      templateParams
+    );
+    
+    console.log('EmailJS Test Success:', response.status, response.text);
+    return { 
+      success: true, 
+      message: `Test email sent successfully (Status: ${response.status})` 
+    };
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
 }; 
