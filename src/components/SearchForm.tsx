@@ -558,23 +558,26 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Generate a reference number
+    // Generate a reference number with a specific format that won't trigger external systems
     const timestamp = new Date().getTime();
-    const referenceNumber = `VISA-DUMMY-${timestamp}`;
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const referenceNumber = `REF-${randomStr}-${timestamp}`;
     
-    // Don't log or store data that could be sent in emails
-    console.log('Application processing disabled - no data will be sent');
+    // Log to console only
+    console.log('Application submitted locally - Email functionality has been removed');
     
     // Set success status immediately without any backend processing
     setFormStatus('success');
     
-    // Store manually in local storage (no server interaction)
+    // Store in local storage only (no server interaction)
     try {
       const existingApplications = JSON.parse(localStorage.getItem('visaApplications') || '[]');
       existingApplications.push({
         referenceNumber,
         date: new Date().toISOString(),
-        status: 'Submitted'
+        status: 'Submitted',
+        fullName: formData.fullName,
+        destination: formData.destination
       });
       localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
     } catch (error) {
