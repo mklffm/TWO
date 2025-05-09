@@ -22,7 +22,7 @@ const translations = {
     travelPackages: "Travel Packages",
     airportTransfers: "Airport Transfers",
     contactInfo: "Contact Info",
-    address: "123 Travel Street, Algiers",
+    address: "Ali Mendjeli Constantine, Algerie",
     phone: "Phone: +213 660 885 339",
     email: "Email: mira.booking.visa@gmail.com",
     rights: "All rights reserved."
@@ -41,7 +41,7 @@ const translations = {
     travelPackages: "Forfaits Voyage",
     airportTransfers: "Transferts Aéroport",
     contactInfo: "Coordonnées",
-    address: "123 Rue du Voyage, Alger",
+    address: "Ali Mendjeli Constantine, Algerie",
     phone: "Téléphone: +213 660 885 339",
     email: "Email: mira.booking.visa@gmail.com",
     rights: "Tous droits réservés."
@@ -60,7 +60,7 @@ const translations = {
     travelPackages: "باقات السفر",
     airportTransfers: "خدمة توصيل المطار",
     contactInfo: "معلومات الاتصال",
-    address: "١٢٣ شارع السفر، الجزائر",
+    address: "علي منجلي قسنطينة، الجزائر",
     phone: "هاتف: ٢١٣٦٦٠٨٨٥٣٣٩+",
     email: "البريد الإلكتروني: mira.booking.visa@gmail.com",
     rights: "جميع الحقوق محفوظة."
