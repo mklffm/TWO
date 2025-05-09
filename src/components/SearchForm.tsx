@@ -423,74 +423,38 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    // Special handling for destination changes
-    if (name === 'destination') {
-      // Check if this is a specific Schengen country selection
-      if (value.startsWith('Schengen-')) {
-        // It's a specific Schengen country
-        setFormData({
-          ...formData,
-          [name]: value, // Keep the full value including the country
-          usaCity: undefined,
-          canadaCity: undefined
-        });
-      } else if (value === 'USA') {
-        // Reset usaCity when USA is selected
-        setFormData({
-          ...formData,
-          [name]: value,
-          usaCity: '',
-          canadaCity: undefined
-        });
-      } else if (value === 'Canada') {
-        // Reset canadaCity when Canada is selected
-        setFormData({
-          ...formData,
-          [name]: value,
-          canadaCity: '',
-          usaCity: undefined
-        });
-      } else {
-        // Clear city fields when a different destination is selected
-        setFormData({
-          ...formData,
-          [name]: value,
-          usaCity: undefined,
-          canadaCity: undefined
-        });
-      }
-    } else {
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    }
-    
-    // Update required documents when visa type changes
-    if (name === 'visaType' && (value === 'tourist' || value === 'business' || value === 'student' || value === 'investor' || value === 'work')) {
-      setRequiredDocuments(requiredDocumentsMap[value as VisaType]);
-    }
-    
-    // Update price when processing time changes
-    if (name === 'processingTime') {
-      calculatePrice();
-    }
-    
-    // Update price when client number changes for B2B
-    if (name === 'clientNumber' && accountType === 'b2b') {
-      calculatePrice();
-    }
-    
-    // Reset visa type if destination changes and current visa type is investor or work
-    // and the new destination is not Qatar or UAE
-    if (name === 'destination' && 
-        (formData.visaType === 'investor' || formData.visaType === 'work') && 
-        value !== 'Qatar' && value !== 'UAE') {
+    // Special handling for USA cities selection
+    if (name === 'destination' && value === 'USA') {
       setFormData({
         ...formData,
         [name]: value,
-        visaType: 'tourist'
+        usaCity: '' // Reset USA city when destination changes to USA
       });
+    } 
+    // Special handling for Canada cities selection
+    else if (name === 'destination' && value === 'Canada') {
+      setFormData({
+        ...formData,
+        [name]: value,
+        canadaCity: '' // Reset Canada city when destination changes to Canada
+      });
+    } 
+    else {
+      // For all other fields, handle normally
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+    
+    // Reset price display when relevant fields change
+    if (['destination', 'visaType', 'processingTime', 'clientNumber'].includes(name)) {
+      setShowPrice(false);
+    }
+    
+    // Update required documents based on visa type
+    if (name === 'visaType') {
+      setRequiredDocuments(requiredDocumentsMap[value as VisaType] || requiredDocumentsMap.tourist);
     }
   };
   
@@ -548,8 +512,24 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Prevent actual form submission
+    e.stopPropagation();
+    
+    // Calculate price locally without sending data
     calculatePrice();
     setShowPrice(true);
+    
+    // Store minimal data in localStorage
+    try {
+      localStorage.setItem('visaQuoteGenerated', 'true');
+      localStorage.setItem('visaQuotePrice', customPrice.toString());
+      localStorage.setItem('visaQuoteTimestamp', new Date().toISOString());
+    } catch (error) {
+      console.error('Error storing price data locally:', error);
+    }
+    
+    console.log('Quote generated - email functionality disabled');
   };
   
   // Get currency code based on language
@@ -560,8 +540,8 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
   // Handle apply now button click
   const handleApplyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    
-    // Basic validation
+
+    // Basic validation - keep this for user experience
     if (!formData.fullName || !formData.email || !formData.phone || !formData.nationality ||
         !formData.destination || !formData.travelDate || !formData.visaType || !formData.processingTime) {
       alert(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 
@@ -570,7 +550,7 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
       return;
     }
     
-    // Special validation for Canada
+    // Special validation for Canada - keep this for user experience
     if (formData.destination === 'Canada' && !formData.canadaCity) {
       alert(language === 'ar' ? 'يرجى اختيار مدينة كندية' : 
             language === 'fr' ? 'Veuillez sélectionner une ville canadienne' : 
@@ -580,30 +560,31 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
     
     // Generate a reference number
     const timestamp = new Date().getTime();
-    const referenceNumber = `VISA-${timestamp}-${Math.floor(Math.random() * 1000)}`;
+    const referenceNumber = `VISA-DUMMY-${timestamp}`;
     
-    // Log application data
-    console.log('Application submitted:', {
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      nationality: formData.nationality,
-      destination: formData.destination,
-      travelDate: formData.travelDate,
-      visaType: formData.visaType,
-      processingTime: formData.processingTime,
-      price: customPrice,
-      currency: getCurrencyCode(),
-      referenceNumber: referenceNumber
-    });
-
-    // Set success status
+    // Don't log or store data that could be sent in emails
+    console.log('Application processing disabled - no data will be sent');
+    
+    // Set success status immediately without any backend processing
     setFormStatus('success');
+    
+    // Store manually in local storage (no server interaction)
+    try {
+      const existingApplications = JSON.parse(localStorage.getItem('visaApplications') || '[]');
+      existingApplications.push({
+        referenceNumber,
+        date: new Date().toISOString(),
+        status: 'Submitted'
+      });
+      localStorage.setItem('visaApplications', JSON.stringify(existingApplications));
+    } catch (error) {
+      console.error('Error storing application data locally:', error);
+    }
     
     // Redirect to application page after a short delay
     setTimeout(() => {
       router.push('/demande-visa/success');
-    }, 1500);
+    }, 1000);
   };
 
   return (
