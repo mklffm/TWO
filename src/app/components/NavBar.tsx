@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function NavBar() {
   const [isAuth, setIsAuth] = useState(false);
@@ -18,8 +19,17 @@ export default function NavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
-              Mira Booking
+            <Link href="/" className="flex items-center">
+              <div className="w-auto h-10 relative">
+                <Image 
+                  src="/images/mira-logo.png" 
+                  alt="Mira Booking Logo" 
+                  width={120} 
+                  height={40} 
+                  className="object-contain" 
+                  priority
+                />
+              </div>
             </Link>
             {isAuth && <Link href="/dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>}
             {isAuth && <Link href="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>}
