@@ -1469,8 +1469,14 @@ export default function SearchForm({ language = 'en' }: SearchFormProps) {
                     <div className="mt-6 flex flex-col sm:flex-row justify-between">
                       <div className="mb-4 sm:mb-0 sm:mr-4">
                         <div className="text-sm font-semibold text-gray-900 mb-2">{t.requiredDocuments}</div>
-                        <p className="text-gray-900 font-bold text-xl mb-2">{t.sendFilesInstructions}</p>
-              </div>
+                        <p className="text-gray-900 font-bold text-xl mb-2">
+                          {language === 'fr' 
+                            ? 'Envoyez des fichiers pour compléter votre demande à mira.booking.visa@gmail.com'
+                            : language === 'ar'
+                            ? 'أرسل الملفات لإكمال طلبك إلى mira.booking.visa@gmail.com' 
+                            : 'Send files to complete your application to mira.booking.visa@gmail.com'}
+                        </p>
+                      </div>
                       <div className="flex-shrink-0 text-center">
               <button
                           onClick={handleApplyNow}
