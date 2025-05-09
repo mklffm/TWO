@@ -2,8 +2,7 @@ import emailjs from '@emailjs/browser';
 
 // EmailJS service IDs - using new account with mira.booking.visa@gmail.com
 const SERVICE_ID = 'service_b4815mv';  // Updated to the correct service ID connected to mira.booking.visa@gmail.com
-const TEMPLATE_ID_RECEIPT = 'template_ercos5w';  // Updated to the new template with correct email address
-const TEMPLATE_ID_ACCOUNT = 'template_ercos5w';  // Using the same template for account emails
+const NEW_TEMPLATE_ID = 'template_ercos5w';  // NEW EMAIL TEMPLATE WITH CORRECT EMAIL ADDRESS - May 2025
 const PUBLIC_KEY = 'CPyRF5r0wTwGwC_27';  // New public key
 
 // Initialize EmailJS
@@ -21,7 +20,7 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
   try {
     console.log('Preparing to send receipt email for:', data.fullName);
     console.log('Using SERVICE_ID:', SERVICE_ID);
-    console.log('Using TEMPLATE_ID_RECEIPT:', TEMPLATE_ID_RECEIPT);
+    console.log('Using NEW_TEMPLATE_ID:', NEW_TEMPLATE_ID);
     
     // Add timestamp if not present
     const emailData = {
@@ -59,14 +58,14 @@ export const sendReceiptEmail = async (data: any): Promise<{success: boolean; me
         // Send email with EmailJS - add debug info
         console.log('Full EmailJS parameters:', {
           serviceId: SERVICE_ID,
-          templateId: TEMPLATE_ID_RECEIPT,
+          templateId: NEW_TEMPLATE_ID,
           publicKey: PUBLIC_KEY.substring(0, 4) + '...'
         });
         
         // Send email with EmailJS
         const response = await emailjs.send(
           SERVICE_ID,
-          TEMPLATE_ID_RECEIPT,
+          NEW_TEMPLATE_ID,
           templateParams
         );
         
@@ -141,7 +140,7 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
     // Send email with EmailJS
     const response = await emailjs.send(
       SERVICE_ID,
-      TEMPLATE_ID_ACCOUNT,
+      NEW_TEMPLATE_ID,
       templateParams
     );
     
@@ -168,7 +167,7 @@ export const sendAccountConfirmationEmail = async (data: any): Promise<{success:
  */
 export const sendTestEmail = async (
   to: string, 
-  templateId: string = TEMPLATE_ID_RECEIPT,
+  templateId: string = NEW_TEMPLATE_ID,
   data: any
 ): Promise<{success: boolean; message?: string}> => {
   try {
@@ -188,7 +187,7 @@ export const sendTestEmail = async (
     // Send email with EmailJS
     const response = await emailjs.send(
       SERVICE_ID,
-      templateId,
+      templateId || NEW_TEMPLATE_ID,
       templateParams
     );
     
