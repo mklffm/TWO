@@ -14,49 +14,49 @@ const pageTitles = {
   ar: "طلب تأشيرة - ميرا بوكينج"
 };
 
-// Text translations
+// Text translations - remove email references
 const translations = {
   en: {
     title: "Visa Application",
     subtitle: "Fill out our form to apply for a visa",
     description: "Start your visa process quickly and easily with our online application form. We'll guide you through each step of the process.",
     nextSteps: 'Next Steps',
-    step1: 'Check your email for the receipt and confirmation details',
-    step2: 'Send the required documents to mira.booking.visa@gmail.com',
-    step3: 'Include your receipt number in the email subject line',
+    step1: 'Your application has been received',
+    step2: 'Upload required documents through the document upload section',
+    step3: 'Include your reference number with all communications',
     step4: 'Our team will process your application within the timeframe you selected',
     questions: 'If you have any questions, please contact us at:',
     backHome: 'Back to Home',
     dashboard: 'Track Your Application',
-    emailSent: 'Application received. Check your email for confirmation.'
+    applicationReceived: 'Application received successfully!'
   },
   fr: {
     title: "Demande de Visa",
     subtitle: "Remplissez notre formulaire pour demander un visa",
     description: "Commencez votre processus de visa rapidement et facilement avec notre formulaire de demande en ligne. Nous vous guiderons à chaque étape du processus.",
     nextSteps: 'Prochaines Étapes',
-    step1: 'Vérifiez votre email pour le reçu et les détails de confirmation',
-    step2: 'Envoyez les documents requis à mira.booking.visa@gmail.com',
-    step3: 'Incluez votre numéro de reçu dans l\'objet de l\'email',
+    step1: 'Votre demande a été reçue',
+    step2: 'Téléchargez les documents requis via la section de téléchargement de documents',
+    step3: 'Incluez votre numéro de référence avec toutes les communications',
     step4: 'Notre équipe traitera votre demande dans le délai que vous avez sélectionné',
     questions: 'Si vous avez des questions, veuillez nous contacter à :',
     backHome: 'Retour à l\'Accueil',
     dashboard: 'Suivre Votre Demande',
-    emailSent: 'Demande reçue. Vérifiez votre email pour la confirmation.'
+    applicationReceived: 'Demande reçue avec succès!'
   },
   ar: {
     title: "طلب تأشيرة",
     subtitle: "املأ نموذجنا للتقدم بطلب للحصول على تأشيرة",
     description: "ابدأ عملية التأشيرة الخاصة بك بسرعة وسهولة باستخدام نموذج الطلب عبر الإنترنت. سنرشدك خلال كل خطوة من خطوات العملية.",
     nextSteps: 'الخطوات التالية',
-    step1: 'تحقق من بريدك الإلكتروني للحصول على الإيصال وتفاصيل التأكيد',
-    step2: 'أرسل المستندات المطلوبة إلى mira.booking.visa@gmail.com',
-    step3: 'قم بتضمين رقم الإيصال الخاص بك في سطر موضوع البريد الإلكتروني',
+    step1: 'تم استلام طلبك',
+    step2: 'قم بتحميل المستندات المطلوبة من خلال قسم تحميل المستندات',
+    step3: 'قم بتضمين رقم المرجع الخاص بك مع جميع الاتصالات',
     step4: 'سيعالج فريقنا طلبك خلال الإطار الزمني الذي حددته',
     questions: 'إذا كانت لديك أي أسئلة، يرجى الاتصال بنا على:',
     backHome: 'العودة إلى الصفحة الرئيسية',
     dashboard: 'تتبع طلبك',
-    emailSent: 'تم استلام الطلب. تحقق من بريدك الإلكتروني للتأكيد.'
+    applicationReceived: 'تم استلام الطلب بنجاح!'
   }
 };
 

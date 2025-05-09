@@ -17,7 +17,7 @@ const translations = {
     questions: 'If you have any questions, please contact us at:',
     backHome: 'Back to Home',
     dashboard: 'Track Your Application',
-    emailSent: 'Application received. Check your email for confirmation.'
+    applicationReceived: 'Application received successfully!'
   },
   fr: {
     title: "Demande de Visa",
@@ -28,7 +28,7 @@ const translations = {
     questions: 'Si vous avez des questions, veuillez nous contacter à :',
     backHome: 'Retour à l\'Accueil',
     dashboard: 'Suivre Votre Demande',
-    emailSent: 'Demande reçue. Vérifiez votre email pour la confirmation.'
+    applicationReceived: 'Demande reçue avec succès!'
   },
   ar: {
     title: "طلب تأشيرة",
@@ -39,7 +39,7 @@ const translations = {
     questions: 'إذا كانت لديك أي أسئلة، يرجى الاتصال بنا على:',
     backHome: 'العودة إلى الصفحة الرئيسية',
     dashboard: 'تتبع طلبك',
-    emailSent: 'تم استلام الطلب. تحقق من بريدك الإلكتروني للتأكيد.'
+    applicationReceived: 'تم استلام الطلب بنجاح!'
   }
 };
 
@@ -83,7 +83,7 @@ export default function ApplicationSuccessPage() {
               </div>
               <h1 className="text-3xl font-extrabold text-white">{t.title}</h1>
               <p className="mt-2 text-lg text-primary-100">{t.subtitle}</p>
-              <p className="mt-4 text-primary-200">{t.emailSent}</p>
+              <p className="mt-4 text-primary-200">{t.applicationReceived}</p>
             </div>
           </div>
           
